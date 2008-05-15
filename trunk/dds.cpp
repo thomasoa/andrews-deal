@@ -96,7 +96,8 @@ inline holding_t distinctUnplayedCards(holding_t origHolding, holding_t played,h
    int sequenceStart=0;
    sequence = 0;
    if (unplayed) {
-     for (bitRank=1<<12 /* AceRank */ ; bitRank; bitRank >>= 1) {
+     //for (int k=12 /* AceRank */ ; k>=0 ; k--) {
+     for (bitRank = (1<<12); bitRank; bitRank = bitRank/2) {
        if (unplayed & bitRank) {
           if (sequenceStart) {
             sequence |= sequenceStart;
@@ -110,8 +111,9 @@ inline holding_t distinctUnplayedCards(holding_t origHolding, holding_t played,h
           }
        }
      }
+     //cout << "Got result " << result << " for holding " << origHolding << " and played cards " << played << endl;
    }
-   return result;
+   return  result;
 }
 
 struct UnplayedCardsLookup {
@@ -120,7 +122,7 @@ protected:
     holding_t unplayed;
     holding_t sequence; /* Nonzero if lookup has occured */
   };
-  struct unplayed table[4][8192];
+  struct unplayed table[4][4][8192];
 
   holding_t starting[4][4];
 
@@ -131,6 +133,7 @@ public:
     for (int hand=0; hand<4; hand++) {
       for (int suit=0; suit<4; suit++) {
 	if (starting[hand][suit] != init[hand][suit]) {
+	  //cout << "starting hand=" << hand << " suit=" << suit << " value=" << init[hand][suit] << endl;
 	  starting[hand][suit] = init[hand][suit];
 	  changed = 1;
 	}
@@ -143,27 +146,27 @@ public:
 
   inline holding_t getUnplayed(int hand, int suit, holding_t played,holding_t &sequence) {
     holding_t holding = starting[hand][suit];
-    
+    holding_t cards;
     if (holding==0) { sequence = 0; return 0; }
 
-    /*
-     * Assuming the starting hands had distinct cards, this index
-     * is unique for this suit, so we don't need table entries of
-     * the hand, reducing the size of the lookup table
-     */
-    holding_t index = holding^played;
+    holding_t index = played;
 
-    struct unplayed &lookup = table[suit][index];
+    struct unplayed &lookup = table[hand][suit][index];
 
     if (lookup.sequence == 0) {
       lookup.unplayed = distinctUnplayedCards(holding,played,lookup.sequence);
       if (lookup.sequence == 0) { lookup.sequence == 8192; }
+    } else {
+
     }
+    
+
     if (lookup.unplayed) {
       sequence = lookup.sequence;
     } else {
       sequence = 0;
     }
+
     return lookup.unplayed;
   }
 } unplayedLookup;
@@ -1348,7 +1351,7 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
       posPoint->removedRanks[s]=posPoint->removedRanks[s] |
         posPoint->rankInSuit[h][s];
   for (s=0; s<=3; s++)
-    posPoint->removedRanks[s]=~(posPoint->removedRanks[s]);
+    posPoint->removedRanks[s]=8191 & ~(posPoint->removedRanks[s]);
 
   for (s=0; s<=3; s++)       /* Suit */
     for (h=0; h<=3; h++)     /* Hand */
@@ -1809,8 +1812,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
         #endif
     }
     return value;
-  }  
-  else {
+  } else { /* Not at maximum depth */
     moveExists=MoveGen(posPoint, depth);
 
 	/*#if 0*/
@@ -1824,19 +1826,15 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
 
 	    for (ss=0; ss<=3; ss++) {
 	      aggr[ss]=0;
-	      for (hh=0; hh<=3; hh++)
-		aggr[ss]=aggr[ss] | posPoint->rankInSuit[hh][ss];
+	      for (hh=0; hh<=3; hh++) {
+		aggr[ss] |= posPoint->rankInSuit[hh][ss];
+	      }
 	      /* New algo */
 	      posPoint->orderSet[ss]=rel[aggr[ss]].aggrRanks[ss];
 	    }
-	    tricks=depth>>2;
+	    tricks=depth/4;
 	    hfirst=posPoint->stack[depth].first;
-	    suitLengths=0;
-	    for (ss=0; ss<=2; ss++)
-	      for (hh=0; hh<=3; hh++) {
-		 suitLengths=suitLengths<<4;
-		 suitLengths|=posPoint->length[hh][ss];
-	      }
+	    suitLengths = posPoint->getSuitLengths();
 
 	    pp=SearchLenAndInsert(rootnp[tricks][hfirst], suitLengths, FALSE, &res);
 		 /* Find node that fits the suit lengths */
@@ -3480,29 +3478,22 @@ int MoveGen(const struct pos * posPoint, const int depth) {
 
   if ((r!=0)&&(ris!=0)) {
   /* Not first hand and not void in suit */
+    holding_t sequences;
+    holding_t unplayedCards;
+    unplayedCards = unplayedLookup.getUnplayed(q,t, (holding_t)(posPoint->removedRanks[t]),sequences);
     k=14;   state=MOVESVALID;
+#if 1
     while (k>=2) {
-      if ((ris & bitMapRank[k])&&(state==MOVESVALID)) {
-           /* Only first move in sequence is generated */
+      if (unplayedCards & bitMapRank[k]) {
         movePly[depth].move[m].suit=t;
         movePly[depth].move[m].rank=k;
-        movePly[depth].move[m].sequence=0;
+        movePly[depth].move[m].sequence=sequences&bitMapRank[k];
         m++;
-        state=MOVESLOCKED;
       }
-      else if (state==MOVESLOCKED)
-        if (!posPoint->isRemoved(t,k)) {
-          if ((ris & bitMapRank[k])==0) {
-          /* If the card still exists and it is not in own hand */
-            state=MOVESVALID;
-          } else {
-          /* If the card still exists and it is in own hand */
-            movePly[depth].move[m-1].sequence=
-              movePly[depth].move[m-1].sequence | bitMapRank[k];
-          }
-        }
       k--;
     }
+#endif
+
     if (m!=1) {
       for (k=0; k<=m-1; k++) 
         movePly[depth].move[k].weight=WeightAlloc(posPoint,
@@ -3520,29 +3511,19 @@ int MoveGen(const struct pos * posPoint, const int depth) {
     }
   }
   else {                  /* First hand or void in suit */
+    holding_t sequences;
+    holding_t unplayedCards;
     for (suit=0; suit<=3; suit++)  {
-      k=14;  state=MOVESVALID;
+      unplayedCards = unplayedLookup.getUnplayed(q,suit, (holding_t)(posPoint->removedRanks[suit]),sequences);
+      k=14;
       while (k>=2) {
-        if ((posPoint->rankInSuit[q][suit] & bitMapRank[k])&&
-            (state==MOVESVALID)) {
-           /* Only first move in sequence is generated */
-          movePly[depth].move[m].suit=suit;
-          movePly[depth].move[m].rank=k;
-          movePly[depth].move[m].sequence=0;
-          m++;
-          state=MOVESLOCKED;
-        }
-        else if (state==MOVESLOCKED)
-          if (!posPoint->isRemoved(suit,k)) {
-            if (!posPoint->hasCard(q,suit,k)) {
-            /* If the card still exists and it is not in own hand */
-              state=MOVESVALID;
-            } else {
-            /* If the card still exists and it is in own hand */
-              movePly[depth].move[m-1].sequence |= bitMapRank[k];
-            }
-          }
-        k--;
+	if (unplayedCards & bitMapRank[k]) {
+	  movePly[depth].move[m].suit=suit;
+	  movePly[depth].move[m].rank=k;
+	  movePly[depth].move[m].sequence=sequences&bitMapRank[k];
+	  m++;
+	}
+	k--;
       }
     }
 
@@ -3588,8 +3569,7 @@ int MoveGen(const struct pos * posPoint, const int depth) {
 }
 
 
-int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int depth,
-  int notVoidInSuit) {
+int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int depth,  int notVoidInSuit) {
   int weight=0, k, l, kk, ll, suit, suitAdd=0, leadSuit;
   int suitWeightDelta;
   int suitBonus=0;
@@ -3887,7 +3867,7 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
         } 
         else if (posPoint->length[rho[first]][leadSuit]>0) {
           if (mp->sequence)
-            weight=50-(mp->rank);  /* Playing a card in a sequence may promote a winner */
+            weight=50-(mp->rank);  /* Plyiang a card in a sequence may promote a winner */
           else
             weight=45-(mp->rank);
         }
