@@ -28,7 +28,7 @@ proc write_deal {} {
 	lappend line [join [$hand] "."]
 	set handdd [list]
 	foreach suit {spades hearts diamonds clubs notrump} {
-	    lappend handdd [gib::tricks $hand $suit]
+	    lappend handdd [tricks $hand $suit]
 	}
 	lappend dd $handdd
     }
