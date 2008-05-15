@@ -25,14 +25,21 @@ namespace eval symmetric {
     ::deal::nostacking
     variable number 0
     variable current 0
+    variable increment 1
+    variable endnumber
     variable cards {K Q J T 9 8 7 6 5 4 3 2}
  
     proc finalize {} {
     }
 
-    proc initialize {start} {
+    proc initialize {start incr end} {
         variable number
+        variable increment
+        variable endnumber
+
         set number $start
+        set increment $incr
+        set endnumber $end
 
 	deal_reset_cmds {::symmetric::next}
     }
@@ -41,15 +48,21 @@ namespace eval symmetric {
         variable cards
         variable number
         variable current
+        variable increment
+        variable endnumber
 
 	reset_deck
         set holding(0) "A"
         set holding(1) ""
         set holding(2) ""
         set holding(3) ""
+        if {$number>=$endnumber} {
+          return -code return
+        }
+
         set num $number
         set current $number
-        incr number
+        incr number $increment
         foreach card $cards {
           set suit [expr {$num%4}]
           append holding($suit) $card
@@ -65,8 +78,8 @@ namespace eval symmetric {
 	deal_reset_cmds {::symmetric::next}
     }
 
-    proc set_input {{number 0}} {
-        initialize $number
+    proc set_input {{start 0} {increment 1} {end 16777216}} {
+        initialize $start $increment $end
     }
 }
 
