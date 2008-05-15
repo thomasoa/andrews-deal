@@ -1,7 +1,7 @@
-#include "dds.h"
 #include "deal.h"
 #include "tcl_incl.h"
 #include "dealtypes.h"
+#include "ddsInterface.h"
 
 int totalNodes = 0;
 /* This code directly borrows from Alex Martelli's Python interface to dds. */
@@ -83,9 +83,6 @@ static int tcl_double_dummy_solve(TCLOBJ_PARAMS) TCLOBJ_DECL
   Tcl_SetObjResult(interp,Tcl_NewIntObj(result));
   return TCL_OK;
 }
-
-extern void DDSInitStart();
-
 
 int DDS_Init(interp)
      Tcl_Interp *interp;
