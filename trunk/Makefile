@@ -10,7 +10,7 @@
 TCL_DIR=/usr
 
 CC=gcc
-#DEBUG_FLAGS=-pg -g -ansi -Wall 
+#DEBUG_FLAGS=-g -ansi -Wall 
 #CPPFLAGS = -fno-rtti -g
 DEBUG_FLAGS=-O3 -ansi -Wall 
 CPPFLAGS = -fno-rtti -O3 -Winline
