@@ -4,28 +4,10 @@
 using namespace std;
 #endif
 
-#if 0
-#define BENCH
-#endif
+#include "ddsInterface.h"
+
 #if !defined(_MSC_VER)
 #define LONGLONG long long
-#endif
-
-/* Windows requires a __declspec(dllexport) tag, etc */
-#if defined(_WIN32)
-#    define DLLEXPORT __declspec(dllexport)
-#    define STDCALL __stdcall
-/*#    define INT8 __int8*/
-#else
-#    define DLLEXPORT
-#    define STDCALL
-#    define INT8 char
-#endif
-
-#ifdef __cplusplus
-#    define EXTERN_C extern "C"
-#else
-#    define EXTERN_C
 #endif
 
 #if defined(_WIN32)
@@ -112,26 +94,6 @@ struct movePlyType {
 struct highCardType {
   int rank;
   int hand;
-};
-
-struct futureTricks {
-  int nodes;
-  #ifdef BENCH
-  int totalNodes;
-  #endif
-  int cards;
-  int suit[13];
-  int rank[13];
-  int equals[13];
-  int score[13];
-};
-
-struct deal {
-  int trump;
-  int first;
-  int currentTrickSuit[3];
-  int currentTrickRank[3];
-  unsigned int remainCards[4][4];
 };
 
 struct makeType {
@@ -339,9 +301,6 @@ extern unsigned char cardRank[15], cardSuit[5], cardHand[4];
 
 extern FILE * fp2, *fp7, *fp11;
   /* Pointers to logs */
-
-EXTERN_C DLLEXPORT int STDCALL SolveBoard(struct deal dl, 
-  int target, int solutions, int mode, struct futureTricks *futp);
 
 void InitStart(void);
 void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst);
