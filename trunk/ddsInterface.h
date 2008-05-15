@@ -1,3 +1,6 @@
+/*
+ * Broken out from dds.h
+ */
 #ifndef __DDSINTERFACE_H__
 #define __DDSINTERFACE_H__
 
