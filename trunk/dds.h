@@ -145,22 +145,48 @@ struct pos {
                                     index is suit id. */
   struct highCardType secondBest[4]; /* Second best rank, index is suit id. */
 
+  inline void removeBitRank(int suit,holding_t bitRank) {
+    removedRanks[suit] |= bitRank;
+  }
+
   inline void removeRank(int suit,int rank) {
-    removedRanks[suit] |= bitMapRank[rank];
+    removeBitRank(suit,1<<(rank-2));
+  }
+
+  inline void restoreBitRank(int suit, holding_t bitRank) {
+    removedRanks[suit] &= (~bitRank);
   }
 
   inline void restoreRank(int suit,int rank) {
-    removedRanks[suit] &= (~bitMapRank[rank]);
+    restoreBitRank(suit,1<<(rank-2));
+  }
+
+  inline int isRemovedBitRank(int suit, holding_t bitRank) const {
+    return (removedRanks[suit] & bitRank);
   }
 
   inline int isRemoved(int suit, int rank) const {
-    return (removedRanks[suit] & bitMapRank[rank]);
+    return isRemovedBitRank(suit,1<<(rank-2));
+  }
+
+  inline int hasCardBitRank(int hand, int suit, holding_t bitRank) const {
+    return (rankInSuit[hand][suit] & bitRank);
   }
 
   inline int hasCard(int hand,int suit, int rank) const {
-    return (rankInSuit[hand][suit] & bitMapRank[rank]);
+    hasCardBitRank(hand,suit,1<<(rank-2));
   }
 
+  inline LONGLONG getSuitLengths() {
+    LONGLONG suitLengths = 0;
+    int hand, suit;
+    for (suit=0; suit<2; suit++) {
+      for (hand=0; hand<3; hand++) {
+	suitLengths <<= 4;
+	suitLengths |= length[hand][suit];
+      }
+    }
+  }
 
 #if 0
   inline void removeCard(int depth,const moveType &move) {
