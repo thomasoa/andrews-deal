@@ -60,6 +60,8 @@ using namespace std;
 #define Max(x, y) (((x) >= (y)) ? (x) : (y))
 #define Min(x, y) (((x) <= (y)) ? (x) : (y))
 
+typedef unsigned short int holding_t;
+
 struct gameInfo  {          /* All info of a particular deal */
   int vulnerable;
   int declarer;
