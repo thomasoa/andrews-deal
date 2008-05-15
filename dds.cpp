@@ -81,13 +81,93 @@ int threshold=CANCELCHECK;
 #pragma managed(push, off)
 #endif
 
-inline unsigned short int smallestRankInSuit(unsigned short int h) {
+inline holding_t smallestRankInSuit(holding_t h) {
    if (h) {
      return (h ^ (h-1));
    } else {
      return 0;
    }
 }
+
+inline holding_t distinctUnplayedCards(holding_t origHolding, holding_t played,holding_t &sequence) {
+   holding_t bitRank;
+   holding_t unplayed = origHolding & (~played);
+   holding_t result = 0;
+   int sequenceStart=0;
+   sequence = 0;
+   if (unplayed) {
+     for (bitRank=1<<12 /* AceRank */ ; bitRank; bitRank >>= 1) {
+       if (unplayed & bitRank) {
+          if (sequenceStart) {
+            sequence |= sequenceStart;
+          } else {
+            result |= bitRank;
+            sequenceStart = bitRank;
+          }
+       } else {
+          if (!(played & bitRank)) {
+            sequenceStart = 0;
+          }
+       }
+     }
+   }
+   return result;
+}
+
+struct UnplayedCardsLookup {
+protected:
+  struct unplayed {
+    holding_t unplayed;
+    holding_t sequence; /* Nonzero if lookup has occured */
+  };
+  struct unplayed table[4][8192];
+
+  holding_t starting[4][4];
+
+public:
+
+  void initialize(const holding_t init[4][4]) {
+    int changed = 0;
+    for (int hand=0; hand<4; hand++) {
+      for (int suit=0; suit<4; suit++) {
+	if (starting[hand][suit] != init[hand][suit]) {
+	  starting[hand][suit] = init[hand][suit];
+	  changed = 1;
+	}
+      }
+    }
+    if (changed) {
+      memset((void *)table,0,sizeof(table));
+    }
+  }
+
+  inline holding_t getUnplayed(int hand, int suit, holding_t played,holding_t &sequence) {
+    holding_t holding = starting[hand][suit];
+    
+    if (holding==0) { sequence = 0; return 0; }
+
+    /*
+     * Assuming the starting hands had distinct cards, this index
+     * is unique for this suit, so we don't need table entries of
+     * the hand, reducing the size of the lookup table
+     */
+    holding_t index = holding^played;
+
+    struct unplayed &lookup = table[suit][index];
+
+    if (lookup.sequence == 0) {
+      lookup.unplayed = distinctUnplayedCards(holding,played,lookup.sequence);
+      if (lookup.sequence == 0) { lookup.sequence == 8192; }
+    }
+    if (lookup.unplayed) {
+      sequence = lookup.sequence;
+    } else {
+      sequence = 0;
+    }
+    return lookup.unplayed;
+  }
+} unplayedLookup;
+
 
 #if defined(_WIN32)
 extern "C" BOOL APIENTRY DllMain(HMODULE hModule,
@@ -417,6 +497,8 @@ extern "C" BOOL APIENTRY DllMain(HMODULE hModule,
 	  winSetSize, nodeSetSize, lenSetSize);
     fclose(fp2);*/
   }
+
+  unplayedLookup.initialize(game.suit);
 
   nodes=0; trickNodes=0;
   iniDepth=cardCount-4;
