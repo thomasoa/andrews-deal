@@ -145,8 +145,8 @@ public:
     }
 #ifdef UNPLAYEDLOOKUPTABLE
     if (changed) {
-      cerr << "Changed!" << endl;
-      //memset((void *)table,0,sizeof(table));
+      //cerr << "Changed!" << endl;
+      memset((void *)table,0,sizeof(table));
     }
 #endif
   }
