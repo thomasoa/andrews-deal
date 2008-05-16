@@ -22,12 +22,12 @@
 #include "dds.h"
 
 extern unsigned short int counttable[];
-int handStore[4][4];
+//int handStore[4][4];
 int nodeTypeStore[4];
 int lho[4], rho[4], partner[4];
 int trumpContract;
 int trump;
-unsigned short int bitMapRank[16];
+//unsigned short int bitMapRank[16];
 unsigned short int lowestWin[50][4];
 int nodes;
 int trickNodes;
@@ -93,21 +93,20 @@ inline holding_t distinctUnplayedCards(holding_t origHolding, holding_t played,h
    holding_t bitRank;
    holding_t unplayed = origHolding & (~played);
    holding_t result = 0;
-   int sequenceStart=0;
+   int inSequence=0;
    sequence = 0;
    if (unplayed) {
      //for (int k=12 /* AceRank */ ; k>=0 ; k--) {
-     for (bitRank = (1<<12); bitRank; bitRank = bitRank/2) {
+     for (bitRank = (1<<12); bitRank; bitRank >>= 1) {
        if (unplayed & bitRank) {
-          if (sequenceStart) {
-            sequence |= sequenceStart;
+          if (inSequence) {
+            sequence |= bitRank;
           } else {
             result |= bitRank;
-            sequenceStart = bitRank;
           }
        } else {
           if (!(played & bitRank)) {
-            sequenceStart = 0;
+            inSequence = 0;
           }
        }
      }
@@ -116,32 +115,39 @@ inline holding_t distinctUnplayedCards(holding_t origHolding, holding_t played,h
    return  result;
 }
 
-struct UnplayedCardsLookup {
+struct UnplayedCardsFinder {
 protected:
   struct unplayed {
     holding_t unplayed;
     holding_t sequence; /* Nonzero if lookup has occured */
   };
+#ifdef UNPLAYEDLOOKUPTABLE
   struct unplayed table[4][4][8192];
+#endif
 
   holding_t starting[4][4];
 
 public:
 
   void initialize(const holding_t init[4][4]) {
+#ifdef UNPLAYEDLOOKUPTABLE
     int changed = 0;
+#endif
     for (int hand=0; hand<4; hand++) {
       for (int suit=0; suit<4; suit++) {
+	starting[hand][suit] = init[hand][suit];
+#ifdef UNPLAYEDLOOKUPTABLE
 	if (starting[hand][suit] != init[hand][suit]) {
-	  //cout << "starting hand=" << hand << " suit=" << suit << " value=" << init[hand][suit] << endl;
-	  starting[hand][suit] = init[hand][suit];
 	  changed = 1;
 	}
+#endif
       }
     }
+#ifdef UNPLAYEDLOOKUPTABLE
     if (changed) {
       memset((void *)table,0,sizeof(table));
     }
+#endif
   }
 
   inline holding_t getUnplayed(int hand, int suit, holding_t played,holding_t &sequence) {
@@ -151,6 +157,7 @@ public:
 
     holding_t index = played;
 
+#ifdef UNPLAYEDLOOKUPTABLE
     struct unplayed &lookup = table[hand][suit][index];
 
     if (lookup.sequence == 0) {
@@ -168,8 +175,12 @@ public:
     }
 
     return lookup.unplayed;
+#else
+    return distinctUnplayedCards(holding,played,sequence);
+#endif
   }
-} unplayedLookup;
+
+} unplayedFinder;
 
 
 #if defined(_WIN32)
@@ -501,7 +512,7 @@ extern "C" BOOL APIENTRY DllMain(HMODULE hModule,
     fclose(fp2);*/
   }
 
-  unplayedLookup.initialize(game.suit);
+  unplayedFinder.initialize(game.suit);
 
   nodes=0; trickNodes=0;
   iniDepth=cardCount-4;
@@ -957,27 +968,12 @@ void InitStart(void) {
 
 #endif
 
-  bitMapRank[15]=0x2000;
-  bitMapRank[14]=0x1000;
-  bitMapRank[13]=0x0800;
-  bitMapRank[12]=0x0400;
-  bitMapRank[11]=0x0200;
-  bitMapRank[10]=0x0100;
-  bitMapRank[9]=0x0080;
-  bitMapRank[8]=0x0040;
-  bitMapRank[7]=0x0020;
-  bitMapRank[6]=0x0010;
-  bitMapRank[5]=0x0008;
-  bitMapRank[4]=0x0004;
-  bitMapRank[3]=0x0002;
-  bitMapRank[2]=0x0001;
-  bitMapRank[1]=0;
-  bitMapRank[0]=0;
 
   bestMove = (struct moveType *)calloc(50, sizeof(struct moveType));
   /*bestMove = new moveType [50];*/
   if (bestMove==NULL)
     exit(1);
+#if 0
   handStore[0][0]=0;
   handStore[0][1]=1;
   handStore[0][2]=2;
@@ -994,6 +990,7 @@ void InitStart(void) {
   handStore[3][1]=0;
   handStore[3][2]=1;
   handStore[3][3]=2;
+#endif
 
   lho[0]=1; lho[1]=2; lho[2]=3; lho[3]=0;
   rho[0]=3; rho[1]=0; rho[2]=1; rho[3]=2;
@@ -1124,8 +1121,8 @@ void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst) {
 
       for (r=2; r<=14; r++) {
 	for (h=0; h<=3; h++) {
-	  if ((ind & game.suit[h][s] & bitMapRank[r])!=0) {
-	    rankInSuit[h][s]=rankInSuit[h][s] | bitMapRank[r];
+	  if ((ind & game.suit[h][s] & BitRank(r))!=0) {
+	    rankInSuit[h][s]=rankInSuit[h][s] | BitRank(r);
 	    break;
 	  }
 	}
@@ -1136,7 +1133,7 @@ void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst) {
       while (k>=2) {
 	cardFound=FALSE;
 	for (h=0; h<=3; h++) {
-	  if ((rankInSuit[h][s] & bitMapRank[k])!=0) {
+	  if ((rankInSuit[h][s] & BitRank(k))!=0) {
 	    currHand=h;
 	    cardFound=TRUE;
 	    break;
@@ -1170,25 +1167,25 @@ void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst) {
   gm=game;
   if (game.leadRank!=0)
     gm.suit[gm.leadHand][gm.leadSuit]=
-      gm.suit[gm.leadHand][gm.leadSuit] | bitMapRank[gm.leadRank];
+      gm.suit[gm.leadHand][gm.leadSuit] | BitRank(gm.leadRank);
 
   for (h=0; h<=3; h++)
     points[h]=0;
 
   for (h=0; h<=3; h++)
     for (s=0; s<=3; s++) {
-      if ((gm.suit[h][s] & bitMapRank[14])!=0)
+      if ((gm.suit[h][s] & BitRank(14))!=0)
         points[h]=points[h]+4;
-      if ((gm.suit[h][s] & bitMapRank[13])!=0)
+      if ((gm.suit[h][s] & BitRank(13))!=0)
         points[h]=points[h]+3;
-      if ((gm.suit[h][s] & bitMapRank[12])!=0)
+      if ((gm.suit[h][s] & BitRank(12))!=0)
         points[h]=points[h]+2;
-      if ((gm.suit[h][s] & bitMapRank[11])!=0)
+      if ((gm.suit[h][s] & BitRank(11))!=0)
         points[h]=points[h]+1;
       if (trumpContract) {
         if ((CountOnes(gm.suit[h][s])<=2) &&
-          (gm.suit[h][s]<bitMapRank[14]) &&
-          (gm.suit[h][s]>bitMapRank[10]))
+          (gm.suit[h][s]<BitRank(14)) &&
+          (gm.suit[h][s]>BitRank(10)))
           points[h]--;
         if (CountOnes(gm.suit[h][s])==0)
           points[h]=points[h]+3;
@@ -1286,8 +1283,7 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
     suit[k]=startMoves[k].suit;
     rank[k]=startMoves[k].rank;
     if (k<noOfStartMoves)
-      startMovesBitMap[hand[k]][suit[k]]=startMovesBitMap[hand[k]][suit[k]] |
-        bitMapRank[rank[k]];
+      startMovesBitMap[hand[k]][suit[k]] |=        BitRank(rank[k]);
   }
 
   for (d=0; d<=49; d++) {
@@ -1351,7 +1347,7 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
       posPoint->removedRanks[s]=posPoint->removedRanks[s] |
         posPoint->rankInSuit[h][s];
   for (s=0; s<=3; s++)
-    posPoint->removedRanks[s]=8191 & ~(posPoint->removedRanks[s]);
+    posPoint->removedRanks[s]= ~(posPoint->removedRanks[s]);
 
   for (s=0; s<=3; s++)       /* Suit */
     for (h=0; h<=3; h++)     /* Hand */
@@ -1385,7 +1381,7 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
     max=k;
     while (k<=14) {
       for (h=0; h<=3; h++) {
-        if ((posPoint->rankInSuit[h][s] & bitMapRank[k]) != 0) {
+        if ((posPoint->rankInSuit[h][s] & BitRank(k)) != 0) {
           max=k;
           hmax=h;
           break;
@@ -1417,7 +1413,7 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
     max=k;
     while (k<=14) {
       for (h=0; h<=3; h++) {
-        if (((posPoint->rankInSuit[h][s] & bitMapRank[k]) != 0)&&
+        if (((posPoint->rankInSuit[h][s] & BitRank(k)) != 0)&&
           (k<posPoint->winner[s].rank)) {
           max=k;
           hmax=h;
@@ -1635,14 +1631,14 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
     ranks=posPoint->rankInSuit[hand][ss] |
       posPoint->rankInSuit[partner[hand]][ss];
     found=FALSE; rr=0; qtricks=0; 
-    if ( ranks >(bitMapRank[posPoint->stack[depth+1].move.rank] |
+    if ( ranks >(BitRank(posPoint->stack[depth+1].move.rank) |
 	posPoint->rankInSuit[lho[hand]][ss])) {
 	/* Own side has highest card in suit */
 	if (!trumpContract || ((ss==trump)||
         (posPoint->rankInSuit[lho[hand]][trump]==0)
 	   || (posPoint->rankInSuit[lho[hand]][ss]!=0))) { 
         for (rr=14; rr>=2; rr--) {
-	    if ((ranks & bitMapRank[rr])!=0) {
+	    if ((ranks & BitRank(rr))!=0) {
 		found=TRUE;
             qtricks=1;
             break;
@@ -1670,7 +1666,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
          for (k=0; k<=3; k++)
 	     posPoint->stack[depth].winRanks[k]=0;
 	   if (rr!=0)
-	      posPoint->stack[depth].winRanks[ss] |= bitMapRank[rr];
+	      posPoint->stack[depth].winRanks[ss] |= BitRank(rr);
          return TRUE;
       }
     }
@@ -1680,7 +1676,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
         for (k=0; k<=3; k++)
 	    posPoint->stack[depth].winRanks[k]=0;
         if (rr!=0)
-	     posPoint->stack[depth].winRanks[ss] |= bitMapRank[rr];
+	     posPoint->stack[depth].winRanks[ss] |= BitRank(rr);
           return FALSE;
       }
     }
@@ -1878,7 +1874,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
 	    Undo(posPoint, depth);
 	    if (ready)
 	      break;
-	    if (movePly[depth].current<=movePly[depth].last-1) {
+	    if (movePly[depth].current<movePly[depth].last) {
 	      movePly[depth].current++;
 	      mexists=TRUE;
 	    }
@@ -1890,73 +1886,73 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
 	}
 	/*#endif*/
 
-    movePly[depth].current=0;
-    if (nodeTypeStore[hand]==MAXNODE) {
-      value=FALSE;
-      for (ss=0; ss<=3; ss++)
-        posPoint->stack[depth].winRanks[ss]=0;
+	movePly[depth].current=0;
+	if (nodeTypeStore[hand]==MAXNODE) {
+	  value=FALSE;
+	  for (ss=0; ss<=3; ss++)
+	    posPoint->stack[depth].winRanks[ss]=0;
+	  
+	  while (moveExists)  {
+	    makeData=Make(posPoint, depth);        /* Make current move */
 
-      while (moveExists)  {
-        makeData=Make(posPoint, depth);        /* Make current move */
+	    value=ABsearch(posPoint, target, depth-1);
 
-        value=ABsearch(posPoint, target, depth-1);
-
-        #ifdef CANCEL
-        if (cancelStarted)
-          return FALSE;
-        #endif
+#ifdef CANCEL
+	    if (cancelStarted)
+	      return FALSE;
+#endif
           
-        Undo(posPoint, depth);      /* Retract current move */
-        if (value==TRUE) {
-        /* A cut-off? */
+	    Undo(posPoint, depth);      /* Retract current move */
+	    if (value==TRUE) {
+	      /* A cut-off? */
+	      for (ss=0; ss<=3; ss++)
+		posPoint->stack[depth].winRanks[ss] = 
+		  posPoint->stack[depth-1].winRanks[ss] | makeData.winRanks[ss];
+	      mcurrent=movePly[depth].current;
+	      bestMove[depth]=movePly[depth].move[mcurrent];
+	      goto ABexit;
+	    }  
 	    for (ss=0; ss<=3; ss++)
-            posPoint->stack[depth].winRanks[ss] = 
-               posPoint->stack[depth-1].winRanks[ss] | makeData.winRanks[ss];
-	    mcurrent=movePly[depth].current;
-          bestMove[depth]=movePly[depth].move[mcurrent];
-          goto ABexit;
-        }  
-        for (ss=0; ss<=3; ss++)
-          posPoint->stack[depth].winRanks[ss] |= 
-           posPoint->stack[depth-1].winRanks[ss] | makeData.winRanks[ss];
-
-        moveExists=DismissX(posPoint, depth);
-      }
-    }
-    else {                          /* A minnode */
-      value=TRUE;
-      for (ss=0; ss<=3; ss++)
-        posPoint->stack[depth].winRanks[ss]=0;
+	      posPoint->stack[depth].winRanks[ss] |= 
+		posPoint->stack[depth-1].winRanks[ss] | makeData.winRanks[ss];
+	    
+	    moveExists=DismissX(posPoint, depth);
+	  }
+	} else {                          /* A minnode */
+	  value=TRUE;
+	  for (ss=0; ss<=3; ss++)
+	    posPoint->stack[depth].winRanks[ss]=0;
         
-      while (moveExists)  {
-        makeData=Make(posPoint, depth);        /* Make current move */
-        
-        value=ABsearch(posPoint, target, depth-1);
+	  while (moveExists)  {
+	    makeData=Make(posPoint, depth);        /* Make current move */
+	    
+	    value=ABsearch(posPoint, target, depth-1);
       
-        #ifdef CANCEL
-        if (cancelStarted)
-          return FALSE;
-        #endif
+#ifdef CANCEL
+	    if (cancelStarted)
+	      return FALSE;
+#endif
 
-        Undo(posPoint, depth);       /* Retract current move */
-        if (value==FALSE) {
-        /* A cut-off? */
+	    Undo(posPoint, depth);       /* Retract current move */
+	    if (value==FALSE) {
+	      /* A cut-off? */
+	      for (ss=0; ss<=3; ss++)
+		posPoint->stack[depth].winRanks[ss]=posPoint->stack[depth-1].winRanks[ss] |
+		  makeData.winRanks[ss];
+	      mcurrent=movePly[depth].current;
+	      bestMove[depth]=movePly[depth].move[mcurrent];
+	      goto ABexit;
+	    }
 	    for (ss=0; ss<=3; ss++)
-            posPoint->stack[depth].winRanks[ss]=posPoint->stack[depth-1].winRanks[ss] |
-              makeData.winRanks[ss];
-	    mcurrent=movePly[depth].current;
-          bestMove[depth]=movePly[depth].move[mcurrent];
-          goto ABexit;
-        }
-        for (ss=0; ss<=3; ss++)
-          posPoint->stack[depth].winRanks[ss]=posPoint->stack[depth].winRanks[ss] |
-           posPoint->stack[depth-1].winRanks[ss] | makeData.winRanks[ss];
-
-        moveExists=DismissX(posPoint, depth);
-      }
-    }
+	      posPoint->stack[depth].winRanks[ss]=posPoint->stack[depth].winRanks[ss] |
+		posPoint->stack[depth-1].winRanks[ss] | makeData.winRanks[ss];
+	    
+	    moveExists=DismissX(posPoint, depth);
+	  }
+	}
   }
-  ABexit:
+  
+ ABexit:
   if (depth>=4) {
     if(posPoint->handRelFirst==0) { 
       tricks=depth>>2;
@@ -2029,7 +2025,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
         for (ss=0; ss<=3; ss++) {
           fprintf(fp2, "suit=%c", cardSuit[ss]);
           for (rr=14; rr>=2; rr--)
-            if (posPoint->rankInSuit[hh][ss] & bitMapRank[rr])
+            if (posPoint->rankInSuit[hh][ss] & BitRank(rr))
               fprintf(fp2, " %c", cardRank[rr]);
           fprintf(fp2, "\n");
         }
@@ -2039,7 +2035,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
       for (ss=0; ss<=3; ss++) {
         fprintf(fp2, "suit=%c", cardSuit[ss]);
         for (rr=14; rr>=2; rr--)
-          if (posPoint->stack[depth].winRanks[ss] & bitMapRank[rr])
+          if (posPoint->stack[depth].winRanks[ss] & BitRank(rr))
             fprintf(fp2, " %c", cardRank[rr]);
         fprintf(fp2, "\n");
       }
@@ -2159,7 +2155,7 @@ struct makeType Make(struct pos * posPoint, int depth)  {
 
       if (s==0)
         posPoint->rankInSuit[t][u] &=
-          (~bitMapRank[w]);
+          (~BitRank(w));
 
       if (w==posPoint->winner[u].rank) 
         UpdateWinner(posPoint, u);
@@ -2170,7 +2166,7 @@ struct makeType Make(struct pos * posPoint, int depth)  {
       if ((q==current.high)&&(!done)) {
         done=TRUE;
         if (count>=2) {
-          trickCards.winRanks[u]=bitMapRank[w];
+          trickCards.winRanks[u]=BitRank(w);
           /* Mark ranks as winning if they are part of a sequence */
           trickCards.winRanks[u]=trickCards.winRanks[u]
             | movePly[depth+s].move[r].sequence; 
@@ -2189,7 +2185,7 @@ struct makeType Make(struct pos * posPoint, int depth)  {
     u=movePly[depth].move[r].suit;
     w=movePly[depth].move[r].rank;
     posPoint->rankInSuit[t][u]=posPoint->rankInSuit[t][u] &
-      (~bitMapRank[w]);
+      (~BitRank(w));
   }
   else {
     mo1=movePly[depth].move[r];
@@ -2220,7 +2216,7 @@ struct makeType Make(struct pos * posPoint, int depth)  {
     u=movePly[depth].move[r].suit;
     w=movePly[depth].move[r].rank;
     posPoint->rankInSuit[t][u]=posPoint->rankInSuit[t][u] &
-      (~bitMapRank[w]);
+      (~BitRank(w));
   }
 
   posPoint->length[t][u]--;
@@ -2256,7 +2252,7 @@ void Undo(struct pos * posPoint, int depth)  {
       r=movePly[depth+s].current;
       w=movePly[depth+s].move[r].rank;
       u=movePly[depth+s].move[r].suit;
-      //posPoint->removedRanks[u]=posPoint->removedRanks[u] & (~bitMapRank[w]);
+      //posPoint->removedRanks[u]=posPoint->removedRanks[u] & (~BitRank(w));
       posPoint->restoreRank(u,w);
 
       if (w>posPoint->winner[u].rank) {
@@ -2285,7 +2281,7 @@ void Undo(struct pos * posPoint, int depth)  {
     w=movePly[depth].move[r].rank;
   }    
 
-  posPoint->rankInSuit[t][u] |= bitMapRank[w];
+  posPoint->rankInSuit[t][u] |= BitRank(w);
 
   posPoint->length[t][u]++;
 
@@ -2375,7 +2371,7 @@ void UpdateWinner(struct pos * posPoint, int suit) {
     while (k>=2) {
       flag=TRUE;
       for (h=0; h<=3; h++)
-        if ((posPoint->rankInSuit[h][suit] & bitMapRank[k]) != 0) {
+        if ((posPoint->rankInSuit[h][suit] & BitRank(k)) != 0) {
           hmax=h;
           flag=FALSE;
           break;
@@ -2404,7 +2400,7 @@ void UpdateSecondBest(struct pos * posPoint, int suit) {
     while (k>=2) {
       flag=TRUE;
       for (h=0; h<=3; h++)
-        if ((posPoint->rankInSuit[h][suit] & bitMapRank[k]) != 0) {
+        if ((posPoint->rankInSuit[h][suit] & BitRank(k)) != 0) {
           hmax=h;
           flag=FALSE;
           break;
@@ -2621,7 +2617,7 @@ int QuickTricks(struct pos * posPoint, int hand,
             /* RHO has no trump */
               qtricks=qtricks+countPart;
 	      posPoint->stack[depth].winRanks[commSuit]=posPoint->stack[depth].winRanks[commSuit] |
-                  bitMapRank[commRank];
+                  BitRank(commRank);
 	      if (qtricks>=cutoff) 
                 return qtricks;
               suit++;
@@ -2639,7 +2635,7 @@ int QuickTricks(struct pos * posPoint, int hand,
           else {
             qtricks=qtricks+countPart;
             posPoint->stack[depth].winRanks[commSuit]=posPoint->stack[depth].winRanks[commSuit] |
-              bitMapRank[commRank];
+              BitRank(commRank);
 	    if (qtricks>=cutoff) 
               return qtricks;
             if (trumpContract && (suit=trump)) {
@@ -2668,7 +2664,7 @@ int QuickTricks(struct pos * posPoint, int hand,
 	    }
             if (sum>=cutoff) {
 	      posPoint->stack[depth].winRanks[commSuit]=posPoint->stack[depth].winRanks[commSuit] |
-              bitMapRank[commRank];
+              BitRank(commRank);
 	      return sum;
 	    }
 	  }
@@ -2714,7 +2710,7 @@ int QuickTricks(struct pos * posPoint, int hand,
 	  (rhoTrumpRanks==0))) {
           /* RHO has no trump */
           posPoint->stack[depth].winRanks[suit]=posPoint->stack[depth].winRanks[suit]
-            | bitMapRank[posPoint->winner[suit].rank];
+            | BitRank(posPoint->winner[suit].rank);
           qtricks++;   /* A trick can be taken */
           /* 06-12-14 */
 	  if (qtricks>=cutoff) 
@@ -2737,7 +2733,7 @@ int QuickTricks(struct pos * posPoint, int hand,
              (rhoTrumpRanks==0)) {
             /* Opponents have no trump */
             posPoint->stack[depth].winRanks[suit]=posPoint->stack[depth].winRanks[suit]
-              | bitMapRank[posPoint->secondBest[suit].rank];
+              | BitRank(posPoint->secondBest[suit].rank);
             qtricks++;
             if ((countLho<=2)&&(countRho<=2)&&(countPart<=2)) {
               qtricks=qtricks+countOwn-2;
@@ -2759,7 +2755,7 @@ int QuickTricks(struct pos * posPoint, int hand,
              (rhoTrumpRanks==0)) {
           /* Opponents have no trump */
             posPoint->stack[depth].winRanks[suit]=posPoint->stack[depth].winRanks[suit]
-                | bitMapRank[posPoint->secondBest[suit].rank];
+                | BitRank(posPoint->secondBest[suit].rank);
             qtricks++;
             if ((countLho<=2)&&(countRho<=2)&&((countPart<=2)||(countOwn<=2))) { 
 				/* 07-06-10 */
@@ -2776,7 +2772,7 @@ int QuickTricks(struct pos * posPoint, int hand,
       }
       else {
         posPoint->stack[depth].winRanks[suit]=posPoint->stack[depth].winRanks[suit]
-           | bitMapRank[posPoint->winner[suit].rank];
+           | BitRank(posPoint->winner[suit].rank);
         qtricks++;
         /* 06-12-14 */
 	if (qtricks>=cutoff) 
@@ -2803,7 +2799,7 @@ int QuickTricks(struct pos * posPoint, int hand,
         if (posPoint->secondBest[suit].hand==hand) {
           /* Second best found in own hand */
           posPoint->stack[depth].winRanks[suit]=posPoint->stack[depth].winRanks[suit]
-              | bitMapRank[posPoint->secondBest[suit].rank];
+              | BitRank(posPoint->secondBest[suit].rank);
           qtricks++;
           if ((countLho<=2)&&(countRho<=2)&&(countPart<=2)) {
             qtricks=qtricks+countOwn-2;
@@ -2829,7 +2825,7 @@ int QuickTricks(struct pos * posPoint, int hand,
 	  /* Second best at partner and suit length of own
 	     hand and partner > 1 */
           posPoint->stack[depth].winRanks[suit]=posPoint->stack[depth].winRanks[suit]
-              | bitMapRank[posPoint->secondBest[suit].rank];
+              | BitRank(posPoint->secondBest[suit].rank);
           qtricks++;
           if ((countLho<=2)&&(countRho<=2)&&((countPart<=2)||(countOwn<=2))) {  
 	  /* 07-06-10 */
@@ -2871,9 +2867,9 @@ int QuickTricks(struct pos * posPoint, int hand,
               /* RHO has no trump */
               {
                 posPoint->stack[depth].winRanks[suit]=posPoint->stack[depth].winRanks[suit]
-                  | bitMapRank[posPoint->winner[suit].rank];
+                  | BitRank(posPoint->winner[suit].rank);
                 posPoint->stack[depth].winRanks[commSuit]=posPoint->stack[depth].winRanks[commSuit] |
-                   bitMapRank[commRank];
+                   BitRank(commRank);
                 qtricks++;   /* A trick can be taken */
                 /* 06-12-14 */
 		if (qtricks>=cutoff) 
@@ -2896,9 +2892,9 @@ int QuickTricks(struct pos * posPoint, int hand,
                  (rhoTrumpRanks==0)) {
                 /* Opponents have no trump */
                   posPoint->stack[depth].winRanks[suit]=posPoint->stack[depth].winRanks[suit]
-                   | bitMapRank[posPoint->secondBest[suit].rank];
+                   | BitRank(posPoint->secondBest[suit].rank);
                   posPoint->stack[depth].winRanks[commSuit]=posPoint->stack[depth].winRanks[commSuit] |
-                    bitMapRank[commRank];
+                    BitRank(commRank);
                   qtricks++;
                   if ((countLho<=2)&&(countRho<=2)&&(countOwn<=2)) {
                     qtricks=qtricks+countPart-2;
@@ -2920,9 +2916,9 @@ int QuickTricks(struct pos * posPoint, int hand,
                  (rhoTrumpRanks==0)) {
                 /* Opponents have no trump */
                   posPoint->stack[depth].winRanks[suit]=posPoint->stack[depth].winRanks[suit]
-                   | bitMapRank[posPoint->secondBest[suit].rank];
+                   | BitRank(posPoint->secondBest[suit].rank);
                   posPoint->stack[depth].winRanks[commSuit]=posPoint->stack[depth].winRanks[commSuit] |
-                    bitMapRank[commRank];
+                    BitRank(commRank);
                   qtricks++;
                   if ((countLho<=2)&&(countRho<=2)&&
 		    ((countOwn<=2)||(countPart<=2))) {  /* 07-06-10 */
@@ -2946,9 +2942,9 @@ int QuickTricks(struct pos * posPoint, int hand,
                   ranks=ranks | posPoint->rankInSuit[k][suit];
                 for (rr=posPoint->secondBest[suit].rank-1; rr>=2; rr--) {
                   /* 3rd best at partner? */
-                  if ((ranks & bitMapRank[rr])!=0) {
+                  if ((ranks & BitRank(rr))!=0) {
                     if ((posPoint->rankInSuit[partner[hand]][suit] &
-                      bitMapRank[rr])!=0) {
+                      BitRank(rr))!=0) {
                       found=TRUE;
                       break;
                     }
@@ -2960,9 +2956,9 @@ int QuickTricks(struct pos * posPoint, int hand,
                   found=FALSE;
                 }
                 if (found) {
-                  posPoint->stack[depth].winRanks[suit]=posPoint->stack[depth].winRanks[suit] | bitMapRank[rr];
+                  posPoint->stack[depth].winRanks[suit]=posPoint->stack[depth].winRanks[suit] | BitRank(rr);
                   posPoint->stack[depth].winRanks[commSuit]=posPoint->stack[depth].winRanks[commSuit] |
-                     bitMapRank[commRank];
+                     BitRank(commRank);
                   qtricks++;
                   if ((countOwn<=2)&&(countLho<=2)&&(countRho<=2)&&
                     (lhoTrumpRanks==0)&&(rhoTrumpRanks==0)) 
@@ -2972,9 +2968,9 @@ int QuickTricks(struct pos * posPoint, int hand,
           }
           else {
             posPoint->stack[depth].winRanks[suit]=posPoint->stack[depth].winRanks[suit]
-             | bitMapRank[posPoint->winner[suit].rank];
+             | BitRank(posPoint->winner[suit].rank);
             posPoint->stack[depth].winRanks[commSuit]=posPoint->stack[depth].winRanks[commSuit] |
-              bitMapRank[commRank];
+              BitRank(commRank);
             qtricks++;
             /* 06-12-14 */
 	    if (qtricks>=cutoff) 
@@ -3000,9 +2996,9 @@ int QuickTricks(struct pos * posPoint, int hand,
             if ((posPoint->secondBest[suit].hand==partner[hand])&&(countPart>0)) {
               /* Second best found in partners hand */
               posPoint->stack[depth].winRanks[suit]=posPoint->stack[depth].winRanks[suit]
-                | bitMapRank[posPoint->secondBest[suit].rank];
+                | BitRank(posPoint->secondBest[suit].rank);
               posPoint->stack[depth].winRanks[commSuit]=posPoint->stack[depth].winRanks[commSuit] |
-                bitMapRank[commRank];
+                BitRank(commRank);
               qtricks++;
               if ((countLho<=2)&&(countRho<=2)&&(countOwn<=2)) {
                 qtricks=qtricks+countPart-2;
@@ -3028,9 +3024,9 @@ int QuickTricks(struct pos * posPoint, int hand,
                /* Second best found in own hand and own and
 			partner's suit length > 1 */
               posPoint->stack[depth].winRanks[suit]=posPoint->stack[depth].winRanks[suit]
-               | bitMapRank[posPoint->secondBest[suit].rank];
+               | BitRank(posPoint->secondBest[suit].rank);
               posPoint->stack[depth].winRanks[commSuit]=posPoint->stack[depth].winRanks[commSuit] |
-                bitMapRank[commRank];
+                BitRank(commRank);
               qtricks++;
               if ((countLho<=2)&&(countRho<=2)&&((countOwn<=2)||(countPart<=2))) {  /* 07-06-10 */
 		qtricks=qtricks+Max(countPart-2,countOwn-2);
@@ -3058,9 +3054,9 @@ int QuickTricks(struct pos * posPoint, int hand,
                 ranks=ranks | posPoint->rankInSuit[k][suit];
               for (rr=posPoint->secondBest[suit].rank-1; rr>=2; rr--) {
                   /* 3rd best at partner? */
-                if ((ranks & bitMapRank[rr])!=0) {
+                if ((ranks & BitRank(rr))!=0) {
                   if ((posPoint->rankInSuit[partner[hand]][suit] &
-                    bitMapRank[rr])!=0) {
+                    BitRank(rr))!=0) {
                     found=TRUE;
                     break;
                   }
@@ -3072,9 +3068,9 @@ int QuickTricks(struct pos * posPoint, int hand,
                 found=FALSE;
               }
               if (found) {
-                posPoint->stack[depth].winRanks[suit]=posPoint->stack[depth].winRanks[suit] | bitMapRank[rr];
+                posPoint->stack[depth].winRanks[suit]=posPoint->stack[depth].winRanks[suit] | BitRank(rr);
                 posPoint->stack[depth].winRanks[commSuit]=posPoint->stack[depth].winRanks[commSuit] |
-                  bitMapRank[commRank];
+                  BitRank(commRank);
                 qtricks++;
 		if ((countOwn<=2)&&(countLho<=2)&&(countRho<=2)) { 
                   qtricks=qtricks+countPart-2;
@@ -3108,9 +3104,9 @@ int QuickTricks(struct pos * posPoint, int hand,
 	    lowestQtricks=1; 
 	    for (rr=14; rr>=2; rr--) {
 	      if ((posPoint->rankInSuit[partner[hand]][trump] &
-		bitMapRank[rr])!=0) {
+		BitRank(rr))!=0) {
 		posPoint->stack[depth].winRanks[trump]=
-		  posPoint->stack[depth].winRanks[trump] | bitMapRank[rr];
+		  posPoint->stack[depth].winRanks[trump] | BitRank(rr);
 		break;
 	      }
 	    }
@@ -3128,9 +3124,9 @@ int QuickTricks(struct pos * posPoint, int hand,
 	    lowestQtricks=1; 
 	    for (rr=14; rr>=2; rr--) {
 	      if ((posPoint->rankInSuit[partner[hand]][trump] &
-		bitMapRank[rr])!=0) {
+		BitRank(rr))!=0) {
 		posPoint->stack[depth].winRanks[trump]=
-		  posPoint->stack[depth].winRanks[trump] | bitMapRank[rr];
+		  posPoint->stack[depth].winRanks[trump] | BitRank(rr);
 		break;
 	      }
 	    }
@@ -3148,9 +3144,9 @@ int QuickTricks(struct pos * posPoint, int hand,
 	    lowestQtricks=1; 
 	    for (rr=14; rr>=2; rr--) {
 	      if ((posPoint->rankInSuit[partner[hand]][trump] &
-	        bitMapRank[rr])!=0) {
+	        BitRank(rr))!=0) {
 		posPoint->stack[depth].winRanks[trump]=
-		  posPoint->stack[depth].winRanks[trump] | bitMapRank[rr];
+		  posPoint->stack[depth].winRanks[trump] | BitRank(rr);
 		break;
 	      }
 	    }
@@ -3206,7 +3202,7 @@ int QuickTricks(struct pos * posPoint, int hand,
                 if ((posPoint->length[hand][ss]>0)
                    &&(nodeTypeStore[posPoint->winner[ss].hand]==MINNODE))
                   posPoint->stack[depth].winRanks[ss]=
-		    bitMapRank[posPoint->winner[ss].rank];
+		    BitRank(posPoint->winner[ss].rank);
                 else
                   posPoint->stack[depth].winRanks[ss]=0;
 	      }
@@ -3219,7 +3215,7 @@ int QuickTricks(struct pos * posPoint, int hand,
                 if ((posPoint->length[hand][ss]>0) 
                    &&(nodeTypeStore[posPoint->winner[ss].hand]==MAXNODE))
                   posPoint->stack[depth].winRanks[ss]=
-		    bitMapRank[posPoint->winner[ss].rank];
+		    BitRank(posPoint->winner[ss].rank);
                 else
                   posPoint->stack[depth].winRanks[ss]=0;
 	      }
@@ -3249,7 +3245,7 @@ int LaterTricksMIN(struct pos *posPoint, int hand, int depth, int target) {
       if ((posPoint->tricksMAX+(depth>>2)<target)) {
 	for (ss=0; ss<=3; ss++) {
           if (nodeTypeStore[posPoint->winner[ss].hand]==MINNODE)  
-            posPoint->stack[depth].winRanks[ss]=bitMapRank[posPoint->winner[ss].rank];
+            posPoint->stack[depth].winRanks[ss]=BitRank(posPoint->winner[ss].rank);
           else
             posPoint->stack[depth].winRanks[ss]=0;
 	}
@@ -3275,7 +3271,7 @@ int LaterTricksMIN(struct pos *posPoint, int hand, int depth, int target) {
       for (ss=0; ss<=3; ss++)
         posPoint->stack[depth].winRanks[ss]=0;
 	posPoint->stack[depth].winRanks[trump]=
-	  bitMapRank[posPoint->winner[trump].rank];
+	  BitRank(posPoint->winner[trump].rank);
 	return FALSE;
     }
     else {
@@ -3287,8 +3283,8 @@ int LaterTricksMIN(struct pos *posPoint, int hand, int depth, int target) {
           for (ss=0; ss<=3; ss++)
             posPoint->stack[depth].winRanks[ss]=0;
 	  posPoint->stack[depth].winRanks[trump]=
-	      bitMapRank[posPoint->winner[trump].rank] | 
-              bitMapRank[posPoint->secondBest[trump].rank] ;
+	      BitRank(posPoint->winner[trump].rank) | 
+              BitRank(posPoint->secondBest[trump].rank) ;
 	  return FALSE;
         }
       }
@@ -3305,7 +3301,7 @@ int LaterTricksMIN(struct pos *posPoint, int hand, int depth, int target) {
         for (ss=0; ss<=3; ss++)
           posPoint->stack[depth].winRanks[ss]=0;
 	posPoint->stack[depth].winRanks[trump]=
-        bitMapRank[posPoint->secondBest[trump].rank] ; 
+        BitRank(posPoint->secondBest[trump].rank) ; 
         return FALSE;
       }
     }
@@ -3330,7 +3326,7 @@ int LaterTricksMIN(struct pos *posPoint, int hand, int depth, int target) {
           for (ss=0; ss<=3; ss++) {
             if (ss!=trump) {
               if (nodeTypeStore[posPoint->winner[ss].hand]==MINNODE)  
-                posPoint->stack[depth].winRanks[ss]=bitMapRank[posPoint->winner[ss].rank];
+                posPoint->stack[depth].winRanks[ss]=BitRank(posPoint->winner[ss].rank);
               else
                 posPoint->stack[depth].winRanks[ss]=0;
 	    }
@@ -3360,7 +3356,7 @@ int LaterTricksMAX(struct pos *posPoint, int hand, int depth, int target) {
       if ((posPoint->tricksMAX+1>=target)) {
         for (ss=0; ss<=3; ss++) {
           if (nodeTypeStore[posPoint->winner[ss].hand]==MAXNODE)  
-            posPoint->stack[depth].winRanks[ss]=bitMapRank[posPoint->winner[ss].rank];
+            posPoint->stack[depth].winRanks[ss]=BitRank(posPoint->winner[ss].rank);
           else
             posPoint->stack[depth].winRanks[ss]=0;
 	}
@@ -3385,7 +3381,7 @@ int LaterTricksMAX(struct pos *posPoint, int hand, int depth, int target) {
       for (ss=0; ss<=3; ss++)
         posPoint->stack[depth].winRanks[ss]=0;
 	posPoint->stack[depth].winRanks[trump]=
-	  bitMapRank[posPoint->winner[trump].rank];
+	  BitRank(posPoint->winner[trump].rank);
 	    return TRUE;
     }
     else {
@@ -3397,8 +3393,8 @@ int LaterTricksMAX(struct pos *posPoint, int hand, int depth, int target) {
           for (ss=0; ss<=3; ss++)
             posPoint->stack[depth].winRanks[ss]=0;
 	  posPoint->stack[depth].winRanks[trump]=
-	    bitMapRank[posPoint->winner[trump].rank] | 
-            bitMapRank[posPoint->secondBest[trump].rank] ;
+	    BitRank(posPoint->winner[trump].rank) | 
+            BitRank(posPoint->secondBest[trump].rank) ;
 	  return TRUE;
  	}
       }
@@ -3413,7 +3409,7 @@ int LaterTricksMAX(struct pos *posPoint, int hand, int depth, int target) {
         for (ss=0; ss<=3; ss++)
           posPoint->stack[depth].winRanks[ss]=0;
 	  posPoint->stack[depth].winRanks[trump]=
-          bitMapRank[posPoint->secondBest[trump].rank] ;  
+          BitRank(posPoint->secondBest[trump].rank) ;  
         return TRUE;
       }
     }
@@ -3438,7 +3434,7 @@ int LaterTricksMAX(struct pos *posPoint, int hand, int depth, int target) {
           for (ss=0; ss<=3; ss++) {
 	    if (ss!=trump) {
               if (nodeTypeStore[posPoint->winner[ss].hand]==MAXNODE)  
-                posPoint->stack[depth].winRanks[ss]=bitMapRank[posPoint->winner[ss].rank];
+                posPoint->stack[depth].winRanks[ss]=BitRank(posPoint->winner[ss].rank);
               else
                 posPoint->stack[depth].winRanks[ss]=0;
 	    }
@@ -3479,20 +3475,23 @@ int MoveGen(const struct pos * posPoint, const int depth) {
   if ((r!=0)&&(ris!=0)) {
   /* Not first hand and not void in suit */
     holding_t sequences;
-    holding_t unplayedCards;
-    unplayedCards = unplayedLookup.getUnplayed(q,t, (holding_t)(posPoint->removedRanks[t]),sequences);
-    k=14;   state=MOVESVALID;
-#if 1
+    holding_t unplayedCardsRank;
+    unplayedCardsRank = 
+      unplayedFinder.getUnplayed(q,t, 
+				 (holding_t)(posPoint->removedRanks[t]),
+				 sequences);
+    k=14;
     while (k>=2) {
-      if (unplayedCards & bitMapRank[k]) {
+      if (unplayedCardsRank & BitRank(k)) {
         movePly[depth].move[m].suit=t;
         movePly[depth].move[m].rank=k;
-        movePly[depth].move[m].sequence=sequences&bitMapRank[k];
+        movePly[depth].move[m].sequence=sequences & BitRank(k);
         m++;
+      } else if (sequences & BitRank(k)) {
+          movePly[depth].move[m-1].sequence |= BitRank(k);
       }
       k--;
     }
-#endif
 
     if (m!=1) {
       for (k=0; k<=m-1; k++) 
@@ -3512,17 +3511,23 @@ int MoveGen(const struct pos * posPoint, const int depth) {
   }
   else {                  /* First hand or void in suit */
     holding_t sequences;
-    holding_t unplayedCards;
+    holding_t unplayedCardsRanks;
+    holding_t cardRank;
     for (suit=0; suit<=3; suit++)  {
-      unplayedCards = unplayedLookup.getUnplayed(q,suit, (holding_t)(posPoint->removedRanks[suit]),sequences);
+      unplayedCardsRanks = 
+	unplayedFinder.getUnplayed(q,suit, 
+				   (holding_t)(posPoint->removedRanks[suit]),
+				   sequences);
       k=14;
       while (k>=2) {
-	if (unplayedCards & bitMapRank[k]) {
+	if (unplayedCardsRanks & BitRank(k)) {
 	  movePly[depth].move[m].suit=suit;
 	  movePly[depth].move[m].rank=k;
-	  movePly[depth].move[m].sequence=sequences&bitMapRank[k];
+	  movePly[depth].move[m].sequence=0;
 	  m++;
-	}
+	} else if (sequences & BitRank(k)) {
+          movePly[depth].move[m-1].sequence |= BitRank(k);
+        }
 	k--;
       }
     }
@@ -3732,8 +3737,8 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
     case 1:
       leadSuit=posPoint->stack[depth+1].move.suit;
       if (leadSuit==suit) {
-	if (bitMapRank[mp->rank]>
-	  (bitMapRank[posPoint->stack[depth+1].move.rank] |
+	if (BitRank(mp->rank)>
+	  (BitRank(posPoint->stack[depth+1].move.rank) |
 	  posPoint->rankInSuit[partner[first]][suit])) {
 	  if (trumpContract && (suit!=trump)) {
 	    if ((posPoint->length[partner[first]][suit]!=0)||
@@ -3749,7 +3754,7 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
             winMove=TRUE;
         }
 	else if (posPoint->rankInSuit[rho[first]][suit]>
-	  (bitMapRank[posPoint->stack[depth+1].move.rank] |
+	  (BitRank(posPoint->stack[depth+1].move.rank) |
 	  posPoint->rankInSuit[partner[first]][suit])) {	 
 	  if (trumpContract && (suit!=trump)) {
 	    if ((posPoint->length[partner[first]][suit]!=0)||
@@ -3759,10 +3764,10 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
           else
             winMove=TRUE;
 	} 
-	else if (bitMapRank[posPoint->stack[depth+1].move.rank] >
+	else if (BitRank(posPoint->stack[depth+1].move.rank) >
 	  (posPoint->rankInSuit[rho[first]][suit] |
 	   posPoint->rankInSuit[partner[first]][suit] |
-	  bitMapRank[mp->rank])) {  
+	  BitRank(mp->rank))) {  
 	  if (trumpContract && (suit!=trump)) {
 	    if ((posPoint->length[rho[first]][suit]==0)&&
 	      (posPoint->length[rho[first]][trump]!=0)) {
@@ -3788,7 +3793,7 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
 	if (trumpContract && (suit==trump)) {
 	  if (posPoint->length[partner[first]][leadSuit]!=0)
 	    winMove=TRUE;
-	  else if (bitMapRank[mp->rank]>
+	  else if (BitRank(mp->rank)>
 	    posPoint->rankInSuit[partner[first]][trump]) 
 	    winMove=TRUE;
 	  else if ((posPoint->length[rho[first]][leadSuit]==0)
@@ -3802,7 +3807,7 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
           if (posPoint->length[partner[first]][leadSuit]!=0) {
             if (posPoint->rankInSuit[rho[first]][leadSuit] >
               (posPoint->rankInSuit[partner[first]][leadSuit] |
-              bitMapRank[posPoint->stack[depth+1].move.rank]))
+              BitRank(posPoint->stack[depth+1].move.rank)))
               winMove=TRUE;
 	    else if ((posPoint->length[rho[first]][leadSuit]==0)
 	      &&(posPoint->length[rho[first]][trump]!=0))
@@ -3815,7 +3820,7 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
 	    winMove=TRUE;
 	  else if ((posPoint->length[partner[first]][trump]==0)
 	    &&(posPoint->rankInSuit[rho[first]][leadSuit] >
-	    bitMapRank[posPoint->stack[depth+1].move.rank]))
+	    BitRank(posPoint->stack[depth+1].move.rank)))
 	    winMove=TRUE;
         }
         else {
@@ -3823,7 +3828,7 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
 		highest rank in leadSuit wins */
 	    if (posPoint->rankInSuit[rho[first]][leadSuit] >
             (posPoint->rankInSuit[partner[first]][leadSuit] |
-             bitMapRank[posPoint->stack[depth+1].move.rank]))
+             BitRank(posPoint->stack[depth+1].move.rank)))
              winMove=TRUE;			   
         }			  
       }
@@ -3839,11 +3844,11 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
             weight=60-(mp->rank)+suitAdd;  /* Better discard than ruff since rho
 								wins anyway */
         }
-        else if (k > bitMapRank[mp->rank])
+        else if (k > BitRank(mp->rank))
           weight=45-(mp->rank);    /* If lowest card for partner to leading hand 
 						is higher than lho played card, playing as low as 
 						possible will give the cheapest win */
-        else if ((ll > bitMapRank[posPoint->stack[depth+1].move.rank])&&
+        else if ((ll > BitRank(posPoint->stack[depth+1].move.rank))&&
           (posPoint->rankInSuit[first][leadSuit] > ll)) 
           weight=60-(mp->rank);    /* If rho has a card in the leading suit that
                                     is higher than the trick leading card but lower
@@ -3851,10 +3856,10 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
                                     lho playing the lowest card will be the cheapest
                                     win */
 	else if (mp->rank > posPoint->stack[depth+1].move.rank) {
-          if (bitMapRank[mp->rank] < ll) 
+          if (BitRank(mp->rank) < ll) 
             weight=75-(mp->rank);  /* If played card is lower than any of the cards of
 						rho, it will be the cheapest win */
-          else if (bitMapRank[mp->rank] > kk)
+          else if (BitRank(mp->rank) > kk)
             weight=70-(mp->rank);  /* If played card is higher than any cards at partner
 						of the leading hand, rho can play low, under the
                                     condition that he has a lower card than lho played */ 
@@ -3877,7 +3882,7 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
       else {
         if (!notVoidInSuit) {
 	  if (trumpContract && (suit==trump)) {
-	  /*if (ll > bitMapRank[posPoint->stack[depth+1].move.rank])
+	  /*if (ll > BitRank(posPoint->stack[depth+1].move.rank))
 			  weight=-10-(mp->rank)+suitAdd;
 			else*/
               weight=15-(mp->rank)+suitAdd;  /* Ruffing is preferred, makes the trick
@@ -3886,8 +3891,8 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
           else
             weight=-(mp->rank)+suitAdd;
         }
-        else if ((k > bitMapRank[mp->rank])||
-          (l > bitMapRank[mp->rank])) 
+        else if ((k > BitRank(mp->rank))||
+          (l > BitRank(mp->rank))) 
           weight=-(mp->rank);  /* If lowest rank for either partner to leading hand 
 						or rho is higher than played card for lho,
 						lho should play as low card as possible */			
@@ -3911,17 +3916,17 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
 	  if (trumpContract && (leadSuit!=trump)) {
 	    if (((posPoint->length[rho[first]][suit]!=0)||
 	      (posPoint->length[rho[first]][trump]==0))&&
-	      (bitMapRank[mp->rank] >
+	      (BitRank(mp->rank) >
 	      posPoint->rankInSuit[rho[first]][suit]))
 	      winMove=TRUE;
 	  }	
-	  else if (bitMapRank[mp->rank] >
+	  else if (BitRank(mp->rank) >
 	    posPoint->rankInSuit[rho[first]][suit])
 	    winMove=TRUE;
 	}
 	else {  /* Suit is trump */
 	  if (posPoint->length[rho[first]][leadSuit]==0) {
-	    if (bitMapRank[mp->rank] >
+	    if (BitRank(mp->rank) >
 	      posPoint->rankInSuit[rho[first]][trump])
 	      winMove=TRUE;
 	  }
@@ -3932,7 +3937,7 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
       else if (posPoint->stack[depth+1].high==first) {
 	if (posPoint->length[rho[first]][leadSuit]!=0) {
 	  if (posPoint->rankInSuit[rho[first]][leadSuit]
-	    < bitMapRank[posPoint->stack[depth+2].move.rank])	
+	    < BitRank(posPoint->stack[depth+2].move.rank))	
 	    winMove=TRUE;
 	}
 	else if (!trumpContract)
@@ -3950,7 +3955,7 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
             if (trumpContract && (suit==trump)) 
               weight=30-(mp->rank)+suitAdd; /* Ruffs partner's winner */
             /*else if ((posPoint->length[partner[first]][suit]==1)&&
-		(bitMapRank[mp->suit]>posPoint->rankInSuit[first][suit])&&
+		(BitRank(mp->sui)]>posPoint->rankInSuit[first][suit])&&
 		(posPoint->rankInSuit[first][suit]>
 		(posPoint->rankInSuit[lho[first]][suit] |
 		posPoint->rankInSuit[rho[first]][suit])))
@@ -4706,7 +4711,7 @@ void BuildSOP(struct pos * posPoint, int tricks, int firstHand, int target,
       for (ss=0; ss<=3; ss++) {
 	fprintf(fp7, "suit=%c", cardSuit[ss]);
 	for (rr=14; rr>=2; rr--)
-	  if (posPoint->rankInSuit[hh][ss] & bitMapRank[rr])
+	  if (posPoint->rankInSuit[hh][ss] & BitRank(rr))
 	fprintf(fp7, " %c", cardRank[rr]);
 	fprintf(fp7, "\n");
       }
@@ -4719,7 +4724,7 @@ void BuildSOP(struct pos * posPoint, int tricks, int firstHand, int target,
       for (ss=0; ss<=3; ss++) {
 	fprintf(fp7, "suit=%c", cardSuit[ss]);
 	for (rr=1; rr<=13; rr++)
-	  if (posPoint->relRankInSuit[hh][ss] & bitMapRank[15-rr])
+	  if (posPoint->relRankInSuit[hh][ss] & BitRank(15-rr))
 	    fprintf(fp7, " %c", cardRank[rr]);
 	fprintf(fp7, "\n");
       }
@@ -4744,7 +4749,7 @@ int CheckDeal(struct moveType * cardp) {
     for (k=2; k<=14; k++) {
       found=FALSE;
       for (h=0; h<=3; h++) {
-        if ((temp[h][s] & bitMapRank[k])!=0) {
+        if ((temp[h][s] & BitRank(k))!=0) {
           if (found) {
             cardp->suit=s;
             cardp->rank=k;
@@ -4772,9 +4777,9 @@ void WinAdapt(struct pos * posPoint, const int depth, struct nodeCardsType * cp,
        continue;
      k=1;
      for (rr=14; rr>=2; rr--) {
-       if ((aggr[ss] & bitMapRank[rr])!=0) {
+       if ((aggr[ss] & BitRank(rr))!=0) {
 	 if (k<=cp->leastWin[ss]) {
-	   posPoint->stack[depth].winRanks[ss]|=bitMapRank[rr];
+	   posPoint->stack[depth].winRanks[ss]|=BitRank(rr);
 	   k++;
 	 }
 	 else
@@ -4799,13 +4804,13 @@ int DismissX(struct pos *posPoint, const int depth) {
     if (lw!=0)
 	lw=lw & (-lw);  /* LSB */
     else
-	lw=bitMapRank[15];
-    if (bitMapRank[currMove.rank]<lw) {
+	lw=BitRank(15);
+    if (BitRank(currMove.rank)<lw) {
 	lowestWin[depth][currMove.suit]=lw;
       while (movePly[depth].current<=movePly[depth].last-1) {
         movePly[depth].current++;
         mcurrent=movePly[depth].current;
-        if (bitMapRank[movePly[depth].move[mcurrent].rank] >=
+        if (BitRank(movePly[depth].move[mcurrent].rank) >=
 	    lowestWin[depth][movePly[depth].move[mcurrent].suit]) 
 	    return TRUE;
       }
@@ -4822,7 +4827,7 @@ int DismissX(struct pos *posPoint, const int depth) {
     while (movePly[depth].current<=movePly[depth].last-1) { 
       movePly[depth].current++;
       mcurrent=movePly[depth].current;
-      if (bitMapRank[movePly[depth].move[mcurrent].rank] >=
+      if (BitRank(movePly[depth].move[mcurrent].rank) >=
 	  lowestWin[depth][movePly[depth].move[mcurrent].suit]) 
 	  return TRUE;
     }
@@ -5032,7 +5037,7 @@ void ReceiveTTstore(struct pos *posPoint, struct nodeCardsType * cardsP,
         fprintf(fp11, "suit=%c", cardSuit[ss]);
         for (rr=14; rr>=2; rr--)
           if (ttStore[lastTTstore].suit[hh][ss]
-            & bitMapRank[rr])
+            & BitRank(rr))
             fprintf(fp11, " %c", cardRank[rr]);
          fprintf(fp11, "\n");
       }
@@ -5043,7 +5048,7 @@ void ReceiveTTstore(struct pos *posPoint, struct nodeCardsType * cardsP,
       for (ss=0; ss<=3; ss++) {
         fprintf(fp11, "suit=%c", cardSuit[ss]);
         for (rr=1; rr<=13; rr++)
-          if (posPoint->relRankInSuit[hh][ss] & bitMapRank[15-rr])
+          if (posPoint->relRankInSuit[hh][ss] & BitRank(15-rr))
             fprintf(fp11, " %c", cardRank[rr]);
         fprintf(fp11, "\n");
       }
