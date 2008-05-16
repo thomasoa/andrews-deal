@@ -62,6 +62,8 @@ using namespace std;
 
 typedef unsigned short int holding_t;
 
+
+
 struct gameInfo  {          /* All info of a particular deal */
   int vulnerable;
   int declarer;
@@ -102,8 +104,25 @@ struct makeType {
   unsigned short int winRanks[4];
 };
 
-extern unsigned short int bitMapRank[16];
-#ifdef __cplusplus
+inline holding_t BitRank(int rank) {
+  /*
+   * Trick calculation
+   * Equivalent to 1<<(rank-2) for rank>=2, and 0 for rank<2.
+   */
+  return (1<<rank)>>2;
+#if 0
+  /* Old code was */
+  return bitMapRank[rank];
+
+  /* Direct code is */
+  if (rank>=2 && rank<=15) {
+    return 1<<(rank-2);
+  } else {
+    return 0;
+  }
+#endif
+}
+
 struct posStackItem {
   int first;                 /* Hand that leads the trick for each ply*/
   int high;                  /* Hand that is presently winning the trick */
@@ -114,11 +133,11 @@ struct posStackItem {
 
 #if 0
   inline void removeCard(const moveType &move) {
-     removed[move.suit] |= bitMapRank[move.rank];
+     removed[move.suit] |= BitRank(move.rank);
   }
 
   inline int isRemoved(int suit,int rank) const {
-    return removed[suit] & bitMapRank[rank];
+    return removed[suit] & BitRank(rank);
   }
 #endif
 
@@ -150,7 +169,7 @@ struct pos {
   }
 
   inline void removeRank(int suit,int rank) {
-    removeBitRank(suit,1<<(rank-2));
+    removeBitRank(suit,BitRank(rank));
   }
 
   inline void restoreBitRank(int suit, holding_t bitRank) {
@@ -158,7 +177,7 @@ struct pos {
   }
 
   inline void restoreRank(int suit,int rank) {
-    restoreBitRank(suit,1<<(rank-2));
+    restoreBitRank(suit,BitRank(rank));
   }
 
   inline int isRemovedBitRank(int suit, holding_t bitRank) const {
@@ -166,7 +185,7 @@ struct pos {
   }
 
   inline int isRemoved(int suit, int rank) const {
-    return isRemovedBitRank(suit,1<<(rank-2));
+    return isRemovedBitRank(suit,BitRank(rank));
   }
 
   inline int hasCardBitRank(int hand, int suit, holding_t bitRank) const {
@@ -174,7 +193,7 @@ struct pos {
   }
 
   inline int hasCard(int hand,int suit, int rank) const {
-    hasCardBitRank(hand,suit,1<<(rank-2));
+    hasCardBitRank(hand,suit,BitRank(rank));
   }
 
   inline LONGLONG getSuitLengths() {
@@ -199,7 +218,6 @@ struct pos {
 #endif
 
 };
-#endif
 
 struct posSearchType {
   struct winCardType * posSearchPoint; 
@@ -270,16 +288,6 @@ extern struct winCardType **pw;
 extern struct nodeCardsType **pn;
 extern struct posSearchType **pl;
 
-
-extern int handStore[4][4];             /* All hand identities are given as
-                                        0=NORTH, 1=EAST, 2=SOUTH, 3=WEST.
-                                        Player is the hand whose move is to be
-                                        optimized.
-                                        1st index is first hand, 2nd index
-                                        is hand relative first. The value is
-                                        the absolute value, NORTH, EAST,
-                                        SOUTH, WEST of the hand pointed to
-                                        by handRelFirst */
 extern unsigned short int iniRemovedRanks[4];
 extern unsigned short int relRankInSuit[4][4];
 extern int sum;
