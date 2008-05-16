@@ -64,7 +64,7 @@ proc parscore {dealer whovul} {
 
     foreach hand {north east south west} {
 	foreach denom {notrump spades hearts diamonds clubs} {
-	    set tricks($hand:$denom) [gib::tricks $hand $denom]
+	    set tricks($hand:$denom) [deal::tricks $hand $denom]
 	}
     }
 
