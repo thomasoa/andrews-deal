@@ -225,7 +225,7 @@ extern "C" BOOL APIENTRY DllMain(HMODULE hModule,
   int STDCALL SolveBoard(struct deal dl, int target,
     int solutions, int mode, struct futureTricks *futp) {
 
-  int k, l, n, cardCount, found, totalTricks, tricks, last, checkRes;
+  int k, n, cardCount, found, totalTricks, tricks, last, checkRes;
   int g, upperbound, lowerbound, first, i, j, forb, ind, flag, noMoves;
   int mcurr;
   int noStartMoves;
@@ -301,8 +301,7 @@ extern "C" BOOL APIENTRY DllMain(HMODULE hModule,
       latestTrickSuit[HandStore(dl.first,0)]=dl.currentTrickSuit[0];
       latestTrickRank[HandStore(dl.first,0)]=dl.currentTrickRank[0];
     }
-  }
-  else if (dl.currentTrickRank[1]) {
+  } else if (dl.currentTrickRank[1]) {
     if ((dl.currentTrickRank[1]<2)||(dl.currentTrickRank[1]>14)
       ||(dl.currentTrickSuit[1]<0)||(dl.currentTrickSuit[1]>3)) {
       DumpInput(-12, dl, target, solutions, mode);
@@ -333,8 +332,7 @@ extern "C" BOOL APIENTRY DllMain(HMODULE hModule,
       latestTrickSuit[HandStore(dl.first,0)]=dl.currentTrickSuit[0];
       latestTrickRank[HandStore(dl.first,0)]=dl.currentTrickRank[0];
     }
-  }
-  else if (dl.currentTrickRank[0]) {
+  } else if (dl.currentTrickRank[0]) {
     if ((dl.currentTrickRank[0]<2)||(dl.currentTrickRank[0]>14)
       ||(dl.currentTrickSuit[0]<0)||(dl.currentTrickSuit[0]>3)) {
       DumpInput(-12, dl, target, solutions, mode);
@@ -371,8 +369,7 @@ extern "C" BOOL APIENTRY DllMain(HMODULE hModule,
       latestTrickSuit[dl.first]=dl.currentTrickSuit[0];
       latestTrickRank[dl.first]=dl.currentTrickRank[0];
     }
-  }
-  else {
+  } else {
     handToPlay=dl.first;
     handRelFirst=0;
     noStartMoves=0;
@@ -2363,7 +2360,8 @@ struct evalType Evaluate(const struct pos * posPoint)  {
 
 
 void UpdateWinner(struct pos * posPoint, int suit) {
-  int k, h, hmax=0, flag;
+  int k;
+  int h, hmax=0, flag;
 
   posPoint->winner[suit]=posPoint->secondBest[suit];
 
@@ -2394,7 +2392,8 @@ void UpdateWinner(struct pos * posPoint, int suit) {
 
 
 void UpdateSecondBest(struct pos * posPoint, int suit) {
-  int k, h, hmax=0, flag;
+  int k;
+  int h, hmax=0, flag;
 
     k=posPoint->secondBest[suit].rank-1;
     while (k>=2) {
@@ -3455,7 +3454,7 @@ int q, first;
 int recInd=0;
 
 int MoveGen(const struct pos * posPoint, const int depth) {
-  int suit, k, m, n, r, s, t, state;
+  int suit, k, m, n, r, s, t;
   int scount[4];
   int WeightAlloc(const struct pos *, struct moveType * mp, int depth,
     int notVoidInSuit);
@@ -3512,7 +3511,6 @@ int MoveGen(const struct pos * posPoint, const int depth) {
   else {                  /* First hand or void in suit */
     holding_t sequences;
     holding_t unplayedCardsRanks;
-    holding_t cardRank;
     for (suit=0; suit<=3; suit++)  {
       unplayedCardsRanks = 
 	unplayedFinder.getUnplayed(q,suit, 
@@ -3575,7 +3573,8 @@ int MoveGen(const struct pos * posPoint, const int depth) {
 
 
 int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int depth,  int notVoidInSuit) {
-  int weight=0, k, l, kk, ll, suit, suitAdd=0, leadSuit;
+  int weight=0, suit, suitAdd=0, leadSuit;
+  holding_t k,l,kk,ll;
   int suitWeightDelta;
   int suitBonus=0;
   int winMove=FALSE;
@@ -3843,19 +3842,18 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
           else
             weight=60-(mp->rank)+suitAdd;  /* Better discard than ruff since rho
 								wins anyway */
-        }
-        else if (k > BitRank(mp->rank))
+        } else if (k > BitRank(mp->rank)) {
           weight=45-(mp->rank);    /* If lowest card for partner to leading hand 
 						is higher than lho played card, playing as low as 
 						possible will give the cheapest win */
-        else if ((ll > BitRank(posPoint->stack[depth+1].move.rank))&&
-          (posPoint->rankInSuit[first][leadSuit] > ll)) 
+        } else if ((ll > BitRank(posPoint->stack[depth+1].move.rank))&&
+          (posPoint->rankInSuit[first][leadSuit] > ll))  {
           weight=60-(mp->rank);    /* If rho has a card in the leading suit that
                                     is higher than the trick leading card but lower
                                     than the highest rank of the leading hand, then
                                     lho playing the lowest card will be the cheapest
                                     win */
-	else if (mp->rank > posPoint->stack[depth+1].move.rank) {
+	} else if (mp->rank > posPoint->stack[depth+1].move.rank) {
           if (BitRank(mp->rank) < ll) 
             weight=75-(mp->rank);  /* If played card is lower than any of the cards of
 						rho, it will be the cheapest win */
