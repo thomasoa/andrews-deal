@@ -23,6 +23,8 @@
 #    define EXTERN_C
 #endif
 
+typedef unsigned int holding_t;
+
 
 struct deal {
   int trump;
@@ -51,5 +53,6 @@ EXTERN_C DLLEXPORT int STDCALL SolveBoard(struct deal dl,
 
 EXTERN_C DLLEXPORT void STDCALL DDSInitStart();
 
+EXTERN_C DLLEXPORT holding_t distinctUnplayedCards(holding_t origHolding, holding_t played,holding_t *sequence);
 #endif
 
