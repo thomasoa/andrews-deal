@@ -15,7 +15,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-source lib/gib.tcl
 
 set ddline(counter) 0
 
@@ -28,7 +27,7 @@ proc write_deal {} {
 	lappend line [join [$hand] "."]
 	set handdd [list]
 	foreach suit {spades hearts diamonds clubs notrump} {
-	    lappend handdd [tricks $hand $suit]
+	    lappend handdd [deal::tricks $hand $suit]
 	}
 	lappend dd $handdd
     }

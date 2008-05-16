@@ -57,9 +57,12 @@ namespace eval ddline {
 		    tricks $part(dd$hand) \
 		    holding $h {
 		set holdings($suit) $holding
-		::deal::metadata tricks.$hand.$suit {expr $tricks}
+		::deal::metadata ddline.$hand.$suit {expr $tricks}
 	    }
 	    deck_stack_hand $hand [list $holdings(spades) $holdings(hearts) $holdings(diamonds) $holdings(clubs)]
 	}
     }
+
 }
+
+set deal::tricksCache ddline

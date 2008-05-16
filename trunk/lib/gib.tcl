@@ -140,10 +140,15 @@ namespace eval gib {
     # make in the denomination given.
     #
     proc tricks {declarer denom} {
-	::deal::metadata "tricks.$declarer.$denom" {
+	::deal::metadata "gib.$declarer.$denom" {
 	    rectify_tricks $declarer [nstricks $declarer $denom]
 	}
     }
+
+    proc tricksCmd {declarer denom} {
+      rectify_tricks $declarer [nstricks $declarer $denom]
+    }
+      
 
     #
     # determine which leads hold declarer to his tricks
@@ -275,7 +280,7 @@ namespace eval gib::library {
 	    set results [list $contract]
 	    foreach hand {south west north east} {
 		set tr [expr {15&$trickvalue}]
-		::deal::metadata tricks.$hand.$contract {
+		::deal::metadata gib.$hand.$contract {
 		    gib::rectify_tricks $hand $tr
 		}
 		set trickvalue [expr {$trickvalue/16}]
@@ -333,4 +338,6 @@ namespace eval gib::library {
     namespace export get_next_deal initialize finalize
 }
 
+set deal::tricksCmd ::gib::tricksCmd
+set deal::tricksCache gib
 #gib::directory "c:/games/gib"

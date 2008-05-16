@@ -117,3 +117,21 @@ proc intersectclass {newclass args} {
     rename ___tempclass $newclass
 }
 
+namespace eval deal {
+
+    variable tricksCmd ::tricks
+    variable tricksCache "tricks"
+
+    #
+    # "tricks" - Determine the number of tricks declarer can
+    # make in the denomination given.
+    #
+    proc tricks {declarer denom} {
+	variable tricksCmd
+	variable tricksCache
+	::deal::metadata "$tricksCache.$declarer.$denom" [list $tricksCmd $declarer $denom]
+    }
+
+    namespace export tricks
+}
+
