@@ -41,7 +41,7 @@ namespace eval line {
 	    set file [lindex $args 0]
 	    set handle [open $file "r"]
 	}
-	deal_reset_cmds {::input::next}
+	deal_reset_cmds {::line::next}
     }
 
     proc next {} {
@@ -56,7 +56,9 @@ namespace eval line {
 	    return -code return
 	    
 	}
+        set hands [split $line "|"]
 	foreach hand {north east south west} val [split $line "|"] {
+            puts "$hand $val"
 	    deck_stack_hand $hand [split $val " "] 
 	}
 	deal_reset_cmds {::line::next}
