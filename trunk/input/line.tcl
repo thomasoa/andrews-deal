@@ -41,7 +41,6 @@ namespace eval line {
 	    set file [lindex $args 0]
 	    set handle [open $file "r"]
 	}
-	deal_reset_cmds {::line::next}
     }
 
     proc next {} {
