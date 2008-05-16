@@ -1347,7 +1347,7 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
       posPoint->removedRanks[s]=posPoint->removedRanks[s] |
         posPoint->rankInSuit[h][s];
   for (s=0; s<=3; s++)
-    posPoint->removedRanks[s]= ~(posPoint->removedRanks[s]);
+    posPoint->removedRanks[s]= 8191 & ~(posPoint->removedRanks[s]);
 
   for (s=0; s<=3; s++)       /* Suit */
     for (h=0; h<=3; h++)     /* Hand */
