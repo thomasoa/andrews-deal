@@ -61,7 +61,6 @@ using namespace std;
 #define Max(x, y) (((x) >= (y)) ? (x) : (y))
 #define Min(x, y) (((x) <= (y)) ? (x) : (y))
 
-typedef unsigned short int holding_t;
 
 
 
@@ -74,7 +73,7 @@ struct gameInfo  {          /* All info of a particular deal */
   int leadRank;
   int first;
   int noOfCards;
-  unsigned short int suit[4][4];
+  holding_t suit[4][4];
     /* 1st index is hand id, 2nd index is suit id */
 };
 
