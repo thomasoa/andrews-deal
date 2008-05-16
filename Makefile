@@ -13,7 +13,7 @@ CC=gcc
 #DEBUG_FLAGS=-g -ansi -Wall 
 #CPPFLAGS = -fno-rtti -g
 DEBUG_FLAGS=-O3 -ansi -Wall 
-CPPFLAGS = -fno-rtti -O3 -Winline
+CPPFLAGS = -fno-rtti -O3 -Winline -Wall
 
 # Change TCL_INCL to point to the directory containing Tcl's
 # include files
