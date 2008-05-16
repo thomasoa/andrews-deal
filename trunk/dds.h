@@ -195,7 +195,7 @@ struct pos {
   }
 
   inline int hasCard(int hand,int suit, int rank) const {
-    hasCardBitRank(hand,suit,BitRank(rank));
+    return hasCardBitRank(hand,suit,BitRank(rank));
   }
 
   inline LONGLONG getSuitLengths() {
@@ -207,6 +207,7 @@ struct pos {
 	suitLengths |= length[hand][suit];
       }
     }
+    return suitLengths;
   }
 
 #if 0

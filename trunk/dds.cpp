@@ -89,18 +89,18 @@ inline holding_t smallestRankInSuit(holding_t h) {
    }
 }
 
-inline holding_t distinctUnplayedCards(holding_t origHolding, holding_t played,holding_t &sequence) {
+extern "C" inline holding_t distinctUnplayedCards(holding_t origHolding, holding_t played,holding_t *sequence) {
    holding_t bitRank;
    holding_t unplayed = origHolding & (~played);
    holding_t result = 0;
    int inSequence=0;
-   sequence = 0;
+   *sequence = 0;
    if (unplayed) {
      //for (int k=12 /* AceRank */ ; k>=0 ; k--) {
      for (bitRank = (1<<12); bitRank; bitRank >>= 1) {
        if (unplayed & bitRank) {
           if (inSequence) {
-            sequence |= bitRank;
+            *sequence |= bitRank;
           } else {
             result |= bitRank;
           }
@@ -135,29 +135,29 @@ public:
 #endif
     for (int hand=0; hand<4; hand++) {
       for (int suit=0; suit<4; suit++) {
-	starting[hand][suit] = init[hand][suit];
 #ifdef UNPLAYEDLOOKUPTABLE
 	if (starting[hand][suit] != init[hand][suit]) {
 	  changed = 1;
 	}
 #endif
+	starting[hand][suit] = init[hand][suit];
       }
     }
 #ifdef UNPLAYEDLOOKUPTABLE
     if (changed) {
-      memset((void *)table,0,sizeof(table));
+      cerr << "Changed!" << endl;
+      //memset((void *)table,0,sizeof(table));
     }
 #endif
   }
 
   inline holding_t getUnplayed(int hand, int suit, holding_t played,holding_t &sequence) {
     holding_t holding = starting[hand][suit];
-    holding_t cards;
+#ifdef UNPLAYEDLOOKUPTABLE
     if (holding==0) { sequence = 0; return 0; }
 
     holding_t index = played;
 
-#ifdef UNPLAYEDLOOKUPTABLE
     struct unplayed &lookup = table[hand][suit][index];
 
     if (lookup.sequence == 0) {
@@ -176,7 +176,7 @@ public:
 
     return lookup.unplayed;
 #else
-    return distinctUnplayedCards(holding,played,sequence);
+    return distinctUnplayedCards(holding,played,&sequence);
 #endif
   }
 
