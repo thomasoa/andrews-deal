@@ -4,6 +4,7 @@
 using namespace std;
 #endif
 
+//#define UNPLAYEDLOOKUPTABLE
 #include "ddsInterface.h"
 
 #if !defined(_MSC_VER)
@@ -104,6 +105,8 @@ struct makeType {
   unsigned short int winRanks[4];
 };
 
+//static const holding_t bitMapRank[] = { 0, 0, 0x1, 0x2,0x4,0x8,0x10,0x20,0x40,0x80,0x100,0x200,0x400,0x800,0x1000,0x2000,0x4000 };
+
 inline holding_t BitRank(int rank) {
   /*
    * Trick calculation
@@ -111,8 +114,8 @@ inline holding_t BitRank(int rank) {
    */
   return (1<<rank)>>2;
 #if 0
-  /* Old code was */
   return bitMapRank[rank];
+  /* Old code was */
 
   /* Direct code is */
   if (rank>=2 && rank<=15) {
