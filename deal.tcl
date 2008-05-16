@@ -132,6 +132,5 @@ namespace eval deal {
 	::deal::metadata "$tricksCache.$declarer.$denom" [list $tricksCmd $declarer $denom]
     }
 
-    namespace export tricks
 }
 
