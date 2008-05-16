@@ -58,7 +58,6 @@ namespace eval line {
 	}
         set hands [split $line "|"]
 	foreach hand {north east south west} val [split $line "|"] {
-            puts "$hand $val"
 	    deck_stack_hand $hand [split $val " "] 
 	}
 	deal_reset_cmds {::line::next}
