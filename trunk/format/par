@@ -90,12 +90,12 @@ namespace eval par {
 	set vul [getVul]
 	incr par(num) $par(incr)
 	puts stderr "Computing par for deal $num $dealer $vul"
-	set par [parscore $dealer $vul]	
-	set contract [lindex $par 0]
-	set declarer [lindex $par 1]
-	set score    [lindex $par 2]
-	set tricks [lindex $par 3]
-	set auction [lindex $par 4]
+	set mypar [parscore $dealer $vul]	
+	set contract [lindex $mypar 0]
+	set declarer [lindex $mypar 1]
+	set score    [lindex $mypar 2]
+	set tricks [lindex $mypar 3]
+	set auction [lindex $mypar 4]
 	pbn_write_line Date $par(Date)
 	pbn_write_line Board $num
 
@@ -117,6 +117,11 @@ namespace eval par {
 	pbn_write_line Score "NS $score"
 	puts "{"
 	::formatter::write_deal
+        foreach hand {north east south west} {
+          foreach denom {clubs diamonds hearts spades notrump} {
+            puts "$hand makes [::deal::tricks $hand $denom] tricks in $denom"
+          }
+        }
 	puts "}"
 
 	pbn_write_line Auction [par_first_upper $dealer]
