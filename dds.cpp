@@ -114,7 +114,7 @@ extern "C" inline holding_t distinctUnplayedCards(holding_t origHolding, holding
    return  result;
 }
 
-//#define UNPLAYEDLOOKUPTABLE
+#define UNPLAYEDLOOKUPTABLE
 struct UnplayedCardsFinder {
 protected:
 #ifdef UNPLAYEDLOOKUPTABLE
