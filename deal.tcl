@@ -20,13 +20,13 @@
 source format/default
 
 proc dds_reset_command {} {
-  if (0) {
   dds_reset
   deal_reset_cmds [list dds_reset_commmand]
-  }
 }
 
-dds_reset_command
+if {[string equal [info commands dds_reset] "dds_reset"]} {
+  dds_reset_command
+}
 
 namespace eval deal {
 
