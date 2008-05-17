@@ -198,16 +198,15 @@ struct pos {
     return hasCardBitRank(hand,suit,BitRank(rank));
   }
 
-  inline LONGLONG getSuitLengths() {
-    LONGLONG suitLengths = 0;
+  inline void getSuitLengths(LONGLONG &lengths) {
     int hand, suit;
-    for (suit=0; suit<2; suit++) {
-      for (hand=0; hand<3; hand++) {
-	suitLengths <<= 4;
-	suitLengths |= length[hand][suit];
+    lengths = 0;
+    for (suit=0; suit<=2; suit++) {
+      for (hand=0; hand<=3; hand++) {
+	lengths = lengths << 4;
+        lengths |= length[hand][suit];
       }
     }
-    return suitLengths;
   }
 
 #if 0

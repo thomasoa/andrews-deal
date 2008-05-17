@@ -3,13 +3,26 @@
 #include "dealtypes.h"
 #include "ddsInterface.h"
 
+#ifdef BENCH
 int totalNodes = 0;
+#endif
+
+static int LastTrump = -1;
+static int CountCalls = 0;
+
+static int tcl_double_dummy_reset(TCLOBJ_PARAMS) TCLOBJ_DECL
+{
+   LastTrump = -1;
+   return TCL_OK;
+}
+
 /* This code directly borrows from Alex Martelli's Python interface to dds. */
 static int tcl_double_dummy_solve(TCLOBJ_PARAMS) TCLOBJ_DECL
 {
   int goal=-1;
   int defenseGoal = -1;
   int hand, suit,result;
+  int mode;
   struct deal d;
   int status;
 
@@ -55,7 +68,21 @@ static int tcl_double_dummy_solve(TCLOBJ_PARAMS) TCLOBJ_DECL
       d.remainCards[ddsHand][suit] = globalDeal.hand[hand].suit[suit] << 2;
     }
   }
-  status = SolveBoard(d,defenseGoal,1,0,&futp);
+ 
+  if (d.trump != LastTrump) {
+    if (CountCalls == 0) { 
+       mode = 0;
+    } else {
+       mode = 1;
+    }
+  } else {
+    mode = 2;
+  }
+  /* fprintf(stderr,"mode = %d\n",mode); */
+  status = SolveBoard(d,defenseGoal,1,mode,&futp);
+  LastTrump = d.trump;
+  CountCalls++;
+  
   if (status != 1) {
     Tcl_SetObjResult(interp,Tcl_NewIntObj(status));
     Tcl_AppendResult(interp,"dds failed due to error status from double dummy solver",NULL);
@@ -89,5 +116,6 @@ int DDS_Init(interp)
 {
   DDSInitStart();
   Tcl_CreateObjCommand(interp,"tricks",tcl_double_dummy_solve,NULL,NULL);
+  Tcl_CreateObjCommand(interp,"dds_reset",tcl_double_dummy_reset,NULL,NULL);
   return TCL_OK;
 }

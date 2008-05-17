@@ -22,8 +22,13 @@ proc write_deal {} {
     global ddline
     set line [list]
     set dd [list]
+    foreach suit {spades hearts diamonds clubs notrump} {
+      puts -nonewline stderr "."
+      foreach hand {north east south west} {
+        set dummy [deal::tricks $hand $suit]
+      }
+    }
     foreach hand {north east south west} {
-	puts -nonewline stderr "."
 	lappend line [join [$hand] "."]
 	set handdd [list]
 	foreach suit {spades hearts diamonds clubs notrump} {
