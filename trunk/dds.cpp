@@ -96,7 +96,6 @@ extern "C" inline holding_t distinctUnplayedCards(holding_t origHolding, holding
    int inSequence=0;
    *sequence = 0;
    if (unplayed) {
-     //for (int k=12 /* AceRank */ ; k>=0 ; k--) {
      for (bitRank = (1<<12); bitRank; bitRank >>= 1) {
        if (unplayed & bitRank) {
           if (inSequence) {
@@ -115,19 +114,21 @@ extern "C" inline holding_t distinctUnplayedCards(holding_t origHolding, holding
    return  result;
 }
 
+//#define UNPLAYEDLOOKUPTABLE
 struct UnplayedCardsFinder {
 protected:
+#ifdef UNPLAYEDLOOKUPTABLE
   struct unplayed {
     holding_t unplayed;
     holding_t sequence; /* Nonzero if lookup has occured */
   };
-#ifdef UNPLAYEDLOOKUPTABLE
   struct unplayed table[4][4][8192];
 #endif
-
   holding_t starting[4][4];
 
 public:
+
+  UnplayedCardsFinder() {}
 
   void initialize(const holding_t init[4][4]) {
 #ifdef UNPLAYEDLOOKUPTABLE
@@ -145,11 +146,17 @@ public:
     }
 #ifdef UNPLAYEDLOOKUPTABLE
     if (changed) {
-      //cerr << "Changed!" << endl;
       memset((void *)table,0,sizeof(table));
     }
 #endif
   }
+
+#if 0
+  inline void log() const {
+    cout << "Unplayed lookup " << lookupCount << " of " << callCount << endl;
+  }
+#endif
+
 
   inline holding_t getUnplayed(int hand, int suit, holding_t played,holding_t &sequence) {
     holding_t holding = starting[hand][suit];
@@ -160,11 +167,12 @@ public:
 
     struct unplayed &lookup = table[hand][suit][index];
 
+    
     if (lookup.sequence == 0) {
-      lookup.unplayed = distinctUnplayedCards(holding,played,lookup.sequence);
-      if (lookup.sequence == 0) { lookup.sequence == 8192; }
+      
+      lookup.unplayed = distinctUnplayedCards(holding,played,&lookup.sequence);
+      if (lookup.sequence == 0) { lookup.sequence = 8192; }
     } else {
-
     }
     
 
@@ -498,8 +506,7 @@ extern "C" BOOL APIENTRY DllMain(HMODULE hModule,
     posSearch=pl[0];
     wcount=0; ncount=0; lcount=0;
     InitGame(0, FALSE, first, handRelFirst);
-  }
-  else {
+  } else {
     InitGame(0, TRUE, first, handRelFirst);
 	/*fp2=fopen("dyn.txt", "a");
 	fprintf(fp2, "wcount=%d, ncount=%d, lcount=%d\n", 
@@ -532,6 +539,7 @@ extern "C" BOOL APIENTRY DllMain(HMODULE hModule,
       return 1;
     }
   }
+
   if ((target==0)&&(solutions<3)) {
     MoveGen(&lookAheadPos, iniDepth);
     futp->nodes=0;
@@ -588,15 +596,13 @@ extern "C" BOOL APIENTRY DllMain(HMODULE hModule,
         futp->score[0]=-1;
 	else
 	  futp->score[0]=0;
-    }
-    else {
+    } else {
       futp->suit[0]=bestMove[game.noOfCards-4].suit;
       futp->rank[0]=bestMove[game.noOfCards-4].rank;
 	futp->equals[0]=(bestMove[game.noOfCards-4].sequence)<<2;
       futp->score[0]=payOff;
     }
-  }
-  else {
+  } else {
     g=estTricks[handToPlay];
     upperbound=13;
     lowerbound=0;
@@ -864,6 +870,9 @@ extern "C" BOOL APIENTRY DllMain(HMODULE hModule,
 	fprintf(fp2, "\n");
     fclose(fp2);
   }*/
+#if 0
+  unplayedFinder.log();
+#endif
   return 1;
 }
 
@@ -1688,12 +1697,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
       posPoint->orderSet[ss]=rel[aggr[ss]].aggrRanks[ss];
     }
     tricks=depth>>2;
-    suitLengths=0; 
-    for (ss=0; ss<=2; ss++)
-      for (hh=0; hh<=3; hh++) {
-	  suitLengths=suitLengths<<4;
-	  suitLengths|=posPoint->length[hh][ss];
-	}
+    posPoint->getSuitLengths(suitLengths);
     	
     pp=SearchLenAndInsert(rootnp[tricks][hand], suitLengths, FALSE, &res);
 	/* Find node that fits the suit lengths */
@@ -1827,7 +1831,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
 	    }
 	    tricks=depth/4;
 	    hfirst=posPoint->stack[depth].first;
-	    suitLengths = posPoint->getSuitLengths();
+	    posPoint->getSuitLengths(suitLengths);
 
 	    pp=SearchLenAndInsert(rootnp[tricks][hfirst], suitLengths, FALSE, &res);
 		 /* Find node that fits the suit lengths */

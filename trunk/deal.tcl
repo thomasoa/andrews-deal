@@ -19,6 +19,15 @@
 #
 source format/default
 
+proc dds_reset_command {} {
+  if (0) {
+  dds_reset
+  deal_reset_cmds [list dds_reset_commmand]
+  }
+}
+
+dds_reset_command
+
 namespace eval deal {
 
     variable metadata
@@ -34,6 +43,7 @@ namespace eval deal {
 		puts stderr "Error: $errorInfo"
 	    } else {
 		deal_reset_cmds [list unset ::deal::metadata($name)]
+		#deal_reset_cmds [list puts "unset ::deal::metadata($name)"]
 	    }
 	}
 	return $metadata($name)
