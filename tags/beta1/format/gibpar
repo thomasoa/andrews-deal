@@ -1,0 +1,150 @@
+#
+# Copyright (C) 1996-2001, Thomas Andrews
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+source lib/parscore.tcl
+
+namespace eval gibpar {
+
+    variable gibpar
+
+    set gibpar(num) 1
+    set gibpar(incr) 1
+    set gibpar(dealer) [list north east south west]
+    set gibpar(vul) [list None NS EW All NS EW All None EW All None NS All None NS EW]
+
+    set gibpar(Date) [clock format [clock seconds] -format "%Y.%m.%d"]
+
+    foreach seat {North East South West} {
+	set gibpar($seat) "$seat"
+    }
+
+    set gibpar(letter:north) N
+    set gibpar(letter:east) E
+    set gibpar(letter:west) W
+    set gibpar(word:doubled) X
+    set gibpar(word:redoubled) XX
+    set gibpar(word:) ""
+    set gibpar(lho:south) W
+    set gibpar(lho:west) N
+    set gibpar(lho:north) E
+    set gibpar(lho:east) S
+
+    proc pbn_write_line {key value} {
+	puts "\[$key \"$value\"\]"
+    }
+
+    proc getVul {} {
+	variable gibpar
+	set vullist $gibpar(vul)
+	set num $gibpar(num)
+	set index [expr {($num-1)%[llength $vullist]}]
+	lindex $vullist $index
+    }
+
+    proc dealerOrder {args} {
+	variable gibpar
+	set gibpar(dealer) $args
+    }
+
+    proc vulOrder {args} {
+	variable gibpar
+	set gibpar(vul) $args
+    }
+
+    proc getDealer {} {
+	variable gibpar
+	set dlrlist $gibpar(dealer)
+	set num $gibpar(num)
+	set index [expr {($num-1)%[llength $dlrlist]}]
+	lindex $dlrlist $index
+    }
+
+    proc pbn_contract {contract} {
+	variable gibpar
+	set level [lindex $contract 0]
+	set denom [lindex $contract 1]
+	set dbl [lindex $contract 2]
+
+	append level [par_first_upper $denom] $gibpar(word:$dbl)
+    }
+
+    proc write_deal {} {
+	
+	variable gibpar
+	set num $gibpar(num)
+	set dealer [getDealer]
+	set vul [getVul]
+	incr gibpar(num) $gibpar(incr)
+	puts stderr "Computing par for deal $num $dealer $vul"
+	set par [parscore $dealer $vul]	
+	set contract [lindex $par 0]
+	set declarer [lindex $par 1]
+	set score    [lindex $par 2]
+	set tricks [lindex $par 3]
+	set auction [lindex $par 4]
+	pbn_write_line Date $gibpar(Date)
+	pbn_write_line Board $num
+
+	foreach seat {West North East South} {
+	    pbn_write_line $seat $gibpar($seat)
+	}
+
+	pbn_write_line Dealer [par_first_upper $dealer]
+	pbn_write_line Vulnerable $vul
+
+	foreach hand {north east south west} {
+	    set fmt($hand) "[$hand spades].[$hand hearts].[$hand diamonds].[$hand clubs]"
+	}
+	pbn_write_line Deal "N:$fmt(north) $fmt(east) $fmt(south) $fmt(west)"
+
+	pbn_write_line Contract [pbn_contract $contract]
+	pbn_write_line Declarer [par_first_upper $declarer]
+	pbn_write_line Result $tricks
+	pbn_write_line Score "NS $score"
+	puts "{"
+	::formatter::write_deal
+	puts "}"
+
+	pbn_write_line Auction [par_first_upper $dealer]
+
+	set count 0	
+	foreach bid $auction {
+	    if {$count==4} {
+		puts ""
+		set count 0
+	    }
+
+	    if {$count>0} {
+		puts -nonewline "   "
+	    }
+
+	    puts -nonewline $bid
+	    incr count
+	}
+
+
+	puts ""
+
+	pbn_write_line Play $gibpar(lho:$declarer)
+	puts "*"
+	puts ""
+    }
+}
+
+proc write_deal {} {
+    ::gibpar::write_deal
+}
