@@ -17,7 +17,6 @@
 #
 
 source lib/score.tcl
-source lib/gib.tcl
 
 proc rlist {A B C D} {list $D $C $B $A}
 
@@ -44,8 +43,11 @@ proc par_upcase {word} {
     append first $rest
 }
 
-
 proc parscore {dealer whovul} {
+    deal::metadata parscore.$dealer.$whovul [list parscore_uncached $dealer $whovul]
+}
+
+proc parscore_uncached {dealer whovul} {
     if {"$whovul"=="EW"} {
 	set vul(EW) vul
         set vul(NS) nonvul
@@ -62,8 +64,8 @@ proc parscore {dealer whovul} {
 
     global parscore
 
-    foreach hand {north east south west} {
-	foreach denom {notrump spades hearts diamonds clubs} {
+    foreach denom {notrump spades hearts diamonds clubs} {
+        foreach hand {north east south west} {
 	    set tricks($hand:$denom) [deal::tricks $hand $denom]
 	}
     }
@@ -79,12 +81,18 @@ proc parscore {dealer whovul} {
     set passes(2) "Pass Pass"
     set passes(1) "Pass"
     set passes(0) ""
+    set biggestfit 0
 
     for {set level 1} {$level<=7} {incr level} {
 	set anymake 0
 	foreach denom {clubs diamonds hearts spades notrump} {
             set passcount 4
 	    foreach declarer $hands {
+                if {$denom == "notrump"} {
+                  set fit 14
+                } else {
+                  set fit [expr {[$denom $declarer]+[$denom [partner $declarer]]}]
+                }
 		incr passcount -1
 		set pair $parscore(pair:$declarer)
 		if {$tricks($declarer:$denom)<6+$level} { 
@@ -99,7 +107,8 @@ proc parscore {dealer whovul} {
 		set mult $parscore(mult:$declarer)
 		set newscore [score $contract $vul($pair) $tricks($declarer:$denom)]
 		#puts "Comparing [expr {$mult*$newscore}] in $contract by $declarer to $bestscore in $bestcontract by $bestdeclarer"
-		if {$newscore>$mult*$bestscore} {
+		if {$newscore>$mult*$bestscore || (($newscore==$mult*$bestscore) && $fit>$biggestfit) } {
+                    set biggestfit $fit
 		    set bestcontract $contract
 		    set bestdeclarer $declarer
 		    set bestscore [expr {$mult*$newscore}]
