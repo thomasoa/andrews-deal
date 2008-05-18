@@ -788,7 +788,8 @@ source lib/gib.tcl
 gib::tricks <em>declarer</em> <em>denomination</em>
 </pre></blockquote>
 <h3>Summary</h3>
-<em>Denomination</em> can be a suit name or "<code>notrump</code>."
+<p>You probably want to use the <a href="#deal::tricks"><code>deal::tricks</code></a> command, even when using GIB's double dummy solver.
+<p><em>Denomination</em> can be a suit name or "<code>notrump</code>."
 <em>Declarer</em> can be any hand name.
 <p>
 This routine returns the double-dummy number of tricks available
@@ -796,7 +797,7 @@ in this deal, in the given denomination by the given declarer.
 <p>
 If GIB is installed anywhere unusual, you will need to call
 <a href="#gib::directory"><code>gib::directory</code></a> before
-<code>gib::tricks</code> is called.
+<code>deal::tricks</code> is called.
 <td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
 <tr>
 <td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
@@ -839,10 +840,6 @@ into a PBN file.
 Dealer is relevant on a few occasions.  If both south and west can make
 1NT, for example, and no 2-level contracts make, then "par" is 1NT by
 whomever gets a chance to bid it first.
-<p>
-If GIB is installed anywhere unusual, you will need to call
-<a href="#gib::directory"><code>gib::directory</code></a> before
-<code>gib::tricks</code> is called.
 <td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
 <tr>
 <td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
@@ -1153,8 +1150,8 @@ This allows the script writer to do one of several things before
 the deal is generated:
 <ul>
 <li>Delete metadata related to the deal.  For example, the first time
-the user calls <code>gib::tricks south spades</code> it calls the 
-GIB double-dummy processor.  Each time after that, it uses a stored
+the user calls <code>deal::tricks south spades</code> it calls the 
+double-dummy processor.  Each time after that, it uses a stored
 value for this function call up until the next call to
 <code>deal_deck</code>.
 <li>The reset command might, instead, read the next deal from a file,
@@ -1163,9 +1160,6 @@ is called, it just deals that hand from the file.  This is a crude
 way of allowing Deal to transparently read deals from a file (or generate
 deals in other ways, such as <a href="#smartstack">smart stacking.</a>
 </ul>
-<a href="#deal::metadata">
-<li>
-
 <td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
 <tr>
 <td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
@@ -1389,7 +1383,7 @@ namespace eval line {
 }
 </pre></blockquote>
 <p>
-The key is that when line::next is done, it re-registers itself, making
+The key is that when <code>line::next</code> is done, it re-registers itself, making
 sure that it is called next time through as well.
 <p>
 The <em>code</em> passed in to <code>deal_reset_cmds</code> is
@@ -1405,10 +1399,6 @@ counter-intuitive until you think of the process as an "undo" process.
 <dt>Location:</dt>
 <dd><code>tcl_deal.c</code>, function <code>add_reset_cmds</code>
 </dl>
-This callback idea is fairly powerful, and will probably be clarified
-and elaborated in later releases.  Unfortunately, initial efforts to use
-it to alter the deal source (by say reading deals from a file) have
-been mixed - Windows/DOS seems to choke occasionally on it.
 </font>
 </table>
 </table>
@@ -1426,7 +1416,7 @@ deal::metadata <em>name</em> {<em>...code...</em>}
 <h3>Summary</h3>
 Currently, this is just a peculiar way of caching slow evaluation routines.
 At the moment, the only place it is used is in
-<a href="#gib::tricks"><code>gib::tricks</code></a>.
+<a href="#deal::tricks"><code>deal::tricks</code></a>.
 <p>
 When you call <code>deal::metadata</code>, it will check to see if
 there is a value associated with the <em>name</em> requested 
@@ -1513,7 +1503,7 @@ or
 <h3>Summary</h3>
 Specifies that deals are read from the specified file in the format
 of Matt Ginsberg's library.dat file.  This includes double-dummy tricks
-data, so that later calls to <a href="#gib::tricks"><code>gib::tricks</code></a>
+data, so that later calls to <a href="#deal::tricks"><code>deal::tricks</code></a>
 will not entail calls to the GIB binaries.
 <p>
 If no filename is given, the library tries to read from a file called
