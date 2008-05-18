@@ -31,25 +31,17 @@ style="width:225px;height:216px"
 <hr>
 
 <h3><a name="deal31">Downloading Deal 3.1</a></h3>
-<ul>
-<li>There is currently no Windows build for the Deal 3.1 release, sorry.  I'm working on it, really.
-<p>You can download the previous Windows release here: <a href="deal308win.zip">DOS/Windows release of Deal 3.0</a> [460K].  
-<p> This is a standalone release, just unzip it and you are ready to
-run.  It will create a directory called "deal308."
-<p>
-<span class="alert">Note: </span>This is <em>not</em> a Windows program - it is a DOS program.  If, after
-unzipping, you double click on the Deal application, it will open a DOS
-window, deal 10 deals, then close, which is hardly useful.  See the
-<a href="quickdos.html">Windows/DOS tutorial</a> for operation instructions.
-<li><a href="deal310src.zip">The Deal 3.1 source code (.zip file)</a>,
-[280K]. <em>This source release is intended for use with "make," and hence
-more of a Unix source release.</em> Unzip this file - it should create
-a source directory called deal310. Then go to <a
-href="#building">Building Deal</a> for hints on how to build Deal on 
-your platform.  
-</ul>
+<p>Go to the <a href="http://bridge.thomasoandrews.com/deal/">main Deal page</a> to download the latest version.
 <h3><a name="changes">Recent Changes</a></h3>
 <pre class="codesample">
+Changes in Deal 3.1.1
+
+   * Implemented deal::tricks for caching of double dummy data
+     and uniform interface to double dummy tricks data
+
+   * Changed call to Haglund's solver to re-use data when processing
+     contracts in the same denomination and different declarers.
+
 Changes in Deal 3.1
 
    * Added Bo Haglund's Double Dummy Solver
@@ -206,7 +198,7 @@ New to Deal 3.0:
 
 <h3><a name="building">Building Deal</a></h3>
 <h4>Selecting Tcl</h4>
-Many Unix and Linux computers already have Tcl installed.  If your
+Many Unix and Linux computers already have Tcl installed, as do Mac's running OS X.  If your
 computer does not, you will need to select a version and install it.
 <p>
 On Unix, I'd recommend Tcl 8.3.x (or later,) but on Windows, I'd recommend Tcl
