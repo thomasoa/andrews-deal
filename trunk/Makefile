@@ -65,6 +65,7 @@ BUILDFILES=Makefile Make.dep
 OTHERFILES=CHANGES LICENSE GPL input format lib deal.tcl docs
 
 SOURCEKIT=$(SRCKIT) $(HFILES) $(EXAMPLES) $(BUILDFILES) $(OTHERFILES) $(EXTRAS)
+BINKIT=$(EXAMPLES) $(OTHERFILES)
 UUKIT=$(EXAMPLES) $(OTHERFILES) deal
 
 deal: $(OBJS)
@@ -134,12 +135,14 @@ DEAL_VERSION=311
 OLD_VERSION=308
 RELEASE=$(KITNAME)$(DEAL_VERSION)
 SRCDIR=$(RELEASE)
+BINDIR=$(RELEASE)-bin
 SRCZIP=$(SRCDIR).zip
 EXEZIP=$(SRCDIR)exe.zip
 DOCZIP=$(SRCDIR)doc.zip
 SRCTAR=$(SRCDIR).tar
 SRCGZIP=$(SRCTAR).gz
 BINZIP=$(KITNAME)exe.zip
+DMG=$(BINDIR).dmg
 DIFFZIP=deal$(DEAL_VERSION)diff.zip
 OLDZIP=../deal/deal$(OLD_VERSION).zip
 OLDDIR=$(KITNAME)$(OLD_VERSION)
@@ -153,16 +156,23 @@ CHANGES: docs/html/CHANGES.txt
 
 zip: $(SRCZIP) 
 
+dmg: $(DMG)
+
 xzip: $(EXEZIP)
 
 dzip: $(DOCZIP)
+
+$(BINDIR): $(BINKIT) docs/html docs/graphics
+	rm -rf $(BINDIR)
+	mkdir $(BINDIR)
+	/bin/ls -1d $(BINKIT) | xargs tar cf - | (cd $(BINDIR) ; tar xf -)
 
 $(SRCDIR): $(SOURCEKIT) docs/html docs/graphics
 	mv Make.dep Make.dep.saved
 	touch Make.dep
 	rm -rf $(SRCDIR)
 	mkdir $(SRCDIR)
-	ls -1d $(SOURCEKIT) | xargs tar cf - | (cd $(SRCDIR) ; tar xf -)
+	/bin/ls -1d $(SOURCEKIT) | xargs tar cf - | (cd $(SRCDIR) ; tar xf -)
 	mv Make.dep.saved Make.dep
 
 $(SRCZIP): $(SRCDIR)
@@ -171,6 +181,13 @@ $(SRCZIP): $(SRCDIR)
 $(EXEZIP): $(SRCDIR)
 	rm -f $(EXEZIP)
 	zip -r $(EXEZIP) $(SRCDIR)/ex $(SRCDIR)/input $(SRCDIR)/format $(SRCDIR)/docs $(SRCDIR)/CHANGES $(SRCDIR)/LICENSE $(SRCDIR)/GPL $(SRCDIR)/lib $(SRCDIR)/deal.tcl -x \*~
+
+$(DMG): $(BINDIR) deal
+	cp deal $(BINDIR)/deal
+	/bin/rm -rf dmg
+	mkdir dmg
+	cp -r $(BINDIR) dmg/$(SRCDIR)
+	hdiutil create -srcfolder dmg $(DMG)
 
 $(DOCZIP): $(SRCDIR)
 	rm -f $(DOCZIP)
@@ -218,11 +235,7 @@ uu: deal
 depends:
 	$(CC) $(CFLAGS) -M *.c *.cpp >Make.dep
 
-test:
-	##setopt sys_load_cflags #$${sys_load_cflags} -L/tmp
-
 clean:
 	rm -rf deal $(OBJS) $(SRCDIR) $(SRCZIP) $(SRCGZIP) $(DOCZIP) $(EXEZIP)
-
 
 include Make.dep
