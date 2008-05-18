@@ -20,13 +20,19 @@ namespace eval ddline {
 
     ::deal::nostacking
 
-    proc set_input {{fname {}} {suitorder {spades hearts diamonds clubs}}} {
+    proc set_input {{fname {}} {skip 0} {suitorder {spades hearts diamonds clubs}}} {
 	variable glob
 	if {$fname!=""} {
 	    set glob(filehandle) [open $fname r]
 	} else {
 	    set glob(filehandle) stdin
 	}
+
+        while {$skip>0} {
+          incr skip -1
+          gets $glob(filehandle) line
+        }
+
 	set glob(suitorder) $suitorder
 	lappend glob(suitorder) notrump
 	deal_reset_cmds ::ddline::next
