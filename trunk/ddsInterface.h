@@ -1,5 +1,6 @@
 /*
  * Broken out from dds.h
+ * This file is the essential external "C" face to the dds.cpp file
  */
 #ifndef __DDSINTERFACE_H__
 #define __DDSINTERFACE_H__
