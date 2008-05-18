@@ -658,8 +658,55 @@ score {2 spades doubled} vul 7      =>  -200
 <a name="dds"></a>
 <h1>Double Dummy Solver</h1>
 <p>Starting with Deal 3.1, I've included simple access to <a href='http://web.telia.com/~u07502278/'>Bo Haglund's double-dummy solver library.</a></p>
+<a name="deal::tricks"></a>
+<h2>Command: <code>deal::tricks</code></h2>
+<table cellpadding=5 width="100%">
+<tr valign=top><td width="65%">
+<h3>Usage</h3>
+<blockquote><pre>
+deal::tricks <em>declarer</em> <em>denomination</em>
+</pre></blockquote>
+
+<h3>Summary</h3>
+<p><code>deal::tricks</code> returns the maximum number of tricks makable by <em>declarer</em> in the given <em>denomination</em>. 
+<p><em>declarer</em> must be one of "north", "east", "south", or "west." By default, it is "south."</p>
+<p><em>denomination</em> must be a suit name or "notrump."  The default value is "notrump."</p>
+<p>By default, deal::tricks uses the <a href="#tricks"><code>tricks</code></a> function, which calls Bo Haglund's double-dummy solver.</p>
+<p>However, if you include "lib/gib.tcl", <code>deal::tricks</code> will call the GIB double dummy solver.</p>
+<p><code>deal::tricks</code> caches values, so multiple calls for the same deal with the same declarer and denomination will not result in multiple calls to the
+double-dummy solver.</p>
+<p>Bo Haglund's solver has a feature which makes it faster if the next double dummy solver call is in the same denomination as the previous call.  That means that
+if you need all double-dummy values, you would want to write your code as:</p>
+<blockquote>
+<pre>
+   foreach denom {clubs diamonds hearts spades notrump} {
+     foreach hand {north east south west} {
+       set tricks [deal::tricks $hand $denom]
+       ,,,
+     }
+   }
+</pre>
+
+
+
+<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
+<tr>
+<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<dl><dt>Implementation:</dt>
+<dd>Tcl</dd>
+<dt>Location:</dt>
+<dd><code>deal.tcl</code>
+</dl>
+</font>
+</table>
+</table>
+</center>
+<hr>
+
+
+
 <a name="tricks"></a>
-<h2> Command: tricks</h2>
+<h2>Command: tricks</h2>
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
@@ -668,6 +715,8 @@ tricks [ <em>declarer</em> [ <em>denomination</em> [ <em>goal</em> ] ] ]
 </pre></blockquote>
 
 <h3>Summary</h3>
+<p>Unless you are using the <em>goal</em> parameter, you will probably want to use the <a href="#deal::tricks"><code>deal::tricks</code></a> command, since it has the
+advantage of caching values.</p>
 <p>When no goal is passed, "tricks" returns the maximum number of tricks makable by <em>declarer</em> in the given <em>denomination</em>. 
 <p>If a (positive) goal number of tricks is set, "tricks" returns 1 if declarer can make that many tricks, and 0 if the defense can always hold declarer to fewer tricks.
 <p><em>declarer</em> must be one of "north", "east", "south", or "west." By default, it is "south."</p>
