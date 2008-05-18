@@ -1,3 +1,11 @@
+Changes in Deal 3.1.1
+
+   * Implemented deal::tricks for caching of double dummy data
+     and uniform interface to double dummy tricks data
+
+   * Changed call to Haglund's solver to re-use data when processing
+     contracts in the same denomination and different declarers.
+
 Changes in Deal 3.1
 
    * Added Bo Haglund's Double Dummy Solver
