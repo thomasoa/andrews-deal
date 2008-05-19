@@ -89,6 +89,42 @@ inline holding_t smallestRankInSuit(holding_t h) {
    }
 }
 
+/*
+ * If you have the remaining cards in a suit as
+ *
+ *        AJ
+ * K43          T8
+ *        75
+ *
+ * from a play point of view, this is exactly the same as
+ *
+ *        AQ
+ * K76          JT
+ *        98
+ *
+ * We'll call this the "canonical" version of the remaining cards
+ * in the suit.
+ *
+ * This function takes the original holding in a suit, and a holding
+ * representing the played cards in the suit, and returns the canonical
+ * holding 
+ */
+extern "C" inline holding_t canonicUnplayedCards(holding_t origHolding, holding_t played) {
+  holding_t origCard;
+  holding_t cardsLeft = origHolding & (~played);
+  holding_t canonicalCard;
+  holding_t result = 0;
+  for (origCard=canonicalCard=1<<12; origCard; origCard >>= 1) {
+    if (!(origCard & played)) {
+      if (origCard & cardsLeft) {
+        result |= canonicalCard;
+      }
+      canonicalCard >>= 1;
+    }
+  }
+  return result;
+}
+
 extern "C" inline holding_t distinctUnplayedCards(holding_t origHolding, holding_t played,holding_t *sequence) {
    holding_t bitRank;
    holding_t unplayed = origHolding & (~played);
@@ -4655,12 +4691,7 @@ void BuildSOP(struct pos * posPoint, int tricks, int firstHand, int target,
     }
   }	
 
-  suitLengths=0; 
-  for (ss=0; ss<=2; ss++)
-    for (hh=0; hh<=3; hh++) {
-      suitLengths=suitLengths<<4;
-      suitLengths|=posPoint->length[hh][ss];
-    }
+  posPoint->getSuitLengths(suitLengths);
   
   np=SearchLenAndInsert(rootnp[tricks][firstHand], suitLengths, TRUE, &res);
   
