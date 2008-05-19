@@ -64,6 +64,7 @@ proc parscore_uncached {dealer whovul} {
 
     global parscore
 
+    # Quick call to precompute tricks
     foreach denom {notrump spades hearts diamonds clubs} {
         foreach hand {north east south west} {
 	    set tricks($hand:$denom) [deal::tricks $hand $denom]
