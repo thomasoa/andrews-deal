@@ -736,6 +736,49 @@ advantage of caching values.</p>
 </table>
 </center>
 <hr>
+<a name="parscore"></a>
+<h2>Command: <code>parscore</code></h2>
+<table cellpadding=5 width="100%">
+<tr valign=top><td width="65%">
+<h3>Usage</h3>
+<blockquote><pre>
+source lib/parscore.tcl
+   ...
+set result [parscore <em>dealer</em> <em>vul</em>]
+
+set contract [lindex $result 0]
+set declarer [lindex $result 1]
+set score [lindex $result 2]
+set tricks [lindex $result 3]
+set auction [lindex $result 4]
+</pre></blockquote>
+<h3>Summary</h3>
+This computes the double-dummy par result for the hand.
+<p>
+The parscore routine returns a list of five values - the contract (in
+the same form that is used by the <a href="#score"><code>score</code></a>
+routine above), the declarer, the score for north/south, the number of
+tricks taken, and a "stupid" auction to the contract suitable for putting
+into a PBN file.
+<p>
+Dealer is relevant on a few occasions.  If both south and west can make
+1NT, for example, and no 2-level contracts make, then "par" is 1NT by
+whomever gets a chance to bid it first.
+<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
+<tr>
+<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<dl><dt>Implementation:</dt>
+<dd>Tcl
+<dt>Location:</dt>
+<dd><code>parscore.tcl</code>
+</dl>
+</font>
+</table>
+</table>
+</center>
+<hr>
+
+
 
 
 <a name="gibstuff"></a>
@@ -811,49 +854,6 @@ If GIB is installed anywhere unusual, you will need to call
 </table>
 </center>
 <hr>
-
-<a name="parscore"></a>
-<h2>Command: <code>parscore</code></h2>
-<table cellpadding=5 width="100%">
-<tr valign=top><td width="65%">
-<h3>Usage</h3>
-<blockquote><pre>
-source lib/parscore.tcl
-   ...
-set result [parscore <em>dealer</em> <em>vul</em>]
-
-set contract [lindex $result 0]
-set declarer [lindex $result 1]
-set score [lindex $result 2]
-set tricks [lindex $result 3]
-set auction [lindex $result 4]
-</pre></blockquote>
-<h3>Summary</h3>
-This computes the double-dummy par result for the hand.
-<p>
-The parscore routine returns a list of five values - the contract (in
-the same form that is used by the <a href="#score"><code>score</code></a>
-routine above), the declarer, the score for north/south, the number of
-tricks taken, and a "stupid" auction to the contract suitable for putting
-into a PBN file.
-<p>
-Dealer is relevant on a few occasions.  If both south and west can make
-1NT, for example, and no 2-level contracts make, then "par" is 1NT by
-whomever gets a chance to bid it first.
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
-<dl><dt>Implementation:</dt>
-<dd>Tcl
-<dt>Location:</dt>
-<dd><code>parscore.tcl</code>
-</dl>
-</font>
-</table>
-</table>
-</center>
-<hr>
-
 
 <h1>Bridge Command Builders</h1>
 
@@ -1543,17 +1543,41 @@ input.  This way, you can create a single data file and then
 run several different queries against it:
 <blockquote><pre>
 % deal -l 100000 > sample
-% deal -e "deal::input line sample" -i query1 
+% deal -e "deal::input line sample" -i query1
 % deal -e "deal::input line sample" -i query2
 </pre></blockquote>
 [ The <code>-e</code> option just evaluates the code in the next
 argument as Tcl code.  Alternative, you can use the <code>-I</code>
 option, which is shorthand for input formats:
 <blockquote><pre>
-% deal -I "line sample" -i query1 
+% deal -I "line sample" -i query1
 </pre></blockquote>
 The <code>-I <em>args</em></code> option is exactly the same as -e "deal::input <em>args</em>"
 
+<td width="35%">
+<table border=2 bgcolor="#EEFFDD" width="100%">
+<tr valign="top"><td>
+<dl>
+<font size="-1" color="#006600"><b>For Programmers:</b><p>
+<dt>Implementation:</dt>
+    <dd>Tcl code</dd>
+<dt>Location:</dt>
+    <dd>input/line.tcl</dd></dt>
+</dl>
+</table>
+</table>
+<a name="ddline"></a>
+<h2>Input Format: <code>ddline</code></h2>
+<table cellpadding=5 width="100%">
+<tr valign=top><td width="65%">
+<h3>Usage</h3>
+<blockquote><pre>
+deal::input line [<em>filename</em>]
+</pre></blockquote>
+<h3>Summary</h3>
+<p>Specifies that deals are read from the specified file in the format
+written by Deal's <a href="#format:ddline"><code>ddline</code> format.</a>
+<p>The ddline format include doubled-dummy tricks data, so when using <code>ddline</code> for input, calls to <a href="deal::tricks">deal::tricks</a> return the data read from the file.
 <td width="35%">
 <table border=2 bgcolor="#EEFFDD" width="100%">
 <tr valign="top"><td>
@@ -1694,6 +1718,39 @@ by default, but some output formats may require it if data is cached.
 </table>
 </center>
 <hr>
+
+<a name="format:ddline"></a>
+<h2>Output Format: <code>format/ddline</h2>
+<table cellpadding=5 width="100%">
+<tr valign=top><td width="65%">
+<h3>Usage</h3>
+<blockquote><pre>
+source format/ddline
+</pre></blockquote>
+<h3>Summary</h3>
+<p>By including this file, you are redefining the output format to the form "ddline", which writes out the deal on a single line, as with the '-l' flag, but then adds complete double-dummy data to the deal as well.  If you write the output to a file:
+<blockquote><pre>
+$ deal -i format/ddline 100 doubledummy.txt
+</pre></blockquote>
+<p>then you can use the <a href="#ddline"><code>ddline</code> input format</a> to read the file back in:
+<blockquote><pre>
+$ deal -I "ddline doubledummy.txt" -i query.tcl 100
+</pre></blockquote>
+<p>And any call to <code>deal::tricks</code> in query.tcl will use the value stored doubledummy.txt.
+<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
+<tr>
+<td ><font size=-1 color="#006600"><b>For Programmers</b><p>
+<dl><dt>Implementation:</dt>
+<dd>Tcl</dd.
+<dt>Location:</dt>
+<dd><code>format/ddline</code></dd>
+</dl>
+</font>
+</table>
+</table>
+</center>
+<hr>
+
 
 <!--
 <a name="hooks">
