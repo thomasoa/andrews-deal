@@ -44,25 +44,16 @@ namespace eval symmetric {
 	deal_reset_cmds {::symmetric::next}
     }
 
-    proc next {} {
-        variable cards
-        variable number
+    proc generate {num} {
         variable current
-        variable increment
-        variable endnumber
-
+        variable cards
 	reset_deck
         set holding(0) "A"
         set holding(1) ""
         set holding(2) ""
         set holding(3) ""
-        if {$number>=$endnumber} {
-          return -code return
-        }
 
-        set num $number
-        set current $number
-        incr number $increment
+        set current $num
         foreach card $cards {
           set suit [expr {$num%4}]
           append holding($suit) $card
@@ -74,6 +65,19 @@ namespace eval symmetric {
         deck_stack_hand north $holding(2) $holding(3) $holding(0) $holding(1)
         deck_stack_hand east  $holding(3) $holding(0) $holding(1) $holding(2)
         deal_deck
+    }
+
+    proc next {} {
+        variable number
+        variable increment
+        variable endnumber
+
+        if {$number>=$endnumber} {
+          return -code return
+        }
+
+        generate $number
+        incr number $increment
         
 	deal_reset_cmds {::symmetric::next}
     }
