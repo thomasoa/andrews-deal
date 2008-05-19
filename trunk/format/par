@@ -144,9 +144,11 @@ namespace eval par {
 
 	puts ""
 
-	pbn_write_line Play $par(lho:$declarer)
-	puts "*"
-	puts ""
+        if {$declarer != ""} {
+	  pbn_write_line Play $par(lho:$declarer)
+	  puts "*"
+	  puts ""
+        }
     }
 }
 
