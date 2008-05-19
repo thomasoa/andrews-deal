@@ -1719,6 +1719,84 @@ by default, but some output formats may require it if data is cached.
 </center>
 <hr>
 
+<a name="format:par"></a>
+<h2>Output Format: <code>format/par</h2>
+<table cellpadding=5 width="100%">
+<tr valign=top><td width="65%">
+<h3>Usage</h3>
+<blockquote><pre>
+source format/par
+</pre></blockquote>
+<h3>Summary</h3>
+<p>By including this file, you are setting the output format to write the results in PBN format, with results set to the double dummy theoretical par.
+<blockquote><pre>
+$ deal -i format/par 1
+[Date "2008.05.19"]
+[Board "1"]
+[West "West"]
+[North "North"]
+[East "East"]
+[South "South"]
+[Dealer "N"]
+[Vulnerable "None"]
+[Deal "N:K.A7.QJT9865.AK7 T94.K98532.2.943 A872.QT4.AK4.862 QJ653.J6.73.QJT5"]
+[Contract "6N"]
+[Declarer "S"]
+[Result "12"]
+[Score "NS 990"]
+{
+          S: K
+          H: A7
+          D: QJT9865
+          C: AK7
+ S: QJ653          S: T94
+ H: J6             H: K98532
+ D: 73             D: 2
+ C: QJT5           C: 943
+          S: A872
+          H: QT4
+          D: AK4
+          C: 862
+north makes 9 tricks in clubs
+north makes 12 tricks in diamonds
+north makes 8 tricks in hearts
+north makes 7 tricks in spades
+north makes 12 tricks in notrump
+east makes 3 tricks in clubs
+east makes 1 tricks in diamonds
+east makes 5 tricks in hearts
+east makes 4 tricks in spades
+east makes 1 tricks in notrump
+south makes 8 tricks in clubs
+south makes 12 tricks in diamonds
+south makes 8 tricks in hearts
+south makes 7 tricks in spades
+south makes 12 tricks in notrump
+west makes 3 tricks in clubs
+west makes 1 tricks in diamonds
+west makes 5 tricks in hearts
+west makes 4 tricks in spades
+west makes 1 tricks in notrump
+}
+[Auction "N"]
+Pass   Pass   6N
+[Play "W"]
+*
+</pre></blockquote>
+<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
+<tr>
+<td ><font size=-1 color="#006600"><b>For Programmers</b><p>
+<dl><dt>Implementation:</dt>
+<dd>Tcl</dd.
+<dt>Location:</dt>
+<dd><code>format/par</code></dd>
+</dl>
+</font>
+</table>
+</table>
+</center>
+<hr>
+
 <a name="format:ddline"></a>
 <h2>Output Format: <code>format/ddline</h2>
 <table cellpadding=5 width="100%">
@@ -1730,7 +1808,7 @@ source format/ddline
 <h3>Summary</h3>
 <p>By including this file, you are redefining the output format to the form "ddline", which writes out the deal on a single line, as with the '-l' flag, but then adds complete double-dummy data to the deal as well.  If you write the output to a file:
 <blockquote><pre>
-$ deal -i format/ddline 100 doubledummy.txt
+$ deal -i format/ddline 100 > doubledummy.txt
 </pre></blockquote>
 <p>then you can use the <a href="#ddline"><code>ddline</code> input format</a> to read the file back in:
 <blockquote><pre>
