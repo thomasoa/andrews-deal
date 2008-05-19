@@ -166,6 +166,7 @@ $(BINDIR): $(BINKIT) docs/html docs/graphics
 	rm -rf $(BINDIR)
 	mkdir $(BINDIR)
 	/bin/ls -1d $(BINKIT) | xargs tar cf - | (cd $(BINDIR) ; tar xf -)
+	find $(BINDIR) -name CVS -print | xargs /bin/rm -rf
 
 $(SRCDIR): $(SOURCEKIT) docs/html docs/graphics
 	mv Make.dep Make.dep.saved
