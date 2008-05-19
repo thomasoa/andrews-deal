@@ -238,7 +238,7 @@ extern "C" BOOL APIENTRY DllMain(HMODULE hModule,
     if (bestMove)
       free(bestMove);
     bestMove=NULL;
-    Wipe();
+   Wipe();
     if (pw[0])
       free(pw[0]);
     pw[0]=NULL;
@@ -2137,6 +2137,8 @@ struct makeType Make(struct pos * posPoint, int depth)  {
   for (suit=0; suit<=3; suit++)
     trickCards.winRanks[suit]=0;
 
+  current.initializeRemoved(previous);
+
   firstHand=current.first;
   r=movePly[depth].current;
 
@@ -2147,21 +2149,20 @@ struct makeType Make(struct pos * posPoint, int depth)  {
       if (mo1.rank>mo2.rank) {
 	current.move=mo1;
         current.high=HandStore(firstHand,3);
-      }
-      else {
+      } else {
 	current.move=previous.move;
         current.high=previous.high;
       }
-    }
-    else if (trumpContract && (mo1.suit==trump)) {
+    } else if (trumpContract && (mo1.suit==trump)) {
       current.move=mo1;
       current.high=HandStore(firstHand,3);
-    }  
-    else {
+    } else {
       current.move=previous.move;
       current.high=previous.high;
     }
 
+    current.removeCard(mo1);
+    current.removeCard(mo2);
     /* Is the trick won by rank? */
     suit=current.move.suit;
     /*rank=posPoint->stack[depth+h].stack[depth].move.rank;*/
@@ -2210,8 +2211,7 @@ struct makeType Make(struct pos * posPoint, int depth)  {
         }
       }
     }
-  }
-  else if (posPoint->handRelFirst==0) {   /* Is it the 1st hand? */
+  } else if (posPoint->handRelFirst==0) {   /* Is it the 1st hand? */
     posPoint->stack[depth-1].first=firstHand;   /* First hand is not changed in
                                             next move */
     current.high=firstHand;
@@ -2223,26 +2223,37 @@ struct makeType Make(struct pos * posPoint, int depth)  {
     w=movePly[depth].move[r].rank;
     posPoint->rankInSuit[t][u]=posPoint->rankInSuit[t][u] &
       (~BitRank(w));
-  }
-  else {
+    int removeThisPlay=0;
+    for (int relHand = 1; relHand<4 && !removeThisPlay; relHand++) {
+      int otherHand=(firstHand+relHand)%4;
+      // If there is a later hand which has only cards higher than this card, treat
+      // this card as played
+      if (posPoint->rankInSuit[otherHand][u] && !(posPoint->rankInSuit[otherHand][u] & (BitRank(w)-1))) {
+	current.removeCard(current.move);
+      }
+    }
+  } else {
     mo1=movePly[depth].move[r];
     mo2=previous.move;
     if (mo1.suit==mo2.suit) {
       if (mo1.rank>mo2.rank) {
 	current.move=mo1;
         current.high=HandStore(firstHand,posPoint->handRelFirst);
+	current.removeCard(mo2);
       } else {
 	current.move=previous.move;
         current.high=previous.high;
+	current.removeCard(mo1);
       }
     }
     else if (trumpContract && (mo1.suit==trump)) {
       current.move=mo1;
       current.high=HandStore(firstHand,posPoint->handRelFirst);
-    }  
-    else {
+      current.removeCard(mo2);
+    } else {
       current.move=previous.move;
       current.high=previous.high;
+      current.removeCard(mo1);
     }
     
     t=HandStore(firstHand,posPoint->handRelFirst);
@@ -2297,8 +2308,7 @@ void Undo(struct pos * posPoint, int depth)  {
         posPoint->secondBest[u].hand=posPoint->winner[u].hand;
         posPoint->winner[u].rank=w;
         posPoint->winner[u].hand=HandStore(firstHand,3-s);
-      }
-      else if (w>posPoint->secondBest[u].rank) {
+      } else if (w>posPoint->secondBest[u].rank) {
         posPoint->secondBest[u].rank=w;
         posPoint->secondBest[u].hand=HandStore(firstHand,3-s);
       }
