@@ -176,7 +176,7 @@ $(SRCDIR): $(SOURCEKIT) docs/html docs/graphics
 	mv Make.dep.saved Make.dep
 
 $(SRCZIP): $(SRCDIR)
-	zip -r $(SRCZIP) $(SRCDIR) -x \*~
+	zip -r $(SRCZIP) $(SRCDIR) -x \*~ -x *CVS/\*
 
 $(EXEZIP): $(SRCDIR)
 	rm -f $(EXEZIP)
