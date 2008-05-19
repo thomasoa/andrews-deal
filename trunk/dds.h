@@ -131,17 +131,21 @@ struct posStackItem {
   struct moveType move;      /* Presently winning move */              
   unsigned short int winRanks[4];  /* Cards that win by rank,
                                        indices are depth and suit */
-  // unsigned short int removed[4];
+  holding_t removed[4];
 
-#if 0
-  inline void removeCard(const moveType &move) {
+  inline void initializeRemoved(const posStackItem &prev) {
+    for (int suit=0; suit<4; suit++) {
+      removed[suit] = prev.removed[suit];
+    }
+  }
+
+  inline void removeCard(const moveType &aMove) {
      removed[move.suit] |= BitRank(move.rank);
   }
 
   inline int isRemoved(int suit,int rank) const {
     return removed[suit] & BitRank(rank);
   }
-#endif
 
 };
 
