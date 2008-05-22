@@ -49,11 +49,11 @@ struct futureTricks {
 
 #include <string.h>
 
-EXTERN_C DLLEXPORT int STDCALL SolveBoard(struct deal dl, 
+EXTERN_C int SolveBoard(struct deal dl, 
   int target, int solutions, int mode, struct futureTricks *futp);
 
-EXTERN_C DLLEXPORT void STDCALL DDSInitStart();
+EXTERN_C void DDSInitStart();
 
-EXTERN_C DLLEXPORT holding_t distinctUnplayedCards(holding_t origHolding, holding_t played,holding_t *sequence);
+EXTERN_C holding_t distinctUnplayedCards(holding_t origHolding, holding_t played,holding_t *sequence);
 #endif
 
