@@ -221,6 +221,10 @@ tar:
 	tar cvf deal.tar $(SOURCEKIT)
 	mv Make.dep.saved Make.dep
 
+test: ./deal
+	./deal -I "line tests/input/sample.line" -i format/ddline 100 > test.out
+	diff test.out tests/output/sample.ddline
+
 ftp: $(SRCZIP)
 	cp $(SRCZIP) $(FTP)
 
