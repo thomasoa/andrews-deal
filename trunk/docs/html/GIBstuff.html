@@ -2,7 +2,7 @@
      "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-<!-- $Id: GIBstuff.html,v 1.2 2008-05-22 04:20:28 thomasoa Exp $ -->
+<!-- $Id: GIBstuff.html,v 1.3 2008-05-22 14:54:42 thomaso Exp $ -->
 
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 <LINK REL="SHORTCUT ICON" HREF="/icon/bridge.ico">
@@ -13,9 +13,11 @@
 <body>
 <div class="toplevel">
 <h1>Deal 3.1 - GIB interfaces</h1>
-
-The file <span class="code">lib/gib.tcl</span> defines a simple interface for accessing
-the GIB double-dummy solver.
+<p>If you add the line:
+<pre class='codesample'>
+source lib/gib.tcl
+</pre>
+<p>it will include the GIB interface library.
 <p>
 <span class="alert">This code only works on Windows.</span>
 
@@ -41,9 +43,10 @@ places temporary files.  Currently, gib.tcl has the directory
 don't have such a directory, and don't want to create one, then you'll
 need to edit gib.tcl .
 
-<h2><span class="code">gib::tricks</span></h2>
-
-The procedure <span class="code">gib::tricks</span> returns the number of tricks
+<h2><span class="code">deal:tricks</span></h2>
+<p><span class="alert">Note: In past releases, you would use the <code>gib::tricks</code> command, but that is obsolete in Deal 3.1.</span></p>
+<p>By default, <code>deal::tricks</code> uses the built-in double dummy solver written by Bo Haglund. But when you include <code>lib/gib.tcl</code>, <code>deal::tricks</code> changes to call GIB's double dummy solver.</p>
+<p>The procedure <span class="code">deal::tricks</span> returns the number of tricks
 a hand can make in a specific denomination (suit or notrump.)
 For example:
 <pre class="codesample">
@@ -51,7 +54,7 @@ source lib/gib.tcl
 
 main {
 
-  accept if {[gib::tricks south notrump]>=12}
+  accept if {[deal::tricks south notrump]>=12}
 
 }
 </pre>
@@ -59,7 +62,7 @@ main {
 finds deals where south can make 12 or more tricks in notrump,
 double-dummy.
 <p>
-This is going to be slow - each call to gib::tricks can take
+This is going to be slow - each call to deal::tricks can take
 over a second - so you might try to put some additional
 conditions:
 <pre class="codesample">
@@ -69,7 +72,7 @@ main {
 
   reject if {[hcp north]+[hcp south]<26}
 
-  accept if {[gib::tricks south notrump]>=12}
+  accept if {[deal::tricks south notrump]>=12}
 
 }
 </pre>
@@ -77,7 +80,7 @@ That might miss the occasional freakish slam, but it will be considerably
 faster.
 
 <p>
-The <span class="code">gib::tricks</span> procedure caches values,
+The <span class="code">deal::tricks</span> procedure caches values,
 so that multiple calls with the same parameters on the same deal
 result in quick turn-around.
 <p>
@@ -85,41 +88,12 @@ This is useful if we are using the <span class="code">parscore</span>
 in our query, or if we use the output format, <span class="code">gibpar</span>,
 discussed later.
 
-<!--
-<h2><span class="code">gib::holdingLeads</span></h2>
-This procedure returns a list of double-dummy best leads that opening 
-leader can make:
-<pre class="codesample">
-% gib::holdingLeads south spades 
-SA DQ D4
-</pre>
-This returns the best lead(s) for west when <em>south</em> declares
-spades.
-<p>
-Only one card from equivalents will be listed, so if you hold
-<span class="code">KQJT</span> in spades, at most SK will be listed in
-the results.
-<p>
-<font size="-1">
-The plan for the Deal 3.1 final release is to rename this function
-"bestPlay" and allow you to include previous play in the deal:
-<pre>
-        % gib::bestPlay south spades SA S3 ... 
-</pre>
-The extra arguments will be the list of cards already played.
-<p>
-One last problem - GIB's double dummy solver uses "SA" and "H4"
-order, while Deal uses "AS" and "4D."  This might not be too big
-a deal.
-</font>
--->
 <h2><span class="code">parscore</span></h2>
 
-This routine determines the double-dummy par score for a deal.  Because
-it calls gib::tricks 20 times - once for each declarer and denomination - it
+<p>This routine determines the double-dummy par score for a deal.  Because
+it calls <code>deal::tricks</code> 20 times - once for each declarer and denomination - it
 can take 20 seconds or more per deal.  Not good for huge batches.
-<p>
-Parscore takes as input the declarer and vulnerability:
+<p>Parscore takes as input the dealer and vulnerability:
 <pre class="codesample">
 set result [parscore north NS]
 set contract [lindex $result 0]
@@ -143,7 +117,7 @@ the auction will be "Pass 4C X Pass Pass Pass".  Not very inspired, but
 needed for the <span class="code">gibpar</span> application, below.
 </ul>
 
-<span style="font-size: small">[Why do we need to know who is dealer?  Suppose north <em>and</em> east are
+<span style="font-size: small">[Why do we need to know the dealer?  Suppose north <em>and</em> east are
 the only ones who can make 1NT, and that no higher contracts make.  Then
 double-dummy par is 1NT by east if east is dealer, while it is 1NT by north
 if anybody else is dealer.]</span>
@@ -181,7 +155,7 @@ other table, for example.
 <img style="border:0;width:40px;height:56px" alt="Silhouette" src="../graphics/StampSm.gif"></a><td>
 <a NAME="mysig"> Thomas Andrews</a>
 (<a href="mailto:thomaso@best.com">thomaso@best.com</a>)
-<a name="caveat"> Copyright 1996-2002.</a>  Deal is covered by the 
+<a name="caveat"> Copyright 1996-2008.</a>  Deal is covered by the 
 <a href="http://www.gnu.org/copyleft/gpl.html">GNU General Public License.</a>
 <p>
 <a href="../graphics/falling.jpg"><em>Plane Dealing</em></a> graphic
