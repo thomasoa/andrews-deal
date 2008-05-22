@@ -468,6 +468,11 @@ char *argv[];
   extern char *optarg;
 
   time(&for_seeding);
+#ifdef USE_RAND48
+  srand48(for_seeding);
+#else
+  srandom(for_seeding);
+#endif
 
   init_name_tables();
   
@@ -517,7 +522,13 @@ char *argv[];
 		break;
 
 	case 's':
-	for_seeding=atoi(optarg);
+	  for_seeding=atoi(optarg);
+#ifdef USE_RAND48
+          srand48(for_seeding);
+#else
+          srandom(for_seeding);
+#endif
+
 	break;
 	case 'i':
 	  sprintf(tcl_command_string,"source %s",optarg);
@@ -539,12 +550,6 @@ char *argv[];
 	  exit(1);
 	}
   }
-  
-#ifdef USE_RAND48
-  srand48(for_seeding);
-#else
-  srandom(for_seeding);
-#endif
   
   argc-=optind-1;
   argv+=optind-1;
