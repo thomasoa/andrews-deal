@@ -1,4 +1,5 @@
 <head>
+<!-- $Id: commands.html,v 1.7 2008-05-22 04:20:29 thomasoa Exp $ -->
 <title>Deal Commands</title>
 <body bgcolor="#EEEEFF">
 <h1>Introduction</h1>
@@ -1112,6 +1113,29 @@ usage.
 
 <h1>Utility Procedures </h1>
 
+<a name="seed_deal"></a>
+<h2>Command: <code>seed_deal</code></h2>
+<table cellpadding=5 width="100%">
+<tr valign=top><td width="65%">
+<h3>Usage</h3>
+<blockquote><pre>
+seed_deal <em>number</em>
+</pre></blockquote>
+<h3>Command Line: -s</h3>
+<blockquote><pre>
+$ deal -s <em>number</em> ...
+</pre></blockquote>
+<h3>Summary</h3>
+<p><code>seed_deal</code> is used to seed the random number generator, to make sure that Deal generates the same sequence of
+random numbers.
+<p>Care has to be taken if you want to make sure that you are generating the same sequence of deals.  For one thing, if you have a <code>main</code> inner loop, you should add the command "finish_deal" to the <code>main</code> section.
+<blockquote><pre>
+main {
+   finish_deal
+   ...
+}
+</pre></blockquote>
+<p>That bypasses some optimizations and forces an entire deal to be generated each time through <code>main</code>.
 
 <a name="deal_deck"></a>
 <h2>Command: <code>deal_deck</code></h2>
