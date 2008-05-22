@@ -1,3 +1,40 @@
+Changes in Deal 3.1.1
+
+   * Implemented deal::tricks for caching of double dummy data
+     and uniform interface to double dummy tricks data
+
+   * Changed call to Haglund's solver to re-use data when processing
+     contracts in the same denomination and different declarers.
+
+Changes in Deal 3.1
+
+   * Added Bo Haglund's Double Dummy Solver
+
+Changes in Deal 3.0.8
+
+[ No binary changes ]
+
+   * Fixed "line" input format
+
+   * Updates documentation
+
+Changes in Deal 3.0.7
+
+[ No binary changes - all changes in the Tcl files. ]
+
+   * Changed "score" to be a table lookup.
+   * Fixed a bug in "parscore" which wrong-sided the
+     contract sometimes.
+   * Fixed documentation file "commands.html".
+
+Changes in Deal 3.0.6
+
+[ No binary changes this release - all changes in the Tcl files. ]
+
+   * Made changes to gib.tcl to work with the latest version of GIB.
+
+   * Fixed a few bugs with various formatting procedures.
+
 Changes in Deal 3.0.5
 
    * Fixed a bug - Deal 3.0.4 failed to recognize "-" as void
