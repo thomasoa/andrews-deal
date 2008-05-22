@@ -227,46 +227,11 @@ public:
 } unplayedFinder;
 
 
-#if defined(_WIN32)
-extern "C" BOOL APIENTRY DllMain(HMODULE hModule,
-				DWORD ul_reason_for_call,
-				LPVOID lpReserved) {
-
-  if (ul_reason_for_call==DLL_PROCESS_ATTACH)
-    InitStart();
-  else if (ul_reason_for_call==DLL_PROCESS_DETACH) {
-    if (bestMove)
-      free(bestMove);
-    bestMove=NULL;
-   Wipe();
-    if (pw[0])
-      free(pw[0]);
-    pw[0]=NULL;
-    if (pn[0])
-      free(pn[0]);
-    pn[0]=NULL;
-    if (pl[0])
-      free(pl[0]);
-    pl[0]=NULL;
-    if (ttStore)
-      free(ttStore);
-    ttStore=NULL;
-    if (rel)
-      free(rel);
-    rel=NULL;
-    if (temp_win)
-      free(temp_win);
-    temp_win=NULL;
-  }
-  return 1;
-}
-#endif
-
 #ifdef _MANAGED
 #pragma managed(pop)
 #endif
 
-  int STDCALL SolveBoard(struct deal dl, int target,
+  int SolveBoard(struct deal dl, int target,
     int solutions, int mode, struct futureTricks *futp) {
 
   int k, n, cardCount, found, totalTricks, tricks, last, checkRes;
@@ -936,17 +901,6 @@ void InitStart(void) {
       return;
   _initialized = 1;
 
-#ifdef _WIN32
-  long double pcmem;
-  /*FILE *fp;*/
-
-  MEMORYSTATUS stat;
-
-  GlobalMemoryStatus (&stat);
-
-  pcmem=stat.dwTotalPhys/1024;
-#endif
-
   nodeSetSizeLimit=NINIT;
   winSetSizeLimit=WINIT;
   lenSetSizeLimit=LINIT;
@@ -954,62 +908,6 @@ void InitStart(void) {
   maxmem=5000001*sizeof(struct nodeCardsType)+
 		   15000001*sizeof(struct winCardType)+
 		   200001*sizeof(struct posSearchType);
-
-#ifdef _WIN32
-
-  maxmem = (LONGLONG)(pcmem-32678) * 700;  /* Linear calculation of maximum
-											memory, formula by 
-											Michiel de Bondt */
-
-  if (maxmem < 10485760) exit (1);
-  
-  /*if (pcmem > 450000) {
-	maxmem=5000000*sizeof(struct nodeCardsType)+
-		   15000000*sizeof(struct winCardType)+
-		   200000*sizeof(struct posSearchType);
-  }
-  else if (pcmem > 240000) {
-	maxmem=3200000*sizeof(struct nodeCardsType)+
-		   6400000*sizeof(struct winCardType)+
-		   200000*sizeof(struct posSearchType);
-  }
-  else if (pcmem > 100000) {
-	maxmem=800000*sizeof(struct nodeCardsType)+
-		   2000000*sizeof(struct winCardType)+
-		   100000*sizeof(struct posSearchType);
-  }
-  else {
-	maxmem=400000*sizeof(struct nodeCardsType)+
-		   1000000*sizeof(struct winCardType)+
-		   50000*sizeof(struct posSearchType);
-  }*/
-
-  /*fp=fopen("mem.txt", "w");
-
-  fprintf (fp, "The MEMORYSTATUS structure is %ld bytes long; it should be %d.\n\n", 
-	    stat.dwLength, sizeof (stat));
-  fprintf (fp, "There is  %ld percent of memory in use.\n",
-          stat.dwMemoryLoad);
-  fprintf (fp, "There are %*ld total Kbytes of physical memory.\n",
-          7, stat.dwTotalPhys/1024);
-  fprintf (fp, "There are %*ld free Kbytes of physical memory.\n",
-          7, stat.dwAvailPhys/1024);
-  fprintf (fp, "There are %*ld total Kbytes of paging file.\n",
-          7, stat.dwTotalPageFile/1024);
-  fprintf (fp, "There are %*ld free Kbytes of paging file.\n",
-          7, stat.dwAvailPageFile/1024);
-  fprintf (fp, "There are %*ld total Kbytes of virtual memory.\n",
-          7, stat.dwTotalVirtual/1024);
-  fprintf (fp, "There are %*ld free Kbytes of virtual memory.\n",
-          7, stat.dwAvailVirtual/1024);
-  fprintf(fp, "\n");
-  fprintf(fp, "nsize=%d wsize=%d lsize=%d\n", nodeSetSizeLimit, winSetSizeLimit,
-    lenSetSizeLimit);
-
-  fclose(fp);*/
-
-#endif
-
 
   bestMove = (struct moveType *)calloc(50, sizeof(struct moveType));
   /*bestMove = new moveType [50];*/
