@@ -3,6 +3,8 @@
 #
 # Copyright (C) 1996-2001, Thomas Andrews
 #
+# $Id: deal.tcl,v 1.6 2008-05-22 00:57:18 thomaso Exp $
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
