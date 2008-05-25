@@ -232,6 +232,6 @@ depends:
 	$(CC) $(CFLAGS) -M *.c *.cpp >Make.dep
 
 clean:
-	rm -rf deal $(OBJS) $(SRCDIR) $(SRCZIP) $(SRCGZIP) $(DOCZIP) $(EXEZIP)
+	rm -rf deal $(OBJS) $(SRCDIR) $(SRCZIP) $(SRCGZIP) $(DOCZIP) $(DMG) $(EXEZIP) $(BINDIR)
 
 include Make.dep
