@@ -70,34 +70,37 @@ static void create_cache_reset() {
 }
 
 static int do_reset_commands(Tcl_Interp *interp) {
-	if (resetCmds!=NULL && cachesize!=0) {
-	  /*
-	   * Allow the resetCmds to cache data in the 
-	   * next resetCmds
-	   */
-	  Tcl_Obj *oldCmds=resetCmds;
-	  int i,count;
-	  Tcl_Obj **code;
-	  int result;
+  if (resetCmds!=NULL && cachesize!=0) {
+    /*
+     * Allow the resetCmds to cache data in the 
+     * next resetCmds
+     */
+    Tcl_Obj *oldCmds=resetCmds;
+    int i,count;
+    Tcl_Obj **code;
+    int result;
 
-	  cachesize=0;
-	  resetCmds=NULL;
+    cachesize=0;
+    resetCmds=NULL;
 
-	  result=Tcl_ListObjGetElements(interp,oldCmds,&count,&code);
-	  if (result==TCL_OK) {
-	for (i=count-1; i>=0; i--) {
-		  result=Tcl_GlobalEvalObj(interp,code[i]);
-	  if (result==TCL_RETURN) {
-		/*fprintf(stderr,"Got return in reset\n");*/
-		return TCL_RETURN;
-	  }
+    result=Tcl_ListObjGetElements(interp,oldCmds,&count,&code);
+    if (result==TCL_OK) {
+      for (i=count-1; i>=0; i--) {
+	result=Tcl_GlobalEvalObj(interp,code[i]);
+	if (result==TCL_RETURN) {
+	  /*fprintf(stderr,"Got return in reset\n");*/
+	  return TCL_RETURN;
 	}
-	Tcl_ListObjReplace(interp,oldCmds,0,count,0,0);
-	  }
-	  Tcl_DecrRefCount(oldCmds);
+	if (result==TCL_ERROR) {
+	  return TCL_ERROR;
 	}
+      }
+      Tcl_ListObjReplace(interp,oldCmds,0,count,0,0);
+    }
+    Tcl_DecrRefCount(oldCmds);
+  }
 
-	return TCL_OK;
+  return TCL_OK;
 }
 
 static void add_reset_cmd(Tcl_Interp *interp,Tcl_Obj *code)
