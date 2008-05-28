@@ -3,7 +3,7 @@
 #
 # Copyright (C) 1996-2001, Thomas Andrews
 #
-# $Id: deal.tcl,v 1.6 2008-05-22 00:57:18 thomaso Exp $
+# $Id: deal.tcl,v 1.7 2008-05-28 07:47:07 thomaso Exp $
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ source format/default
 
 proc dds_reset_command {} {
   dds_reset
-  deal_reset_cmds [list dds_reset_commmand]
+  deal_reset_cmds [list dds_reset_command]
 }
 
 if {[string equal [info commands dds_reset] "dds_reset"]} {
