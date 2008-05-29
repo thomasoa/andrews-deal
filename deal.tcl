@@ -3,7 +3,7 @@
 #
 # Copyright (C) 1996-2001, Thomas Andrews
 #
-# $Id: deal.tcl,v 1.7 2008-05-28 07:47:07 thomaso Exp $
+# $Id: deal.tcl,v 1.8 2008-05-29 14:00:10 thomaso Exp $
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -45,7 +45,6 @@ namespace eval deal {
 		puts stderr "Error: $errorInfo"
 	    } else {
 		deal_reset_cmds [list unset ::deal::metadata($name)]
-		#deal_reset_cmds [list puts "unset ::deal::metadata($name)"]
 	    }
 	}
 	return $metadata($name)
