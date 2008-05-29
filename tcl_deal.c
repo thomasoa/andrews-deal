@@ -545,7 +545,7 @@ char *argv[];
 	printDistTable();
 	exit(1);
 	default:
-	  fprintf(stderr,"usage:  %s [-v] [-i condition file] [count]\n",
+	  fprintf(stderr,"usage:  %s [-v] [-s seed] [-i includeFile] [-I inputFormat] [count]\n",
 		  argv[0]);
 #ifdef __CENTERLINE__
 	  centerline_stop("");
