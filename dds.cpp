@@ -17,16 +17,26 @@
 /* along with this program; if not, write to the Free Software                */
 /* Foundation, Inc, 51 Franklin Street, 5th Floor, Boston MA 02110-1301, USA. */
 
-#define HandStore(hand,rel) ((hand) + (rel))%4
-
 #include "dds.h"
 
 extern unsigned short int counttable[];
+
+const int ContractInfo::nextSuitArray[4][4] = {
+    { 1, 2, 3, 4},
+    { 2, 0, 3, 4},
+    { 1, 3, 0, 4},
+    { 1, 2, 4, 0}
+};
+
+inline int HandStore(int hand, int relative) {
+  return (hand + relative)&3;
+}
+
+GLOBALS Globals;
+
 //int handStore[4][4];
 int nodeTypeStore[4];
-int lho[4], rho[4], partner[4];
-int trumpContract;
-int trump;
+//int lho[4], rho[4], partner[4];
 //unsigned short int bitMapRank[16];
 unsigned short int lowestWin[50][4];
 int nodes;
@@ -82,11 +92,7 @@ int threshold=CANCELCHECK;
 #endif
 
 inline holding_t smallestRankInSuit(holding_t h) {
-   if (h) {
-     return (h ^ (h-1));
-   } else {
-     return 0;
-   }
+  return (h & -h);
 }
 
 /*
@@ -487,7 +493,7 @@ public:
     if ((target==0)&&(solutions<3))
       futp->score[0]=0;
     else if ((handToPlay==maxHand)||
-	(partner[handToPlay]==maxHand))
+	     (partner(handToPlay)==maxHand))
       futp->score[0]=1;
     else
       futp->score[0]=0;
@@ -932,9 +938,11 @@ void InitStart(void) {
   handStore[3][3]=2;
 #endif
 
+#if 0
   lho[0]=1; lho[1]=2; lho[2]=3; lho[3]=0;
   rho[0]=3; rho[1]=0; rho[2]=1; rho[3]=2;
   partner[0]=2; partner[1]=3; partner[2]=0; partner[3]=1;
+#endif
 
   cardRank[2]='2'; cardRank[3]='3'; cardRank[4]='4'; cardRank[5]='5';
   cardRank[6]='6'; cardRank[7]='7'; cardRank[8]='8'; cardRank[9]='9';
@@ -1062,7 +1070,7 @@ void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst) {
       for (r=2; r<=14; r++) {
 	for (h=0; h<=3; h++) {
 	  if ((ind & game.suit[h][s] & BitRank(r))!=0) {
-	    rankInSuit[h][s]=rankInSuit[h][s] | BitRank(r);
+	    rankInSuit[h][s] |= BitRank(r);
 	    break;
 	  }
 	}
@@ -1096,95 +1104,9 @@ void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst) {
   
   temp1=game.contract/100;
   temp2=game.contract-100*temp1;
-  trump=temp2/10-1;
-  if ((trump<4)&&(trump>=0))
-    trumpContract=TRUE;
-  else
-    trumpContract=FALSE;
-  
-  /*start: tricksest */
-#if 0
-  gm=game;
-  if (game.leadRank!=0)
-    gm.suit[gm.leadHand][gm.leadSuit]=
-      gm.suit[gm.leadHand][gm.leadSuit] | BitRank(gm.leadRank);
+  int trump=temp2/10-1;
+  Globals.setContract(trump);
 
-  for (h=0; h<=3; h++)
-    points[h]=0;
-
-  for (h=0; h<=3; h++)
-    for (s=0; s<=3; s++) {
-      if ((gm.suit[h][s] & BitRank(14))!=0)
-        points[h]=points[h]+4;
-      if ((gm.suit[h][s] & BitRank(13))!=0)
-        points[h]=points[h]+3;
-      if ((gm.suit[h][s] & BitRank(12))!=0)
-        points[h]=points[h]+2;
-      if ((gm.suit[h][s] & BitRank(11))!=0)
-        points[h]=points[h]+1;
-      if (trumpContract) {
-        if ((CountOnes(gm.suit[h][s])<=2) &&
-          (gm.suit[h][s]<BitRank(14)) &&
-          (gm.suit[h][s]>BitRank(10)))
-          points[h]--;
-        if (CountOnes(gm.suit[h][s])==0)
-          points[h]=points[h]+3;
-        else if (CountOnes(gm.suit[h][s])==1)
-          points[h]=points[h]+2;
-        else if (CountOnes(gm.suit[h][s])==2)
-          points[h]=points[h]+1;
-      }
-    }
-  if (trumpContract) {
-    trumpNS=CountOnes(gm.suit[0][trump])+CountOnes(gm.suit[2][trump]);
-    trumpEW=CountOnes(gm.suit[1][trump])+CountOnes(gm.suit[3][trump]);
-  }
-  else {
-    trumpNS=0;
-    trumpEW=0;
-  }
-
-  addNS=points[0]+points[2];
-  addEW=points[1]+points[3];
-  addNS=addNS+trumpNS-trumpEW;
-  addEW=addEW+trumpEW-trumpNS;
-  addMAX=Max(addNS, addEW);
-  if (addMAX>=37)
-    tricks=13;
-  else if (addMAX>=33)
-    tricks=12;
-  else if ((addMAX>=29) && trumpContract)
-    tricks=11;
-  else if ((addMAX>=31) && (!trumpContract))
-    tricks=11;
-  else if ((addMAX>=26) && trumpContract)
-    tricks=10;
-  else if ((addMAX>=29) && (!trumpContract))
-    tricks=10;
-  else if ((addMAX>=25) && trumpContract)
-    tricks=9;
-  else if ((addMAX>=26) && (!trumpContract))
-    tricks=9;
-  else if (addMAX>=24)
-    tricks=8;
-  else if (addMAX>=22)
-    tricks=7;
-  else
-    tricks=6;
-
-  if (addNS>addEW) {
-    estTricks[0]=tricks;
-    estTricks[2]=tricks;
-    estTricks[1]=13-tricks;
-    estTricks[3]=13-tricks;
-  }
-  else {
-    estTricks[1]=tricks;
-    estTricks[3]=tricks;
-    estTricks[0]=13-tricks;
-    estTricks[2]=13-tricks;
-  }
-#endif
   estTricks[1]=6;
   estTricks[3]=6;
   estTricks[0]=7;
@@ -1210,6 +1132,7 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
   int hand[3], suit[3], rank[3];
   struct moveType move;
   unsigned short int startMovesBitMap[4][4]; /* Indices are hand and suit */
+  const ContractInfo contract = Globals.getContract();
 
   for (h=0; h<=3; h++)
     for (s=0; s<=3; s++)
@@ -1284,23 +1207,17 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
 
   for (s=0; s<=3; s++)       /* Suit */
     for (h=0; h<=3; h++)     /* Hand */
-      posPoint->removedRanks[s]=posPoint->removedRanks[s] |
-        posPoint->rankInSuit[h][s];
+      posPoint->removedRanks[s] |= posPoint->rankInSuit[h][s];
+
   for (s=0; s<=3; s++)
-    posPoint->removedRanks[s]= 8191 & ~(posPoint->removedRanks[s]);
+    posPoint->removedRanks[s] = 8191 & ~(posPoint->removedRanks[s]);
 
   for (s=0; s<=3; s++)       /* Suit */
     for (h=0; h<=3; h++)     /* Hand */
-      posPoint->removedRanks[s]=posPoint->removedRanks[s] &
-        (~startMovesBitMap[h][s]);
+      posPoint->removedRanks[s] &= (~startMovesBitMap[h][s]);
         
   for (s=0; s<=3; s++)
     iniRemovedRanks[s]=posPoint->removedRanks[s];
-
-  /*for (d=0; d<=49; d++) {
-    for (s=0; s<=3; s++)
-      posPoint->winRanks[d][s]=0;
-  }*/
 
   /* Initialize winning rank */
   for (s=0; s<=3; s++) {
@@ -1366,10 +1283,12 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
     posPoint->secondBest[s].hand=hmax;
   }
 
-  for (s=0; s<=3; s++)
-    for (h=0; h<=3; h++)
+  for (s=0; s<=3; s++) {
+    for (h=0; h<=3; h++) {
       posPoint->length[h][s]=
 	    (unsigned char)CountOnes(posPoint->rankInSuit[h][s]);
+    }
+  }
 
   #ifdef STAT
   for (d=0; d<=49; d++) {
@@ -1446,9 +1365,10 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
        depth is the remaining search length, must be positive,
        the value of the subtree is returned.  */
 
-  int moveExists, value, hand;
+  int moveExists, value;
   struct makeType makeData;
   struct nodeCardsType * cardsP;
+  const ContractInfo contract = Globals.getContract();
 
   struct evalType Evaluate(const struct pos * posPoint);
   struct makeType Make(struct pos * posPoint, int depth);
@@ -1466,7 +1386,8 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
   #endif
 
   /*cardsP=NULL;*/
-  hand=HandStore(posPoint->stack[depth].first,posPoint->handRelFirst);
+  const int hand=HandStore(posPoint->stack[depth].first,posPoint->handRelFirst);
+
   nodes++;
   if (posPoint->handRelFirst==0) {
     trickNodes++;
@@ -1564,38 +1485,36 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
       if (LaterTricksMAX(posPoint,hand,depth,target))
 	return TRUE;
     }
-  }
-  
-  else if (posPoint->handRelFirst==1) {
+  } else if (posPoint->handRelFirst==1) {
     ss=posPoint->stack[depth+1].move.suit;
     ranks=posPoint->rankInSuit[hand][ss] |
-      posPoint->rankInSuit[partner[hand]][ss];
+      posPoint->rankInSuit[partner(hand)][ss];
     found=FALSE; rr=0; qtricks=0; 
     if ( ranks >(BitRank(posPoint->stack[depth+1].move.rank) |
-	posPoint->rankInSuit[lho[hand]][ss])) {
+		 posPoint->rankInSuit[lho(hand)][ss])) {
 	/* Own side has highest card in suit */
-	if (!trumpContract || ((ss==trump)||
-        (posPoint->rankInSuit[lho[hand]][trump]==0)
-	   || (posPoint->rankInSuit[lho[hand]][ss]!=0))) { 
+      if (!contract.trumpContract || ((ss==contract.trump) ||
+				      (posPoint->rankInSuit[lho(hand)][contract.trump]==0)
+				      || (posPoint->rankInSuit[lho(hand)][ss]!=0))) { 
         for (rr=14; rr>=2; rr--) {
-	    if ((ranks & BitRank(rr))!=0) {
-		found=TRUE;
-            qtricks=1;
-            break;
-          }
+	  if ((ranks & BitRank(rr))!=0) {
+	    found=TRUE;
+	    qtricks=1;
+	    break;
+	  }
         }
-        if (!found)
-          rr=0;          
+        if (!found) {
+          rr=0;
+	}    
       }
-    }		  
-    else if (trumpContract && (ss!=trump) && 
+    } else if (contract.notTrumpWithTrump(ss) &&
       (((posPoint->rankInSuit[hand][ss]==0)
-	&& (posPoint->rankInSuit[hand][trump]!=0))|| 
-	((posPoint->rankInSuit[partner[hand]][ss]==0)
-	&& (posPoint->rankInSuit[partner[hand]][trump]!=0))))  {
+	&& (posPoint->rankInSuit[hand][contract.trump]!=0))|| 
+       ((posPoint->rankInSuit[partner(hand)][ss]==0)
+	 && (posPoint->rankInSuit[partner(hand)][contract.trump]!=0))))  {
 	/* Own side can ruff */
-      if ((posPoint->rankInSuit[lho[hand]][ss]!=0)||
-         (posPoint->rankInSuit[lho[hand]][trump]==0)) {
+      if ((posPoint->rankInSuit[lho(hand)][ss]!=0)||
+	  (posPoint->rankInSuit[lho(hand)][contract.trump]==0)) {
 	  found=TRUE;
         qtricks=1;
       }
@@ -2029,6 +1948,7 @@ struct makeType Make(struct pos * posPoint, int depth)  {
   int suit, /*rank, */count, mcurr, h, q, done;
   struct makeType trickCards;
   struct moveType mo1, mo2;
+  const ContractInfo contract = Globals.getContract();
   struct posStackItem &current = posPoint->stack[depth];
   const struct posStackItem &previous = posPoint->stack[depth+1];
 
@@ -2051,7 +1971,7 @@ struct makeType Make(struct pos * posPoint, int depth)  {
 	current.move=previous.move;
         current.high=previous.high;
       }
-    } else if (trumpContract && (mo1.suit==trump)) {
+    } else if (contract.isTrump(mo1.suit)) {
       current.move=mo1;
       current.high=HandStore(firstHand,3);
     } else {
@@ -2144,7 +2064,7 @@ struct makeType Make(struct pos * posPoint, int depth)  {
 	current.removeCard(mo1);
       }
     }
-    else if (trumpContract && (mo1.suit==trump)) {
+    else if (contract.isTrump(mo1.suit)) {
       current.move=mo1;
       current.high=HandStore(firstHand,posPoint->handRelFirst);
       current.removeCard(mo2);
@@ -2238,6 +2158,7 @@ void Undo(struct pos * posPoint, int depth)  {
 struct evalType Evaluate(const struct pos * posPoint)  {
   int s, smax=0, max, k, firstHand, count;
   struct evalType eval;
+  const ContractInfo contract = Globals.getContract();
 
   firstHand=posPoint->stack[0].first;
 
@@ -2245,21 +2166,21 @@ struct evalType Evaluate(const struct pos * posPoint)  {
     eval.winRanks[s]=0;
 
   /* Who wins the last trick? */
-  if (trumpContract)  {            /* Highest trump card wins */
+  if (contract.trumpContract)  {            /* Highest trump card wins */
     max=0;
     count=0;
     for (s=0; s<=3; s++) {
-      if (posPoint->rankInSuit[s][trump]!=0)
+      if (posPoint->rankInSuit[s][contract.trump]!=0)
         count++;
-      if (posPoint->rankInSuit[s][trump]>max) {
+      if (posPoint->rankInSuit[s][contract.trump]>max) {
         smax=s;
-        max=posPoint->rankInSuit[s][trump];
+        max=posPoint->rankInSuit[s][contract.trump];
       }
     }
 
     if (max>0) {        /* Trumpcard wins */
       if (count>=2)
-        eval.winRanks[trump]=max;
+        eval.winRanks[contract.trump]=max;
 
       if (nodeTypeStore[smax]==MAXNODE)
         goto maxexit;
@@ -2369,214 +2290,179 @@ void UpdateSecondBest(struct pos * posPoint, int suit) {
 }
 
 
-int QuickTricks(struct pos * posPoint, int hand, 
-	int depth, int target, int *result) {
-  unsigned short int ranks;
-  int suit, sum, qtricks, commPartner, commRank=0, commSuit=-1, s, found=FALSE;
-  int opps/*, candWin[4]*/;
+int QuickTricks(struct pos * posPoint, const int hand, 
+	const int depth, const int target, int *result) {
+  holding_t ranks;
+  int suit, sum, qtricks, commPartner, commRank=0, commSuit=-1, found=FALSE;
+  int opps;
   int countLho, countRho, countPart, countOwn, lhoTrumpRanks=0, rhoTrumpRanks=0;
   int cutoff, k, lowestQtricks=0, count=0;
+  const ContractInfo contract = Globals.getContract();
   
   *result=TRUE;
   qtricks=0;
-  for (s=0; s<=3; s++)  
-    posPoint->stack[depth].winRanks[s]=0;	
+  for (suit=0; suit<=3; suit++) {
+    posPoint->stack[depth].winRanks[suit]=0;	
+  }
 
   if ((depth<=0)||(depth==iniDepth)) {
     *result=FALSE;
     return qtricks;
   }
 
-  if (nodeTypeStore[hand]==MAXNODE) 
+  if (nodeTypeStore[hand]==MAXNODE)  {
     cutoff=target-posPoint->tricksMAX;
-  else
+  } else {
     cutoff=posPoint->tricksMAX-target+(depth>>2)+2;
+  }
       
   commPartner=FALSE;
-  for (s=0; s<=3; s++) {
-    if ((trumpContract)&&(trump!=s)) {
-      if (posPoint->winner[s].hand==partner[hand]) {
+  for (suit=0; suit<=3; suit++) {
+    if (contract.notTrumpWithTrump(suit)) {
+      /* Trump contract, suit is not trump */
+      if (posPoint->winner[suit].hand==partner(hand)) {
         /* Partner has winning card */
-        if (posPoint->rankInSuit[hand][s]!=0) {
+        if (posPoint->rankInSuit[hand][suit]!=0) {
         /* Own hand has card in suit */
-          if (((posPoint->rankInSuit[lho[hand]][s]!=0) ||
+          if (((posPoint->rankInSuit[lho(hand)][suit]!=0) ||
           /* LHO not void */
-          (posPoint->rankInSuit[lho[hand]][trump]==0))
+	       (posPoint->rankInSuit[lho(hand)][contract.trump]==0))
           /* LHO has no trump */
-          && ((posPoint->rankInSuit[rho[hand]][s]!=0) ||
+	      && ((posPoint->rankInSuit[rho(hand)][suit]!=0) ||
           /* RHO not void */
-          (posPoint->rankInSuit[rho[hand]][trump]==0))) {
+		  (posPoint->rankInSuit[rho(hand)][contract.trump]==0))) {
           /* RHO has no trump */
             commPartner=TRUE;
-            commSuit=s;
-            commRank=posPoint->winner[s].rank;
+            commSuit=suit;
+            commRank=posPoint->winner[suit].rank;
             break;
           }  
         }
-      }
-      else if (posPoint->secondBest[s].hand==partner[hand]) {
-        if ((posPoint->winner[s].hand==hand)&&
-	  (posPoint->length[hand][s]>=2)&&(posPoint->length[partner[hand]][s]>=2)) {
-	  if (((posPoint->rankInSuit[lho[hand]][s]!=0) ||
-            (posPoint->rankInSuit[lho[hand]][trump]==0))
-            && ((posPoint->rankInSuit[rho[hand]][s]!=0) ||
-            (posPoint->rankInSuit[rho[hand]][trump]==0))) {
+      } else if (posPoint->secondBest[suit].hand==partner(hand)) {
+        if ((posPoint->winner[suit].hand==hand)&&
+	    (posPoint->length[hand][suit]>=2)&&(posPoint->length[partner(hand)][suit]>=2)) {
+	  if (((posPoint->rankInSuit[lho(hand)][suit]!=0) ||
+	       (posPoint->rankInSuit[lho(hand)][contract.trump]==0))
+	      && ((posPoint->rankInSuit[rho(hand)][suit]!=0) ||
+		  (posPoint->rankInSuit[rho(hand)][contract.trump]==0))) {
 	    commPartner=TRUE;
-            commSuit=s;
-            commRank=posPoint->secondBest[s].rank;
+            commSuit=suit;
+            commRank=posPoint->secondBest[suit].rank;
             break;
 	  }
 	}
       }
-    }
-    else if (!trumpContract) {
-      if (posPoint->winner[s].hand==partner[hand]) {
+    } else if (!contract.trumpContract) {
+      if (posPoint->winner[suit].hand==partner(hand)) {
         /* Partner has winning card */
-        if (posPoint->rankInSuit[hand][s]!=0) {
+        if (posPoint->rankInSuit[hand][suit]!=0) {
         /* Own hand has card in suit */
           commPartner=TRUE;
-          commSuit=s;
-          commRank=posPoint->winner[s].rank;
+          commSuit=suit;
+          commRank=posPoint->winner[suit].rank;
           break;
         }
-      }
-      else if (posPoint->secondBest[s].hand==partner[hand]) { 
-        if ((posPoint->winner[s].hand==hand)&&
-	  (posPoint->length[hand][s]>=2)&&(posPoint->length[partner[hand]][s]>=2)) {
+      } else if (posPoint->secondBest[suit].hand==partner(hand)) { 
+        if ((posPoint->winner[suit].hand==hand)&&
+	    (posPoint->length[hand][suit]>=2)&&(posPoint->length[partner(hand)][suit]>=2)) {
 	  commPartner=TRUE;
-          commSuit=s;
-          commRank=posPoint->secondBest[s].rank;
+          commSuit=suit;
+          commRank=posPoint->secondBest[suit].rank;
           break;
 	}
       }
     }
   }
 
-  if (trumpContract && (!commPartner) && 
-    (posPoint->rankInSuit[hand][trump]!=0) && 
-    (posPoint->winner[trump].hand==partner[hand])) {
+  //int s;
+
+  if (contract.trumpContract && (!commPartner) && 
+    (posPoint->rankInSuit[hand][contract.trump]!=0) && 
+      (posPoint->winner[contract.trump].hand==partner(hand))) {
     commPartner=TRUE;
-    commSuit=trump;
-    commRank=posPoint->winner[trump].rank;
+    commSuit=contract.trump;
+    commRank=posPoint->winner[contract.trump].rank;
   }
 
 
-  if (trumpContract) {
-    suit=trump;
-    lhoTrumpRanks=posPoint->length[lho[hand]][trump];
-    rhoTrumpRanks=posPoint->length[rho[hand]][trump];
-  }
-  else
-    suit=0;   
+  if (contract.trumpContract) {
+    lhoTrumpRanks=posPoint->length[lho(hand)][contract.trump];
+    rhoTrumpRanks=posPoint->length[rho(hand)][contract.trump];
+  }   
 
-  do {
+  for (suit=contract.firstSuit(); suit<4; suit=contract.nextSuit(suit)) {
     countOwn=posPoint->length[hand][suit];
-    countLho=posPoint->length[lho[hand]][suit];
-    countRho=posPoint->length[rho[hand]][suit];
-    countPart=posPoint->length[partner[hand]][suit];
+    countLho=posPoint->length[lho(hand)][suit];
+    countRho=posPoint->length[rho(hand)][suit];
+    countPart=posPoint->length[partner(hand)][suit];
     opps=countLho | countRho;
 
     if (!opps && (countPart==0)) {
       if (countOwn==0) {
-	if (trumpContract && (suit==trump)) {
-          if (trump==0)
-            suit=1;
-          else
-            suit=0;
-        }
-        else {
-          suit++;
-          if (trumpContract && (suit==trump))
-            suit++;
-        }
 	continue;
       }
-      if (trumpContract && (trump!=suit)) {
+      if (contract.notTrumpWithTrump(suit)) {
         if ((lhoTrumpRanks==0) &&
           /* LHO has no trump */
           (rhoTrumpRanks==0)) {
           /* RHO has no trump */
           qtricks=qtricks+countOwn;
-		  if (qtricks>=cutoff) 
+	  if (qtricks>=cutoff) {
             return qtricks;
-          suit++;
-          if (trumpContract && (suit==trump))
-            suit++;
-		  continue;
+	  }
+	  continue;
+        } else {
+	  continue;
         }
-        else {
-          suit++;
-          if (trumpContract && (suit==trump))
-            suit++;
-		  continue;
-        }
-      }
-      else {
+      } else {
         qtricks=qtricks+countOwn;
-		if (qtricks>=cutoff) 
+	if (qtricks>=cutoff) {
           return qtricks;
+	}
         
-        if (trumpContract && (suit==trump)) {
-          if (trump==0)
-            suit=1;
-          else
-            suit=0;
-        }
-        else {
-          suit++;
-          if (trumpContract && (suit==trump))
-            suit++;
-        }
 	continue;
       }
-    }
-    else {
-      if (!opps && trumpContract && (suit==trump)) {
+    } else {
+      if (!opps && contract.isTrump(suit)) {
         sum=Max(countOwn, countPart);
-	for (s=0; s<=3; s++) {
-	  if ((sum>0)&&(s!=trump)&&(countOwn>=countPart)&&(posPoint->length[hand][s]>0)&&
-	    (posPoint->length[partner[hand]][s]==0)) {
+	for (int suit2=0; suit2<=3; suit2++) {
+	  if ((sum>0)&&(suit2!=contract.trump)&&(countOwn>=countPart)&&(posPoint->length[hand][suit2]>0)&&
+	      (posPoint->length[partner(hand)][suit2]==0)) {
 	    sum++;
 	    break;
 	  }
 	}
-	if (sum>=cutoff) 
+	if (sum>=cutoff) {
 	  return sum;
-      }
-      else if (!opps) {
-	sum=Min(countOwn,countPart);
-	if (!trumpContract) {
-	  if (sum>=cutoff) 
-	    return sum;
 	}
-	else if ((suit!=trump)&&(lhoTrumpRanks==0)&&(rhoTrumpRanks==0)) {
-	  if (sum>=cutoff) 
+      } else if (!opps) {
+	sum=Min(countOwn,countPart);
+	if (!contract.trumpContract) {
+	  if (sum>=cutoff) {
 	    return sum;
+	  }
+	} else if ((suit!=contract.trump)&&(lhoTrumpRanks==0)&&(rhoTrumpRanks==0)) {
+	  if (sum>=cutoff) {
+	    return sum;
+	  }
 	}
       }
 
       if (commPartner) {
 	if (!opps && (countOwn==0)) {
-          if (trumpContract && (trump!=suit)) {
+          if (contract.notTrumpWithTrump(suit)) {
             if ((lhoTrumpRanks==0) &&
             /* LHO has no trump */
               (rhoTrumpRanks==0)) {
             /* RHO has no trump */
               qtricks=qtricks+countPart;
-	      posPoint->stack[depth].winRanks[commSuit]=posPoint->stack[depth].winRanks[commSuit] |
-                  BitRank(commRank);
-	      if (qtricks>=cutoff) 
+	      posPoint->stack[depth].winRanks[commSuit] |= BitRank(commRank);
+	      if (qtricks>=cutoff) {
                 return qtricks;
-              suit++;
-              if (trumpContract && (suit==trump))
-                suit++;
-			  continue;
-            }
-            else {
-              suit++;
-              if (trumpContract && (suit==trump))
-                suit++;
-			  continue;
+	      }
+	      continue;
+            } else {
+	      continue;
             }
           }
           else {
@@ -2585,43 +2471,29 @@ int QuickTricks(struct pos * posPoint, int hand,
               BitRank(commRank);
 	    if (qtricks>=cutoff) 
               return qtricks;
-            if (trumpContract && (suit=trump)) {
-              if (trump==0)
-                suit=1;
-              else
-                suit=0;
-            }
-            else {
-              suit++;
-              if (trumpContract && (suit==trump))
-                suit++;
-            }
 	    continue;
           }
-        }
-	else {
-	  if (!opps && trumpContract && (suit==trump)) {
+        } else {
+	  if (!opps && contract.isTrump(suit)) {
 	    sum=Max(countOwn, countPart);
-	    for (s=0; s<=3; s++) {
-	      if ((sum>0)&&(s!=trump)&&(countOwn<=countPart)&&(posPoint->length[partner[hand]][s]>0)&&
-		(posPoint->length[hand][s]==0)) {
+	    for (int suit2=0; suit2<=3; suit2++) {
+	      if ((sum>0)&&(suit2!=contract.trump)&&(countOwn<=countPart)&&(posPoint->length[partner(hand)][suit2]>0)&&
+		(posPoint->length[hand][suit2]==0)) {
 		sum++;
 		break;
 	      }
 	    }
             if (sum>=cutoff) {
-	      posPoint->stack[depth].winRanks[commSuit]=posPoint->stack[depth].winRanks[commSuit] |
-              BitRank(commRank);
+	      posPoint->stack[depth].winRanks[commSuit] |= BitRank(commRank);
 	      return sum;
 	    }
-	  }
-	  else if (!opps) {
+	  } else if (!opps) {
 	    sum=Min(countOwn,countPart);
-	    if (!trumpContract) {
+	    if (!contract.trumpContract) {
 	      if (sum>=cutoff) 
 		return sum;
 	    }
-	    else if ((suit!=trump)&&(lhoTrumpRanks==0)&&(rhoTrumpRanks==0)) {
+	    else if ((suit!=contract.trump)&&(lhoTrumpRanks==0)&&(rhoTrumpRanks==0)) {
 	      if (sum>=cutoff) 
 		return sum;
 	    }
@@ -2631,23 +2503,12 @@ int QuickTricks(struct pos * posPoint, int hand,
     }
     /* 08-01-30 */
     if (posPoint->winner[suit].rank==0) {
-      if (trumpContract && (suit==trump)) {
-        if (trump==0)
-          suit=1;
-        else
-          suit=0;
-      }
-      else {
-        suit++;
-        if (trumpContract && (suit==trump))
-          suit++;
-      }
       continue;
     }
 
     if (posPoint->winner[suit].hand==hand) {
       /* Winner found in own hand */
-      if ((trumpContract)&&(trump!=suit)) {
+      if (contract.notTrumpWithTrump(suit)) {
         if (((countLho!=0) ||
           /* LHO not void */
           (lhoTrumpRanks==0))
@@ -2666,12 +2527,10 @@ int QuickTricks(struct pos * posPoint, int hand,
           if ((countLho<=1)&&(countRho<=1)&&(countPart<=1)&&
             (lhoTrumpRanks==0)&&(rhoTrumpRanks==0)) {
             qtricks=qtricks+countOwn-1;
-			if (qtricks>=cutoff) 
+	    if (qtricks>=cutoff) {
               return qtricks;
-            suit++;
-            if (trumpContract && (suit==trump))
-              suit++;
-			continue;
+	    }
+	    continue;
           }
         }
         if (posPoint->secondBest[suit].hand==hand) {
@@ -2686,15 +2545,12 @@ int QuickTricks(struct pos * posPoint, int hand,
               qtricks=qtricks+countOwn-2;
 	      if (qtricks>=cutoff) 
                 return qtricks;
-              suit++;
-              if (trumpContract && (suit==trump))
-                suit++;
 	      continue;
             }
           }
         }
         /* 06-08-19 */
-        else if ((posPoint->secondBest[suit].hand==partner[hand])
+        else if ((posPoint->secondBest[suit].hand==partner(hand))
           &&(countOwn>1)&&(countPart>1)) {
 	    /* Second best at partner and suit length of own
 	      hand and partner > 1 */
@@ -2709,15 +2565,11 @@ int QuickTricks(struct pos * posPoint, int hand,
               qtricks=qtricks+Max(countOwn-2, countPart-2);
 	      if (qtricks>=cutoff) 
                 return qtricks;
-              suit++;
-              if (trumpContract && (suit==trump))
-                suit++;
 	      continue;
             }
           }
         }
-      }
-      else {
+      } else {
         posPoint->stack[depth].winRanks[suit]=posPoint->stack[depth].winRanks[suit]
            | BitRank(posPoint->winner[suit].rank);
         qtricks++;
@@ -2729,17 +2581,6 @@ int QuickTricks(struct pos * posPoint, int hand,
           qtricks=qtricks+countOwn-1;
 	  if (qtricks>=cutoff) 
             return qtricks;
-          if (trumpContract && (trump==suit)) {
-            if (trump==0)
-              suit=1;
-            else
-              suit=0;
-          }
-          else {
-            suit++;
-            if (trumpContract && (suit==trump))
-              suit++;
-          }
 	  continue;
         }
         
@@ -2750,24 +2591,14 @@ int QuickTricks(struct pos * posPoint, int hand,
           qtricks++;
           if ((countLho<=2)&&(countRho<=2)&&(countPart<=2)) {
             qtricks=qtricks+countOwn-2;
-	    if (qtricks>=cutoff) 
+	    if (qtricks>=cutoff) {
               return qtricks;
-            if ((trumpContract && (suit==trump))) {
-              if (trump==0)
-                suit=1;
-              else
-                suit=0;
-            }
-            else {
-              suit++;
-              if (trumpContract && (suit==trump))
-                suit++;
-            }
+	    }
 	    continue;
           }
         }
         /* 06-08-19 */
-        else if ((posPoint->secondBest[suit].hand==partner[hand])
+        else if ((posPoint->secondBest[suit].hand==partner(hand))
             &&(countOwn>1)&&(countPart>1)) {
 	  /* Second best at partner and suit length of own
 	     hand and partner > 1 */
@@ -2779,17 +2610,6 @@ int QuickTricks(struct pos * posPoint, int hand,
 	    qtricks=qtricks+Max(countOwn-2,countPart-2);
 	    if (qtricks>=cutoff) 
               return qtricks;
-            if ((trumpContract && (suit==trump))) {
-              if (trump==0)
-                suit=1;
-              else
-                suit=0;
-            }
-            else {
-              suit++;
-              if (trumpContract && (suit==trump))
-                suit++;
-            }
 	    continue;
           }
         }
@@ -2799,11 +2619,11 @@ int QuickTricks(struct pos * posPoint, int hand,
     the suit */
     else {
     /* Partner winning card? */
-      if ((posPoint->winner[suit].hand==partner[hand])&&(countPart>0)) {
+      if ((posPoint->winner[suit].hand==partner(hand))&&(countPart>0)) {
         /* Winner found at partner*/
         if (commPartner) {
         /* There is communication with the partner */
-          if ((trumpContract)&&(trump!=suit)) {
+          if (contract.notTrumpWithTrump(suit)) {
             if (((countLho!=0) ||
               /* LHO not void */
             (lhoTrumpRanks==0))
@@ -2825,15 +2645,10 @@ int QuickTricks(struct pos * posPoint, int hand,
                   (lhoTrumpRanks==0)&&
                   (rhoTrumpRanks==0)) {
                    qtricks=qtricks+countPart-1;
-		   if (qtricks>=cutoff) 
-                     return qtricks;
-                   suit++;
-                   if (trumpContract && (suit==trump))
-                     suit++;
 		   continue;
                 }
               }
-              if (posPoint->secondBest[suit].hand==partner[hand]) {
+	    if (posPoint->secondBest[suit].hand==partner(hand)) {
                /* Second best found in partners hand */
                 if ((lhoTrumpRanks==0)&&
                  (rhoTrumpRanks==0)) {
@@ -2844,12 +2659,6 @@ int QuickTricks(struct pos * posPoint, int hand,
                     BitRank(commRank);
                   qtricks++;
                   if ((countLho<=2)&&(countRho<=2)&&(countOwn<=2)) {
-                    qtricks=qtricks+countPart-2;
-		    if (qtricks>=cutoff) 
-                      return qtricks;
-                    suit++;
-                    if (trumpContract && (suit==trump))
-                      suit++;
 		    continue;
                   }
                 }
@@ -2871,18 +2680,16 @@ int QuickTricks(struct pos * posPoint, int hand,
 		    ((countOwn<=2)||(countPart<=2))) {  /* 07-06-10 */
                     qtricks=qtricks+
                       Max(countPart-2,countOwn-2);
-		    if (qtricks>=cutoff) 
+		    if (qtricks>=cutoff) {
                       return qtricks;
-                    suit++;
-                    if (trumpContract && (suit==trump))
-                      suit++;
+		    }
 		    continue;
                   }
                 }
               }
               /* 06-08-24 */
               else if ((suit==commSuit)&&(posPoint->secondBest[suit].hand
-		    ==lho[hand])&&((countLho>=2)||(lhoTrumpRanks==0))&&
+					  ==lho(hand))&&((countLho>=2)||(lhoTrumpRanks==0))&&
                 ((countRho>=2)||(rhoTrumpRanks==0))) {
                 ranks=0;
                 for (k=0; k<=3; k++)
@@ -2890,7 +2697,7 @@ int QuickTricks(struct pos * posPoint, int hand,
                 for (rr=posPoint->secondBest[suit].rank-1; rr>=2; rr--) {
                   /* 3rd best at partner? */
                   if ((ranks & BitRank(rr))!=0) {
-                    if ((posPoint->rankInSuit[partner[hand]][suit] &
+                    if ((posPoint->rankInSuit[partner(hand)][suit] &
                       BitRank(rr))!=0) {
                       found=TRUE;
                       break;
@@ -2920,27 +2727,18 @@ int QuickTricks(struct pos * posPoint, int hand,
               BitRank(commRank);
             qtricks++;
             /* 06-12-14 */
-	    if (qtricks>=cutoff) 
+	    if (qtricks>=cutoff) {
               return qtricks;
+	    }
 
             if ((countLho<=1)&&(countRho<=1)&&(countOwn<=1)) {
               qtricks=qtricks+countPart-1;
-	      if (qtricks>=cutoff) 
+	      if (qtricks>=cutoff) {
                 return qtricks;
-              if (trumpContract && (suit==trump)) {
-                if (trump==0)
-                  suit=1;
-                else
-                  suit=0;
-              }
-              else {
-                suit++;
-                if (trumpContract && (suit==trump))
-                  suit++;
-              }
+	      }
 	      continue;
             }
-            if ((posPoint->secondBest[suit].hand==partner[hand])&&(countPart>0)) {
+            if ((posPoint->secondBest[suit].hand==partner(hand))&&(countPart>0)) {
               /* Second best found in partners hand */
               posPoint->stack[depth].winRanks[suit]=posPoint->stack[depth].winRanks[suit]
                 | BitRank(posPoint->secondBest[suit].rank);
@@ -2951,17 +2749,6 @@ int QuickTricks(struct pos * posPoint, int hand,
                 qtricks=qtricks+countPart-2;
 		if (qtricks>=cutoff)
                   return qtricks;
-                if (trumpContract && (suit==trump)) {
-                  if (trump==0)
-                    suit=1;
-                  else
-                    suit=0;
-                }
-                else {
-                  suit++;
-                  if (trumpContract && (suit==trump))
-                    suit++;
-                }
 		continue;
               }
             }
@@ -2977,32 +2764,22 @@ int QuickTricks(struct pos * posPoint, int hand,
               qtricks++;
               if ((countLho<=2)&&(countRho<=2)&&((countOwn<=2)||(countPart<=2))) {  /* 07-06-10 */
 		qtricks=qtricks+Max(countPart-2,countOwn-2);
-		if (qtricks>=cutoff)
+		if (qtricks>=cutoff) {
 		  return qtricks;
-                if (trumpContract && (suit==trump)) {
-                  if (trump==0)
-                    suit=1;
-                  else
-                    suit=0;
-                }
-                else {
-                  suit++;
-                  if (trumpContract && (suit==trump))
-                    suit++;
-                }
+		}
 		continue;
               }
             }
             /* 06-08-24 */
             else if ((suit==commSuit)&&(posPoint->secondBest[suit].hand
-		  ==lho[hand])) {
+					==lho(hand))) {
               ranks=0;
               for (k=0; k<=3; k++)
                 ranks=ranks | posPoint->rankInSuit[k][suit];
               for (rr=posPoint->secondBest[suit].rank-1; rr>=2; rr--) {
                   /* 3rd best at partner? */
                 if ((ranks & BitRank(rr))!=0) {
-                  if ((posPoint->rankInSuit[partner[hand]][suit] &
+                  if ((posPoint->rankInSuit[partner(hand)][suit] &
                     BitRank(rr))!=0) {
                     found=TRUE;
                     break;
@@ -3028,103 +2805,80 @@ int QuickTricks(struct pos * posPoint, int hand,
         }
       }
     }
-    if (trumpContract &&(suit!=trump)&&(countOwn>0)&&(lowestQtricks==0)&&
+
+    if (contract.notTrumpWithTrump(suit) &&(countOwn>0)&&(lowestQtricks==0)&&
 	((qtricks==0)||((posPoint->winner[suit].hand!=hand)&&
-	(posPoint->winner[suit].hand!=partner[hand])&&
-	(posPoint->winner[trump].hand!=hand)&&
-	(posPoint->winner[trump].hand!=partner[hand])))) {
-      if ((countPart==0)&&(posPoint->length[partner[hand]][trump]>0)) {
-	if (((countRho>0)||(posPoint->length[rho[hand]][trump]==0))&&
-	   ((countLho>0)||(posPoint->length[lho[hand]][trump]==0))) {
+			(posPoint->winner[suit].hand!=partner(hand))&&
+	(posPoint->winner[contract.trump].hand!=hand)&&
+			(posPoint->winner[contract.trump].hand!=partner(hand))))) {
+      if ((countPart==0)&&(posPoint->length[partner(hand)][contract.trump]>0)) {
+	if (((countRho>0)||(posPoint->length[rho(hand)][contract.trump]==0))&&
+	    ((countLho>0)||(posPoint->length[lho(hand)][contract.trump]==0))) {
 	  lowestQtricks=1; 
-	  if (1>=cutoff) 
+	  if (1>=cutoff) {
 	    return 1;
-	  suit++;
-	  if (trumpContract && (suit==trump))
-            suit++;
+	  }
 	  continue;
-	}
-	else if ((countRho==0)&&(countLho==0)) {
-	  if ((posPoint->rankInSuit[lho[hand]][trump] |
-	    posPoint->rankInSuit[rho[hand]][trump]) <
-	    posPoint->rankInSuit[partner[hand]][trump]) {
+	} else if ((countRho==0)&&(countLho==0)) {
+	  if ((posPoint->rankInSuit[lho(hand)][contract.trump] |
+	       posPoint->rankInSuit[rho(hand)][contract.trump]) <
+	      posPoint->rankInSuit[partner(hand)][contract.trump]) {
 	    lowestQtricks=1; 
 	    for (rr=14; rr>=2; rr--) {
-	      if ((posPoint->rankInSuit[partner[hand]][trump] &
+	      if ((posPoint->rankInSuit[partner(hand)][contract.trump] &
 		BitRank(rr))!=0) {
-		posPoint->stack[depth].winRanks[trump]=
-		  posPoint->stack[depth].winRanks[trump] | BitRank(rr);
+		posPoint->stack[depth].winRanks[contract.trump] |= BitRank(rr);
 		break;
 	      }
 	    }
-	    if (1>=cutoff) 
+	    if (1>=cutoff) {
 	      return 1;
+	    }
 	  }
-	  suit++;
-	  if (trumpContract && (suit==trump))
-            suit++;
 	  continue;
-	}
-	else if (countLho==0) {
-          if (posPoint->rankInSuit[lho[hand]][trump] <
-	    posPoint->rankInSuit[partner[hand]][trump]) {
+	} else if (countLho==0) {
+          if (posPoint->rankInSuit[lho(hand)][contract.trump] <
+	      posPoint->rankInSuit[partner(hand)][contract.trump]) {
 	    lowestQtricks=1; 
 	    for (rr=14; rr>=2; rr--) {
-	      if ((posPoint->rankInSuit[partner[hand]][trump] &
-		BitRank(rr))!=0) {
-		posPoint->stack[depth].winRanks[trump]=
-		  posPoint->stack[depth].winRanks[trump] | BitRank(rr);
+	      if ((posPoint->rankInSuit[partner(hand)][contract.trump] & BitRank(rr))!=0) {
+		posPoint->stack[depth].winRanks[contract.trump] |= BitRank(rr);
 		break;
 	      }
 	    }
-	    if (1>=cutoff) 
+	    if (1>=cutoff) {
 	      return 1;
+	    }
 	  }
-	  suit++;
-	  if (trumpContract && (suit==trump))
-            suit++;
 	  continue;
-	}
-	else if (countRho==0) {
-          if (posPoint->rankInSuit[rho[hand]][trump] <
-	    posPoint->rankInSuit[partner[hand]][trump]) {
+	} else if (countRho==0) {
+          if (posPoint->rankInSuit[rho(hand)][contract.trump] <
+	      posPoint->rankInSuit[partner(hand)][contract.trump]) {
 	    lowestQtricks=1; 
 	    for (rr=14; rr>=2; rr--) {
-	      if ((posPoint->rankInSuit[partner[hand]][trump] &
+	      if ((posPoint->rankInSuit[partner(hand)][contract.trump] &
 	        BitRank(rr))!=0) {
-		posPoint->stack[depth].winRanks[trump]=
-		  posPoint->stack[depth].winRanks[trump] | BitRank(rr);
+		posPoint->stack[depth].winRanks[contract.trump] |= BitRank(rr);
 		break;
 	      }
 	    }
-	    if (1>=cutoff) 
+	    if (1>=cutoff) {
 	      return 1;
+	    }
 	  }
-	  suit++;
-	  if (trumpContract && (suit==trump))
-            suit++;
 	  continue;
         }
       }
     }
-    if (qtricks>=cutoff) 
+
+    if (qtricks>=cutoff) {
       return qtricks;
-    if (trumpContract && (suit==trump)) {
-      if (trump==0)
-        suit=1;
-      else
-        suit=0;
     }
-    else {
-      suit++;
-      if (trumpContract && (suit==trump))
-        suit++;
-    }
+
   }
-  while (suit<=3);
 
   if (qtricks==0) {
-    if ((!trumpContract)||(posPoint->winner[trump].rank==0)) {
+    if ((!contract.trumpContract)||(posPoint->winner[contract.trump].rank==0)) {
       found=FALSE;
       for (ss=0; ss<=3; ss++) {
 	if (posPoint->winner[ss].rank==0)
@@ -3136,9 +2890,9 @@ int QuickTricks(struct pos * posPoint, int hand,
             break;
           }
         }
-	else if ((posPoint->length[partner[hand]][ss]>0)&&
+	else if ((posPoint->length[partner(hand)][ss]>0)&&
 	  (posPoint->length[hand][ss]>0)&&
-	  (posPoint->length[partner[hh]][ss]>0)) { 
+		 (posPoint->length[partner(hh)][ss]>0)) { 
           count++;
 		}
         }
@@ -3178,14 +2932,16 @@ int QuickTricks(struct pos * posPoint, int hand,
 }
 
 
-int LaterTricksMIN(struct pos *posPoint, int hand, int depth, int target) {
+int LaterTricksMIN(struct pos *posPoint, const int hand, const int depth, const int target) {
   int hh, ss, sum=0;
 
-  if ((!trumpContract)||(posPoint->winner[trump].rank==0)) {
+  const ContractInfo contract = Globals.getContract();
+
+  if ((!contract.trumpContract)||(posPoint->winner[contract.trump].rank==0)) {
     for (ss=0; ss<=3; ss++) {
       hh=posPoint->winner[ss].hand;
       if (nodeTypeStore[hh]==MAXNODE)
-      sum+=Max(posPoint->length[hh][ss], posPoint->length[partner[hh]][ss]);
+	sum+=Max(posPoint->length[hh][ss], posPoint->length[partner(hh)][ss]);
     }
     if ((posPoint->tricksMAX+sum<target)&&
       (sum>0)&&(depth>0)&&(depth!=iniDepth)) {
@@ -3199,104 +2955,70 @@ int LaterTricksMIN(struct pos *posPoint, int hand, int depth, int target) {
 	return FALSE;
       }
     } 
-  }
-  else if (trumpContract && (posPoint->winner[trump].rank!=0) && 
-    (nodeTypeStore[posPoint->winner[trump].hand]==MINNODE)) {
-    if ((posPoint->length[hand][trump]==0)&&
-      (posPoint->length[partner[hand]][trump]==0)) {
+  } else if (contract.trumpContract && (posPoint->winner[contract.trump].rank!=0) && 
+	     (nodeTypeStore[posPoint->winner[contract.trump].hand]==MINNODE)) {
+    if ((posPoint->length[hand][contract.trump]==0)&&
+	(posPoint->length[partner(hand)][contract.trump]==0)) {
       if (((posPoint->tricksMAX+(depth>>2)+1-
-	Max(posPoint->length[lho[hand]][trump],
-	posPoint->length[rho[hand]][trump]))<target)
+	    Max(posPoint->length[lho(hand)][contract.trump],
+	    posPoint->length[rho(hand)][contract.trump]))<target)
         &&(depth>0)&&(depth!=iniDepth)) {
-        for (ss=0; ss<=3; ss++)
+        for (ss=0; ss<=3; ss++) {
           posPoint->stack[depth].winRanks[ss]=0;
-	    return FALSE;
+	}
+	return FALSE;
       }
-    }    
-    else if (((posPoint->tricksMAX+(depth>>2))<target)&&
+    } else if (((posPoint->tricksMAX+(depth>>2))<target)&&
       (depth>0)&&(depth!=iniDepth)) {
       for (ss=0; ss<=3; ss++)
         posPoint->stack[depth].winRanks[ss]=0;
-	posPoint->stack[depth].winRanks[trump]=
-	  BitRank(posPoint->winner[trump].rank);
+	posPoint->stack[depth].winRanks[contract.trump]=
+	  BitRank(posPoint->winner[contract.trump].rank);
 	return FALSE;
-    }
-    else {
-      hh=posPoint->secondBest[trump].hand;
-      if ((nodeTypeStore[hh]==MINNODE)&&(posPoint->secondBest[trump].rank!=0))  {
-        if (((posPoint->length[hh][trump]>1) ||
-          (posPoint->length[partner[hh]][trump]>1))&&
+    } else {
+      hh=posPoint->secondBest[contract.trump].hand;
+      if ((nodeTypeStore[hh]==MINNODE)&&(posPoint->secondBest[contract.trump].rank!=0))  {
+        if (((posPoint->length[hh][contract.trump]>1) ||
+	     (posPoint->length[partner(hh)][contract.trump]>1))&&
           ((posPoint->tricksMAX+(depth>>2)-1)<target)&&(depth>0)&&(depth!=iniDepth)) {
           for (ss=0; ss<=3; ss++)
             posPoint->stack[depth].winRanks[ss]=0;
-	  posPoint->stack[depth].winRanks[trump]=
-	      BitRank(posPoint->winner[trump].rank) | 
-              BitRank(posPoint->secondBest[trump].rank) ;
+	  posPoint->stack[depth].winRanks[contract.trump]=
+	      BitRank(posPoint->winner[contract.trump].rank) | 
+              BitRank(posPoint->secondBest[contract.trump].rank) ;
 	  return FALSE;
         }
       }
     }	
-  }
-  else if (trumpContract) {
-    hh=posPoint->secondBest[trump].hand; 
+  } else if (contract.trumpContract) {
+    hh=posPoint->secondBest[contract.trump].hand; 
     if ((nodeTypeStore[hh]==MINNODE)&&
-      (posPoint->length[hh][trump]>1)&&
-      (posPoint->winner[trump].hand==rho[hh])
-      &&(posPoint->secondBest[trump].rank!=0)) {
+      (posPoint->length[hh][contract.trump]>1)&&
+	(posPoint->winner[contract.trump].hand==rho(hh))
+      &&(posPoint->secondBest[contract.trump].rank!=0)) {
       if (((posPoint->tricksMAX+(depth>>2))<target)&&
         (depth>0)&&(depth!=iniDepth)) {
-        for (ss=0; ss<=3; ss++)
+        for (ss=0; ss<=3; ss++) {
           posPoint->stack[depth].winRanks[ss]=0;
-	posPoint->stack[depth].winRanks[trump]=
-        BitRank(posPoint->secondBest[trump].rank) ; 
+	}
+	posPoint->stack[depth].winRanks[contract.trump]= BitRank(posPoint->secondBest[contract.trump].rank) ; 
         return FALSE;
       }
     }
-    /*found=FALSE;
-    for (ss=0; ss<=3; ss++) {
-      if ((ss!=trump)&&(posPoint->winner[ss].rank!=0)) {
-	hh=posPoint->winner[ss].hand;
-	if ((nodeTypeStore[hh]==MAXNODE)||
-          (posPoint->length[hand][ss]==0)||
-          (posPoint->length[partner[hand]][ss]==0)) {
-	  found=TRUE;
-	  break;
-	}
-      }
-    }
-    if (!found) {
-      sum=Max(posPoint->length[hand][trump], 
-	posPoint->length[partner[hand]][trump]);
-      if ((posPoint->tricksMAX+sum<target)&&(sum>0)
-	 &&(depth>0)&&(depth!=iniDepth)) {
-	if (posPoint->tricksMAX+(depth>>2)<target) {
-          for (ss=0; ss<=3; ss++) {
-            if (ss!=trump) {
-              if (nodeTypeStore[posPoint->winner[ss].hand]==MINNODE)  
-                posPoint->stack[depth].winRanks[ss]=BitRank(posPoint->winner[ss].rank);
-              else
-                posPoint->stack[depth].winRanks[ss]=0;
-	    }
-	    else
-	      posPoint->stack[depth].winRanks[ss]=0;
-          }
-          return FALSE;
-        }
-      }
-    }*/
   }
   return TRUE;
 }
 
 
-int LaterTricksMAX(struct pos *posPoint, int hand, int depth, int target) {
+int LaterTricksMAX(struct pos *posPoint, const int hand, const int depth, const int target) {
   int hh, ss, sum=0;
+  const ContractInfo contract = Globals.getContract();
 	
-  if ((!trumpContract)||(posPoint->winner[trump].rank==0)) {
+  if ((!contract.trumpContract)||(posPoint->winner[contract.trump].rank==0)) {
     for (ss=0; ss<=3; ss++) {
       hh=posPoint->winner[ss].hand;
       if (nodeTypeStore[hh]==MINNODE)
-        sum+=Max(posPoint->length[hh][ss], posPoint->length[partner[hh]][ss]);
+        sum+=Max(posPoint->length[hh][ss], posPoint->length[partner(hh)][ss]);
     }
     if ((posPoint->tricksMAX+(depth>>2)+1-sum>=target)&&
        (sum>0)&&(depth>0)&&(depth!=iniDepth)) {
@@ -3310,76 +3032,73 @@ int LaterTricksMAX(struct pos *posPoint, int hand, int depth, int target) {
 	return TRUE;
       }
     }
-  }
-  else if (trumpContract && (posPoint->winner[trump].rank!=0) &&
-    (nodeTypeStore[posPoint->winner[trump].hand]==MAXNODE)) {
-    if ((posPoint->length[hand][trump]==0)&&
-      (posPoint->length[partner[hand]][trump]==0)) {
-      if (((posPoint->tricksMAX+Max(posPoint->length[lho[hand]][trump],
-        posPoint->length[rho[hand]][trump]))>=target)
+  } else if (contract.trumpContract && (posPoint->winner[contract.trump].rank!=0) &&
+    (nodeTypeStore[posPoint->winner[contract.trump].hand]==MAXNODE)) {
+    if ((posPoint->length[hand][contract.trump]==0)&&
+	(posPoint->length[partner(hand)][contract.trump]==0)) {
+      if (((posPoint->tricksMAX+Max(posPoint->length[lho(hand)][contract.trump],
+				    posPoint->length[rho(hand)][contract.trump]))>=target)
         &&(depth>0)&&(depth!=iniDepth)) {
         for (ss=0; ss<=3; ss++)
           posPoint->stack[depth].winRanks[ss]=0;
 	  return TRUE;
       }
-    }    
-    else if (((posPoint->tricksMAX+1)>=target)
-      &&(depth>0)&&(depth!=iniDepth)) {
-      for (ss=0; ss<=3; ss++)
+    } else if (((posPoint->tricksMAX+1)>=target) &&(depth>0)&&(depth!=iniDepth)) {
+      for (ss=0; ss<=3; ss++) {
         posPoint->stack[depth].winRanks[ss]=0;
-	posPoint->stack[depth].winRanks[trump]=
-	  BitRank(posPoint->winner[trump].rank);
-	    return TRUE;
+      }
+      posPoint->stack[depth].winRanks[contract.trump] =	BitRank(posPoint->winner[contract.trump].rank);
+      return TRUE;
     }
     else {
-      hh=posPoint->secondBest[trump].hand;
-      if ((nodeTypeStore[hh]==MAXNODE)&&(posPoint->secondBest[trump].rank!=0))  {
-        if (((posPoint->length[hh][trump]>1) ||
-          (posPoint->length[partner[hh]][trump]>1))&&
+      hh=posPoint->secondBest[contract.trump].hand;
+      if ((nodeTypeStore[hh]==MAXNODE)&&(posPoint->secondBest[contract.trump].rank!=0))  {
+        if (((posPoint->length[hh][contract.trump]>1) ||
+	     (posPoint->length[partner(hh)][contract.trump]>1))&&
           ((posPoint->tricksMAX+2)>=target)&&(depth>0)&&(depth!=iniDepth)) {
-          for (ss=0; ss<=3; ss++)
+          for (ss=0; ss<=3; ss++) {
             posPoint->stack[depth].winRanks[ss]=0;
-	  posPoint->stack[depth].winRanks[trump]=
-	    BitRank(posPoint->winner[trump].rank) | 
-            BitRank(posPoint->secondBest[trump].rank) ;
+	  }
+	  posPoint->stack[depth].winRanks[contract.trump]=
+	    BitRank(posPoint->winner[contract.trump].rank) | 
+            BitRank(posPoint->secondBest[contract.trump].rank) ;
 	  return TRUE;
  	}
       }
     }
-  }
-  else if (trumpContract) {
-    hh=posPoint->secondBest[trump].hand; 
+  } else if (contract.trumpContract) {
+    hh=posPoint->secondBest[contract.trump].hand; 
     if ((nodeTypeStore[hh]==MAXNODE)&&
-      (posPoint->length[hh][trump]>1)&&(posPoint->winner[trump].hand==rho[hh])
-      &&(posPoint->secondBest[trump].rank!=0)) {
+	(posPoint->length[hh][contract.trump]>1)&&(posPoint->winner[contract.trump].hand==rho(hh))
+      &&(posPoint->secondBest[contract.trump].rank!=0)) {
       if (((posPoint->tricksMAX+1)>=target)&&(depth>0)&&(depth!=iniDepth)) {
         for (ss=0; ss<=3; ss++)
           posPoint->stack[depth].winRanks[ss]=0;
-	  posPoint->stack[depth].winRanks[trump]=
-          BitRank(posPoint->secondBest[trump].rank) ;  
+	  posPoint->stack[depth].winRanks[contract.trump]=
+          BitRank(posPoint->secondBest[contract.trump].rank) ;  
         return TRUE;
       }
     }
     /*found=FALSE;
     for (ss=0; ss<=3; ss++) {
-      if ((ss!=trump)&&(posPoint->winner[ss].rank!=0)) {
+      if ((ss!=contract.trump)&&(posPoint->winner[ss].rank!=0)) {
 	hh=posPoint->winner[ss].hand;
 	if ((nodeTypeStore[hh]==MINNODE)||
           (posPoint->length[hand][ss]==0)||
-          (posPoint->length[partner[hand]][ss]==0)) {
+          (posPoint->length[partner(hand)][ss]==0)) {
 	  found=TRUE;
 	  break;
 	}
       }
     }
     if (!found) {
-      sum=Max(posPoint->length[hand][trump], 
-	posPoint->length[partner[hand]][trump]);
+      sum=Max(posPoint->length[hand][contract.trump], 
+	posPoint->length[partner(hand)][contract.trump]);
       if ((posPoint->tricksMAX+(depth>>2)+1-sum>=target)&&
 	 (depth>0)&&(depth!=iniDepth)) {
 	if ((posPoint->tricksMAX+1>=target)&&(sum>0)) {
           for (ss=0; ss<=3; ss++) {
-	    if (ss!=trump) {
+	    if (ss!=contract.trump) {
               if (nodeTypeStore[posPoint->winner[ss].hand]==MAXNODE)  
                 posPoint->stack[depth].winRanks[ss]=BitRank(posPoint->winner[ss].rank);
               else
@@ -3397,27 +3116,26 @@ int LaterTricksMAX(struct pos *posPoint, int hand, int depth, int target) {
 }
 
 
-unsigned short ris;
-int q, first;
 int recInd=0;
 
-int MoveGen(const struct pos * posPoint, const int depth) {
+int MoveGen(const struct pos * posPoint, const int depth) { 
+
   int suit, k, m, n, r, s, t;
   int scount[4];
   int WeightAlloc(const struct pos *, struct moveType * mp, int depth,
-    int notVoidInSuit);
+		  int notVoidInSuit,int q, int first);
 
   for (k=0; k<4; k++) 
     lowestWin[depth][k]=0;
   
   m=0;
   r=posPoint->handRelFirst;
-  first=posPoint->stack[depth].first;
-  q=HandStore(first,r);
+  const int first=posPoint->stack[depth].first;
+  const int q=HandStore(first,r);
   
   s=movePly[depth+r].current;             /* Current move of first hand */
   t=movePly[depth+r].move[s].suit;        /* Suit played by first hand */
-  ris=posPoint->rankInSuit[q][t];
+  const holding_t ris = posPoint->rankInSuit[q][t];
 
   if ((r!=0)&&(ris!=0)) {
   /* Not first hand and not void in suit */
@@ -3443,7 +3161,7 @@ int MoveGen(const struct pos * posPoint, const int depth) {
     if (m!=1) {
       for (k=0; k<=m-1; k++) 
         movePly[depth].move[k].weight=WeightAlloc(posPoint,
-          &movePly[depth].move[k], depth, ris);
+						  &movePly[depth].move[k], depth, ris,q,first);
     }
 
     movePly[depth].last=m-1;
@@ -3480,7 +3198,7 @@ int MoveGen(const struct pos * posPoint, const int depth) {
 
     for (k=0; k<=m-1; k++) 
         movePly[depth].move[k].weight=WeightAlloc(posPoint,
-          &movePly[depth].move[k], depth, ris);
+						  &movePly[depth].move[k], depth, ris,q,first);
   
     movePly[depth].last=m-1;
     InsertSort(m, depth);
@@ -3520,16 +3238,17 @@ int MoveGen(const struct pos * posPoint, const int depth) {
 }
 
 
-int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int depth,  int notVoidInSuit) {
-  int weight=0, suit, suitAdd=0, leadSuit;
+int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int depth,  const int notVoidInSuit,const int q, const int first) {
+  int weight=0, suitAdd=0, leadSuit;
   holding_t k,l,kk,ll;
   int suitWeightDelta;
   int suitBonus=0;
   int winMove=FALSE;
   unsigned short suitCount, suitCountLH, suitCountRH;
   int countLH, countRH;
+  const ContractInfo contract = Globals.getContract();
 
-  suit=mp->suit;
+  const int suit=mp->suit;
 
   if ((!notVoidInSuit)||(posPoint->handRelFirst==0)) {
     suitCount=posPoint->length[q][suit];
@@ -3538,14 +3257,14 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
 
   switch (posPoint->handRelFirst) {
     case 0:
-      suitCountLH=posPoint->length[lho[q]][suit];
-      suitCountRH=posPoint->length[rho[q]][suit];
+      suitCountLH=posPoint->length[lho(q)][suit];
+      suitCountRH=posPoint->length[rho(q)][suit];
 
-      if (trumpContract && (suit!=trump) &&
-        (((posPoint->rankInSuit[lho[q]][suit]==0) &&
-        (posPoint->rankInSuit[lho[q]][trump]!=0)) ||
-        ((posPoint->rankInSuit[rho[q]][suit]==0) &&
-        (posPoint->rankInSuit[rho[q]][trump]!=0))))
+      if (contract.notTrumpWithTrump(suit) &&
+	  (((posPoint->rankInSuit[lho(q)][suit]==0) &&
+	    (posPoint->rankInSuit[lho(q)][contract.trump]!=0)) ||
+	 ((posPoint->rankInSuit[rho(q)][suit]==0) &&
+	  (posPoint->rankInSuit[rho(q)][contract.trump]!=0))))
           suitBonus=-12/*15*/;
 
       if (suitCountLH!=0)
@@ -3560,61 +3279,61 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
       suitWeightDelta=suitBonus-((countLH+countRH)<<1);
 
       if (posPoint->winner[suit].rank==mp->rank) {
-        if ((trumpContract)&&(suit!=trump)) {
-	  if ((posPoint->length[partner[first]][suit]!=0)||
-	    (posPoint->length[partner[first]][trump]==0)) {
-	    if (((posPoint->length[lho[first]][suit]!=0)||
-	       (posPoint->length[lho[first]][trump]==0))&&
-	       ((posPoint->length[rho[first]][suit]!=0)||
-	       (posPoint->length[rho[first]][trump]==0)))
+        if (contract.notTrumpWithTrump(suit)) {
+	  if ((posPoint->length[partner(first)][suit]!=0)||
+	      (posPoint->length[partner(first)][contract.trump]==0)) {
+	    if (((posPoint->length[lho(first)][suit]!=0)||
+		 (posPoint->length[lho(first)][contract.trump]==0))&&
+		((posPoint->length[rho(first)][suit]!=0)||
+		 (posPoint->length[rho(first)][contract.trump]==0)))
 	       winMove=TRUE;
 	  }
-	  else if (((posPoint->length[lho[first]][suit]!=0)||
-            (posPoint->rankInSuit[partner[first]][trump]>
-             posPoint->rankInSuit[lho[first]][trump]))&&
-	    ((posPoint->length[rho[first]][suit]!=0)||
-	    (posPoint->rankInSuit[partner[first]][trump]>
-	     posPoint->rankInSuit[rho[first]][trump])))
+	  else if (((posPoint->length[lho(first)][suit]!=0)||
+		    (posPoint->rankInSuit[partner(first)][contract.trump]>
+		     posPoint->rankInSuit[lho(first)][contract.trump]))&&
+		   ((posPoint->length[rho(first)][suit]!=0)||
+	     (posPoint->rankInSuit[partner(first)][contract.trump]>
+	      posPoint->rankInSuit[rho(first)][contract.trump])))
 	     winMove=TRUE;
 	}
         else 
           winMove=TRUE;			   
       }
-      else if (posPoint->rankInSuit[partner[first]][suit] >
-	(posPoint->rankInSuit[lho[first]][suit] |
-	 posPoint->rankInSuit[rho[first]][suit])) {
-	if ((trumpContract) && (suit!=trump)) {
-	  if (((posPoint->length[lho[first]][suit]!=0)||
-	     (posPoint->length[lho[first]][trump]==0))&&
-	     ((posPoint->length[rho[first]][suit]!=0)||
-	     (posPoint->length[rho[first]][trump]==0)))
+      else if (posPoint->rankInSuit[partner(first)][suit] >
+	       (posPoint->rankInSuit[lho(first)][suit] |
+	 posPoint->rankInSuit[rho(first)][suit])) {
+	if (contract.notTrumpWithTrump(suit)) {
+	  if (((posPoint->length[lho(first)][suit]!=0)||
+	       (posPoint->length[lho(first)][contract.trump]==0))&&
+	      ((posPoint->length[rho(first)][suit]!=0)||
+	       (posPoint->length[rho(first)][contract.trump]==0)))
 	     winMove=TRUE;
 	}
 	else
 	  winMove=TRUE;
       }			
-      else if ((trumpContract)&&(suit!=trump)) {
-        if ((posPoint->length[partner[first]][suit]==0)&&
-          (posPoint->length[partner[first]][trump]!=0)) {
-	  if ((posPoint->length[lho[first]][suit]==0)&&
-            (posPoint->length[lho[first]][trump]!=0)&&
-	    (posPoint->length[rho[first]][suit]==0)&&
-            (posPoint->length[rho[first]][trump]!=0)) {
-	    if (posPoint->rankInSuit[partner[first]][trump]>
-	      (posPoint->rankInSuit[lho[first]][trump] |
-	      posPoint->rankInSuit[rho[first]][trump]))
+      else if (contract.notTrumpWithTrump(suit)) {
+        if ((posPoint->length[partner(first)][suit]==0)&&
+	    (posPoint->length[partner(first)][contract.trump]!=0)) {
+	  if ((posPoint->length[lho(first)][suit]==0)&&
+	      (posPoint->length[lho(first)][contract.trump]!=0)&&
+	      (posPoint->length[rho(first)][suit]==0)&&
+	      (posPoint->length[rho(first)][contract.trump]!=0)) {
+	    if (posPoint->rankInSuit[partner(first)][contract.trump]>
+		(posPoint->rankInSuit[lho(first)][contract.trump] |
+	       posPoint->rankInSuit[rho(first)][contract.trump]))
 	      winMove=TRUE;
 	  }
-	  else if ((posPoint->length[lho[first]][suit]==0)&&
-            (posPoint->length[lho[first]][trump]!=0)) {
-	    if (posPoint->rankInSuit[partner[first]][trump]
-	        > posPoint->rankInSuit[lho[first]][trump])
+	  else if ((posPoint->length[lho(first)][suit]==0)&&
+		   (posPoint->length[lho(first)][contract.trump]!=0)) {
+	    if (posPoint->rankInSuit[partner(first)][contract.trump]
+	        > posPoint->rankInSuit[lho(first)][contract.trump])
 	       winMove=TRUE;
 	  }	
-	  else if ((posPoint->length[rho[first]][suit]==0)&&
-            (posPoint->length[rho[first]][trump]!=0)) {
-	    if (posPoint->rankInSuit[partner[first]][trump]
-	       > posPoint->rankInSuit[rho[first]][trump])
+	  else if ((posPoint->length[rho(first)][suit]==0)&&
+		   (posPoint->length[rho(first)][contract.trump]!=0)) {
+	    if (posPoint->rankInSuit[partner(first)][contract.trump]
+		> posPoint->rankInSuit[rho(first)][contract.trump])
 	      winMove=TRUE;
 	  }	
           else
@@ -3623,18 +3342,18 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
       }
               
       if (winMove) {
-	if (((posPoint->winner[suit].hand==lho[first])&&(suitCountLH==1))
-          ||((posPoint->winner[suit].hand==rho[first])&&(suitCountRH==1)))
+	if (((posPoint->winner[suit].hand==lho(first))&&(suitCountLH==1))
+	    ||((posPoint->winner[suit].hand==rho(first))&&(suitCountRH==1)))
           weight=suitWeightDelta+40-(mp->rank);
         else if (posPoint->winner[suit].hand==first) {
-          if (posPoint->secondBest[suit].hand==partner[first])
+          if (posPoint->secondBest[suit].hand==partner(first))
             weight=suitWeightDelta+50-(mp->rank);
           else if (posPoint->winner[suit].rank==mp->rank) 
             weight=suitWeightDelta+31;
           else
             weight=suitWeightDelta+19-(mp->rank);
         }
-        else if (posPoint->winner[suit].hand==partner[first]) {
+        else if (posPoint->winner[suit].hand==partner(first)) {
           /* If partner has winning card */
           if (posPoint->secondBest[suit].hand==first)
             weight=suitWeightDelta+50-(mp->rank);
@@ -3651,18 +3370,18 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
           weight+=50/*45*//*35*/; 
       }
       else {
-        if (((posPoint->winner[suit].hand==lho[first])&&(suitCountLH==1))
-          ||((posPoint->winner[suit].hand==rho[first])&&(suitCountRH==1)))
+        if (((posPoint->winner[suit].hand==lho(first))&&(suitCountLH==1))
+	    ||((posPoint->winner[suit].hand==rho(first))&&(suitCountRH==1)))
           weight=suitWeightDelta+20-(mp->rank);
         else if (posPoint->winner[suit].hand==first) {
-          if (posPoint->secondBest[suit].hand==partner[first])
+          if (posPoint->secondBest[suit].hand==partner(first))
             weight=suitWeightDelta+35-(mp->rank);
           else if (posPoint->winner[suit].rank==mp->rank) 
             weight=suitWeightDelta+16;
           else
             weight=suitWeightDelta+4-(mp->rank);
         }
-        else if (posPoint->winner[suit].hand==partner[first]) {
+        else if (posPoint->winner[suit].hand==partner(first)) {
           /* If partner has winning card */
           if (posPoint->secondBest[suit].hand==first)
             weight=suitWeightDelta+35-(mp->rank);
@@ -3686,110 +3405,112 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
       if (leadSuit==suit) {
 	if (BitRank(mp->rank)>
 	  (BitRank(posPoint->stack[depth+1].move.rank) |
-	  posPoint->rankInSuit[partner[first]][suit])) {
-	  if (trumpContract && (suit!=trump)) {
-	    if ((posPoint->length[partner[first]][suit]!=0)||
-	      (posPoint->length[partner[first]][trump]==0))
+	   posPoint->rankInSuit[partner(first)][suit])) {
+	  if (contract.notTrumpWithTrump(suit)) {
+	    if ((posPoint->length[partner(first)][suit]!=0)||
+		(posPoint->length[partner(first)][contract.trump]==0))
 	      winMove=TRUE;
-	    else if ((posPoint->length[rho[first]][suit]==0)
-               &&(posPoint->length[rho[first]][trump]!=0)
-               &&(posPoint->rankInSuit[rho[first]][trump]>
-               posPoint->rankInSuit[partner[first]][trump]))
+	    else if ((posPoint->length[rho(first)][suit]==0)
+		     &&(posPoint->length[rho(first)][contract.trump]!=0)
+		     &&(posPoint->rankInSuit[rho(first)][contract.trump]>
+		  posPoint->rankInSuit[partner(first)][contract.trump]))
 	       winMove=TRUE;
 	  }
           else
             winMove=TRUE;
         }
-	else if (posPoint->rankInSuit[rho[first]][suit]>
+	else if (posPoint->rankInSuit[rho(first)][suit]>
 	  (BitRank(posPoint->stack[depth+1].move.rank) |
-	  posPoint->rankInSuit[partner[first]][suit])) {	 
-	  if (trumpContract && (suit!=trump)) {
-	    if ((posPoint->length[partner[first]][suit]!=0)||
-	      (posPoint->length[partner[first]][trump]==0))
+	   posPoint->rankInSuit[partner(first)][suit])) {	 
+	  if (contract.notTrumpWithTrump(suit)) {
+	    if ((posPoint->length[partner(first)][suit]!=0)||
+		(posPoint->length[partner(first)][contract.trump]==0)) {
 	      winMove=TRUE;
+	    }
 	  }
           else
             winMove=TRUE;
 	} 
 	else if (BitRank(posPoint->stack[depth+1].move.rank) >
-	  (posPoint->rankInSuit[rho[first]][suit] |
-	   posPoint->rankInSuit[partner[first]][suit] |
+		 (posPoint->rankInSuit[rho(first)][suit] |
+	   posPoint->rankInSuit[partner(first)][suit] |
 	  BitRank(mp->rank))) {  
-	  if (trumpContract && (suit!=trump)) {
-	    if ((posPoint->length[rho[first]][suit]==0)&&
-	      (posPoint->length[rho[first]][trump]!=0)) {
-	      if ((posPoint->length[partner[first]][suit]!=0)||
-		(posPoint->length[partner[first]][trump]==0))
+	  if (contract.notTrumpWithTrump(suit)) {
+	    if ((posPoint->length[rho(first)][suit]==0)&&
+		(posPoint->length[rho(first)][contract.trump]!=0)) {
+	      if ((posPoint->length[partner(first)][suit]!=0)||
+		  (posPoint->length[partner(first)][contract.trump]==0)) {
 		winMove=TRUE;
-	      else if (posPoint->rankInSuit[rho[first]][trump]
-                 > posPoint->rankInSuit[partner[first]][trump])
+	      } else if (posPoint->rankInSuit[rho(first)][contract.trump] 
+			 > posPoint->rankInSuit[partner(first)][contract.trump]) {
 		 winMove=TRUE;
-	    }	  
+	      }
+	    }  
 	  }
-	}	
-	else {   /* winnerHand is partner to first */
-	  if (trumpContract && (suit!=trump)) {
-	    if ((posPoint->length[rho[first]][suit]==0)&&
-	      (posPoint->length[rho[first]][trump]!=0))
+	} else {   /* winnerHand is partner to first */
+	  if (contract.notTrumpWithTrump(suit)) {
+	    if ((posPoint->length[rho(first)][suit]==0)&&
+		(posPoint->length[rho(first)][contract.trump]!=0))
 	      winMove=TRUE;
 	  }  
 	}
       }
       else {
         /* Leading suit differs from suit played by LHO */
-	if (trumpContract && (suit==trump)) {
-	  if (posPoint->length[partner[first]][leadSuit]!=0)
+	if (contract.isTrump(suit)) {
+	  if (posPoint->length[partner(first)][leadSuit]!=0)
 	    winMove=TRUE;
 	  else if (BitRank(mp->rank)>
-	    posPoint->rankInSuit[partner[first]][trump]) 
+		   posPoint->rankInSuit[partner(first)][contract.trump]) 
 	    winMove=TRUE;
-	  else if ((posPoint->length[rho[first]][leadSuit]==0)
-            &&(posPoint->length[rho[first]][trump]!=0)&&
-            (posPoint->rankInSuit[rho[first]][trump] >
-            posPoint->rankInSuit[partner[first]][trump]))
+	  else if ((posPoint->length[rho(first)][leadSuit]==0)
+		   &&(posPoint->length[rho(first)][contract.trump]!=0)&&
+		   (posPoint->rankInSuit[rho(first)][contract.trump] >
+	     posPoint->rankInSuit[partner(first)][contract.trump]))
             winMove=TRUE;
         }	
-        else if (trumpContract && (leadSuit!=trump)) {
+        else if (contract.notTrumpWithTrump(leadSuit)) {
           /* Neither suit nor leadSuit is trump */
-          if (posPoint->length[partner[first]][leadSuit]!=0) {
-            if (posPoint->rankInSuit[rho[first]][leadSuit] >
-              (posPoint->rankInSuit[partner[first]][leadSuit] |
+          if (posPoint->length[partner(first)][leadSuit]!=0) {
+            if (posPoint->rankInSuit[rho(first)][leadSuit] >
+		(posPoint->rankInSuit[partner(first)][leadSuit] |
               BitRank(posPoint->stack[depth+1].move.rank)))
               winMove=TRUE;
-	    else if ((posPoint->length[rho[first]][leadSuit]==0)
-	      &&(posPoint->length[rho[first]][trump]!=0))
+	    else if ((posPoint->length[rho(first)][leadSuit]==0)
+		     &&(posPoint->length[rho(first)][contract.trump]!=0))
 	      winMove=TRUE;
 	  }
 	  /* Partner to leading hand is void in leading suit */
-	  else if ((posPoint->length[rho[first]][leadSuit]==0)
-	    &&(posPoint->rankInSuit[rho[first]][trump]>
-	    posPoint->rankInSuit[partner[first]][trump]))
+	  else if ((posPoint->length[rho(first)][leadSuit]==0)
+		   &&(posPoint->rankInSuit[rho(first)][contract.trump]>
+	       posPoint->rankInSuit[partner(first)][contract.trump]))
 	    winMove=TRUE;
-	  else if ((posPoint->length[partner[first]][trump]==0)
-	    &&(posPoint->rankInSuit[rho[first]][leadSuit] >
+	  else if ((posPoint->length[partner(first)][contract.trump]==0)
+		   &&(posPoint->rankInSuit[rho(first)][leadSuit] >
 	    BitRank(posPoint->stack[depth+1].move.rank)))
 	    winMove=TRUE;
         }
         else {
 	    /* Either no trumps or leadSuit is trump, side with
 		highest rank in leadSuit wins */
-	    if (posPoint->rankInSuit[rho[first]][leadSuit] >
-            (posPoint->rankInSuit[partner[first]][leadSuit] |
+	  if (posPoint->rankInSuit[rho(first)][leadSuit] >
+		(posPoint->rankInSuit[partner(first)][leadSuit] |
              BitRank(posPoint->stack[depth+1].move.rank)))
              winMove=TRUE;			   
         }			  
       }
       
-      kk=posPoint->rankInSuit[partner[first]][leadSuit];
-      ll=posPoint->rankInSuit[rho[first]][leadSuit];
+      kk=posPoint->rankInSuit[partner(first)][leadSuit];
+      ll=posPoint->rankInSuit[rho(first)][leadSuit];
       k=kk & (-kk); l=ll & (-ll);  /* Only least significant 1 bit */
       if (winMove) {
         if (!notVoidInSuit) { 
-          if (trumpContract && (suit==trump))  
+          if (contract.isTrump(suit)) {
             weight=30-(mp->rank)+suitAdd;
-          else
+	  } else {
             weight=60-(mp->rank)+suitAdd;  /* Better discard than ruff since rho
 								wins anyway */
+	  }
         } else if (k > BitRank(mp->rank)) {
           weight=45-(mp->rank);    /* If lowest card for partner to leading hand 
 						is higher than lho played card, playing as low as 
@@ -3816,7 +3537,7 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
               weight=45-(mp->rank);
           }
         } 
-        else if (posPoint->length[rho[first]][leadSuit]>0) {
+        else if (posPoint->length[rho(first)][leadSuit]>0) {
           if (mp->sequence)
             weight=50-(mp->rank);  /* Plyiang a card in a sequence may promote a winner */
           else
@@ -3827,7 +3548,7 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
       }
       else {
         if (!notVoidInSuit) {
-	  if (trumpContract && (suit==trump)) {
+	  if (contract.isTrump(suit)) {
 	  /*if (ll > BitRank(posPoint->stack[depth+1].move.rank))
 			  weight=-10-(mp->rank)+suitAdd;
 			else*/
@@ -3859,21 +3580,21 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
       leadSuit=posPoint->stack[depth+2].move.suit;
       if (WinningMove(mp, &(posPoint->stack[depth+1].move))) {
 	if (suit==leadSuit) {
-	  if (trumpContract && (leadSuit!=trump)) {
-	    if (((posPoint->length[rho[first]][suit]!=0)||
-	      (posPoint->length[rho[first]][trump]==0))&&
+	  if (contract.notTrumpWithTrump(leadSuit)) {
+	    if (((posPoint->length[rho(first)][suit]!=0)||
+		 (posPoint->length[rho(first)][contract.trump]==0))&&
 	      (BitRank(mp->rank) >
-	      posPoint->rankInSuit[rho[first]][suit]))
+	       posPoint->rankInSuit[rho(first)][suit]))
 	      winMove=TRUE;
 	  }	
 	  else if (BitRank(mp->rank) >
-	    posPoint->rankInSuit[rho[first]][suit])
+		   posPoint->rankInSuit[rho(first)][suit])
 	    winMove=TRUE;
 	}
 	else {  /* Suit is trump */
-	  if (posPoint->length[rho[first]][leadSuit]==0) {
+	  if (posPoint->length[rho(first)][leadSuit]==0) {
 	    if (BitRank(mp->rank) >
-	      posPoint->rankInSuit[rho[first]][trump])
+		posPoint->rankInSuit[rho(first)][contract.trump])
 	      winMove=TRUE;
 	  }
 	  else
@@ -3881,56 +3602,51 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
 	}
       }	
       else if (posPoint->stack[depth+1].high==first) {
-	if (posPoint->length[rho[first]][leadSuit]!=0) {
-	  if (posPoint->rankInSuit[rho[first]][leadSuit]
+	if (posPoint->length[rho(first)][leadSuit]!=0) {
+	  if (posPoint->rankInSuit[rho(first)][leadSuit]
 	    < BitRank(posPoint->stack[depth+2].move.rank))	
 	    winMove=TRUE;
-	}
-	else if (!trumpContract)
+	} else if (!contract.trumpContract) {
 	  winMove=TRUE;
-	else if (trumpContract && (leadSuit==trump))
+	} else if (contract.isTrump(leadSuit)) {
           winMove=TRUE;
-	else if (trumpContract && (leadSuit!=trump) &&
-	  (posPoint->length[rho[first]][trump]==0))
+	} else if (contract.notTrumpWithTrump(leadSuit) &&
+		   (posPoint->length[rho(first)][contract.trump]==0)) {
 	  winMove=TRUE;
+	}
       }
       
       if (winMove) {
         if (!notVoidInSuit) {
           if (posPoint->stack[depth+1].high==first) {
-            if (trumpContract && (suit==trump)) 
+            if (contract.isTrump(suit)) {
               weight=30-(mp->rank)+suitAdd; /* Ruffs partner's winner */
-            /*else if ((posPoint->length[partner[first]][suit]==1)&&
-		(BitRank(mp->sui)]>posPoint->rankInSuit[first][suit])&&
-		(posPoint->rankInSuit[first][suit]>
-		(posPoint->rankInSuit[lho[first]][suit] |
-		posPoint->rankInSuit[rho[first]][suit])))
-		weight=90-(mp->rank)+suitAdd;*/
-	    else
+	    } else {
               weight=60-(mp->rank)+suitAdd;
-          } 
-          else if (WinningMove(mp, &(posPoint->stack[depth+1].move)))
+	    }
+          } else if (WinningMove(mp, &(posPoint->stack[depth+1].move))) {
              /* Own hand on top by ruffing */
             weight=70-(mp->rank)+suitAdd;
-          else if (trumpContract && (suit==trump))
+	  } else if (contract.isTrump(suit)) {
             /* Discard a trump but still losing */
             weight=15-(mp->rank)+suitAdd;
-          else
+	  } else {
             weight=30-(mp->rank)+suitAdd;
-        }
-        else 
+	  }
+        } else {
           weight=60-(mp->rank);  
-      }
-      else {
+	}
+      } else {
         if (!notVoidInSuit) {
           if (WinningMove(mp, &(posPoint->stack[depth+1].move)))
              /* Own hand on top by ruffing */
             weight=40-(mp->rank)+suitAdd;
-          else if (trumpContract && (suit==trump))
+          else if (contract.isTrump(suit)) {
             /* Discard a trump but still losing */
             weight=-15-(mp->rank)+suitAdd;
-          else
+	  } else {
             weight=-(mp->rank)+suitAdd;
+	  }
         }
         else {
           if (WinningMove(mp, &(posPoint->stack[depth+1].move))) {
@@ -3950,42 +3666,45 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
 
     case 3:
       if (!notVoidInSuit) {
-        if ((posPoint->stack[depth+1].high)==lho[first]) {
+        if ((posPoint->stack[depth+1].high)==lho(first)) {
           /* If the current winning move is given by the partner */
-          if (trumpContract && (suit==trump))
+          if (contract.isTrump(suit)) {
             /* Ruffing partners winner? */
             weight=14-(mp->rank)+suitAdd;
-          else 
+	  } else {
             weight=30-(mp->rank)+suitAdd;
+	  }
         }
-        else if (WinningMove(mp, &(posPoint->stack[depth+1].move))) 
+        else if (WinningMove(mp, &(posPoint->stack[depth+1].move)))  {
           /* Own hand ruffs */
           weight=30-(mp->rank)+suitAdd;
-        else if (suit==trump) 
+	} else if (suit==contract.trump) {
           weight=-(mp->rank);
-        else 
+	} else {
           weight=14-(mp->rank)+suitAdd;  
+	}
       }
-      else if ((posPoint->stack[depth+1].high)==(lho[first])) {
+      else if ((posPoint->stack[depth+1].high)==(lho(first))) {
         /* If the current winning move is given by the partner */
-        if (trumpContract && (suit==trump))
+        if (contract.isTrump(suit)) {
         /* Ruffs partners winner */
           weight=24-(mp->rank);
-        else 
+	} else {
           weight=30-(mp->rank);
-      }
-      else if (WinningMove(mp, &(posPoint->stack[depth+1].move)))
+	}
+      } else if (WinningMove(mp, &(posPoint->stack[depth+1].move))) {
         /* If present move is superior to current winning move and the
         current winning move is not given by the partner */
         weight=30-(mp->rank);
-      else {
+      } else {
         /* If present move is not superior to current winning move and the
         current winning move is not given by the partner */
-        if (trumpContract && (suit==trump))
+        if (contract.isTrump(suit)) {
           /* Ruffs but still loses */
           weight=-(mp->rank);
-        else 
+	} else {
           weight=14-(mp->rank);
+	}
       }
   }
   return weight;
@@ -4188,16 +3907,19 @@ int WinningMove(const struct moveType * mvp1, const struct moveType * mvp2) {
 /* Return TRUE if move 1 wins over move 2, with the assumption that
 move 2 is the presently winning card of the trick */
 
+  const ContractInfo contract = Globals.getContract();
+
   if (mvp1->suit==mvp2->suit) {
-    if ((mvp1->rank)>(mvp2->rank))
+    if ((mvp1->rank)>(mvp2->rank)) {
       return TRUE;
-    else
+    } else {
       return FALSE;
-  }    
-  else if (trumpContract && (mvp1->suit)==trump)
+    }
+  } else if (contract.isTrump(mvp1->suit)) {
     return TRUE;
-  else
+  } else {
     return FALSE;
+  }
 }
 
 
@@ -4562,7 +4284,7 @@ void BuildSOP(struct pos * posPoint, int tricks, int firstHand, int target,
         temp[hh][ss]=0;
     }
     else {
-      w=w & (-w);       /* Only lowest win */
+      w=smallestRankInSuit(w);       /* Only lowest win */
       for (hh=0; hh<=3; hh++)
 	temp[hh][ss]=posPoint->rankInSuit[hh][ss] & (-w);
 
@@ -4572,7 +4294,7 @@ void BuildSOP(struct pos * posPoint, int tricks, int firstHand, int target,
       posPoint->winMask[ss]=rel[aggr[ss]].winMask[ss];
       posPoint->winOrderSet[ss]=rel[aggr[ss]].aggrRanks[ss];
       wm=posPoint->winMask[ss];
-      wm=wm & (-wm);
+      wm=smallestRankInSuit(wm);
       posPoint->leastWin[ss]=InvWinMask(wm);
     }
   }
@@ -4708,7 +4430,7 @@ int CheckDeal(struct moveType * cardp) {
 
 /* New algo */
 
-void WinAdapt(struct pos * posPoint, const int depth, struct nodeCardsType * cp,
+void WinAdapt(struct pos * posPoint, const int depth, const struct nodeCardsType * cp,
    unsigned short int aggr[]) {
    int ss, rr, k;
 
@@ -4742,10 +4464,11 @@ int DismissX(struct pos *posPoint, const int depth) {
 
   if (lowestWin[depth][currMove.suit]==0) {
     lw=posPoint->stack[depth].winRanks[currMove.suit];
-    if (lw!=0)
-	lw=lw & (-lw);  /* LSB */
-    else
-	lw=BitRank(15);
+    if (lw!=0) {
+      lw=smallestRankInSuit(lw);  /* LSB */
+    } else {
+      lw=BitRank(15);
+    }
     if (BitRank(currMove.rank)<lw) {
 	lowestWin[depth][currMove.suit]=lw;
       while (movePly[depth].current<=movePly[depth].last-1) {
@@ -4942,7 +4665,7 @@ void ReceiveTTstore(struct pos *posPoint, struct nodeCardsType * cardsP,
   ttStore[lastTTstore].cardsP=cardsP;
   ttStore[lastTTstore].first=posPoint->stack[depth].first;
   if ((handToPlay==posPoint->stack[depth].first)||
-    (handToPlay==partner[posPoint->stack[depth].first])) {
+      (handToPlay==partner(posPoint->stack[depth].first))) {
     ttStore[lastTTstore].target=target-posPoint->tricksMAX;
     ttStore[lastTTstore].ubound=cardsP->ubound[handToPlay];
     ttStore[lastTTstore].lbound=cardsP->lbound[handToPlay];
