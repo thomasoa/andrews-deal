@@ -62,7 +62,33 @@ using namespace std;
 #define Min(x, y) (((x) <= (y)) ? (x) : (y))
 
 
+#if 0
+struct CanonicalBridgeDiagram {
+  holding_t _cards[4][4];
+  unsigned int _lengths[4][4];
 
+  inline int hasCardBitRank(int hand, int suit, holding_t bitRank) const {
+    return (_cards[hand][suit] & bitRank);
+  }
+
+  inline int hasCard(int hand,int suit, int rank) const {
+    return hasCardBitRank(hand,suit,BitRank(rank));
+  }
+
+}
+#endif
+
+inline int partner(int hand) {
+  return (hand^2); /* slightly faster */
+}
+
+inline int lho(int hand) {
+  return (hand+1)&3;
+}
+
+inline int rho(int hand) {
+  return (hand+3)&3;
+}
 
 struct gameInfo  {          /* All info of a particular deal */
   int vulnerable;
@@ -157,7 +183,7 @@ struct pos {
   int winOrderSet[4];
   int winMask[4];
   int leastWin[4];
-  unsigned short int removedRanks[4];    /* Ranks removed from board,
+  holding_t removedRanks[4];    /* Ranks removed from board,
                                         index is suit */
   unsigned char length[4][4];
   char ubound;
@@ -202,13 +228,13 @@ struct pos {
     return hasCardBitRank(hand,suit,BitRank(rank));
   }
 
-  inline void getSuitLengths(LONGLONG &lengths) {
+  inline void getSuitLengths(LONGLONG &lengths,int relHand = 0) const {
     int hand, suit;
     lengths = 0;
     for (suit=0; suit<=2; suit++) {
       for (hand=0; hand<=3; hand++) {
 	lengths = lengths << 4;
-        lengths |= length[hand][suit];
+        lengths |= length[(relHand+hand)%4][suit];
       }
     }
   }
@@ -273,6 +299,104 @@ struct ttStoreType {
   unsigned short int suit[4][4];
 };
 
+struct ContractInfo {
+  const static int nextSuitArray[4][4];
+  int trumpContract;
+  int trump;
+  int _firstSuit;
+  const int *_nextSuit;
+  
+
+  inline void initialize(int trumpContract,int trump) {
+    this->trumpContract = trumpContract;
+    this->trump = trump;
+    if (!trumpContract ) {
+      _firstSuit = 0;
+      _nextSuit = nextSuitArray[0];
+    } else {
+      _firstSuit = trump;
+      _nextSuit = nextSuitArray[trump];
+    }
+    
+  }
+
+  inline ContractInfo() {
+    initialize(0,-1);
+  }
+
+  inline ContractInfo(const ContractInfo &contract) {
+    trumpContract = contract.trumpContract;
+    trump         = contract.trump;
+    _firstSuit     = contract._firstSuit;
+    _nextSuit      = contract._nextSuit;
+  }
+
+  inline int isTrump(int suit) const {
+    return (trumpContract && (trump==suit));
+  }
+
+  inline int notTrumpWithTrump(int suit) const {
+    return (trumpContract && (trump!=suit));
+  }
+
+  inline int firstSuit() const {
+    return _firstSuit;
+  }
+
+  inline int nextSuit(int suit) const {
+    return _nextSuit[suit];
+  }
+
+#if 0
+  inline int nextSuit(int suit) const {
+    if (isTrump(suit)) {
+      return firstNonTrumpSuit(suit);
+    } else {
+      return nextNonTrumpSuit(suit);
+    }
+  }
+
+  inline int firstSuit() const {
+    if (trumpContract) {
+      return trump;
+    } else {
+      return 0;
+    }
+  }
+
+  inline int firstNonTrumpSuit(int suit) const {
+    if (trump==0) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+
+  inline int nextNonTrumpSuit(int suit) const {
+    suit++;
+      if (isTrump(suit)) {
+	suit++;
+      }
+      return suit;
+  }
+#endif
+
+};
+
+struct GLOBALS {
+protected:
+public:
+  ContractInfo _contract;
+
+  inline void setContract(int trump=-1) {
+    _contract.initialize(trump>=0 && trump<=3,trump);
+  }
+
+  inline const ContractInfo &getContract() const {
+    return _contract;
+  }
+
+};
 
 extern struct gameInfo game;
 extern struct gameInfo * gameStore;
@@ -280,7 +404,7 @@ extern struct ttStoreType * ttStore;
 extern struct nodeCardsType * nodeCards;
 extern struct winCardType * winCards;
 extern struct pos position, iniPosition, lookAheadPos;
-extern struct moveType move[13];
+/* extern struct moveType move[13]; */
 extern struct movePlyType movePly[50];
 extern struct posSearchType * posSearch;
 extern struct searchType searchData;
@@ -302,9 +426,9 @@ extern int c1[50], c2[50], c3[50], c4[50], c5[50], c6[50], c7[50],
   c8[50], c9[50];
 extern int nodeTypeStore[4];            /* Look-up table for determining if
                                         node is MAXNODE or MINNODE */
+#if 0
 extern int lho[4], rho[4], partner[4];                                        
-extern int trumpContract;
-extern int trump;
+#endif
 extern int nodes;                       /* Number of nodes searched */
 extern int no[50];                      /* Number of nodes searched on each
                                         depth level */
@@ -378,7 +502,7 @@ struct posSearchType * SearchLenAndInsert(struct posSearchType
 	* rootp, LONGLONG key, int insertNode, int *result);  
 void Undo(struct pos * posPoint, int depth);
 int CheckDeal(struct moveType * cardp);
-void WinAdapt(struct pos * posPoint, int depth, struct nodeCardsType * cp,
+void WinAdapt(struct pos * posPoint, int depth, const struct nodeCardsType * cp,
    unsigned short int aggr[]);
 int InvBitMapRank(unsigned short bitMap);
 int InvWinMask(int mask);
