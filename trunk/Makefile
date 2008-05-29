@@ -67,6 +67,7 @@ OTHERFILES=CHANGES LICENSE GPL input format lib deal.tcl docs
 SOURCEKIT=$(SRCKIT) $(HFILES) $(EXAMPLES) $(BUILDFILES) $(OTHERFILES) $(EXTRAS)
 BINKIT=$(EXAMPLES) $(OTHERFILES)
 UUKIT=$(EXAMPLES) $(OTHERFILES) deal
+BINARY=./deal
 
 deal: $(OBJS)
 	g++ $(CFLAGS) $(OBJS) -o deal $(LDFLAGS)
@@ -222,8 +223,13 @@ tar:
 	mv Make.dep.saved Make.dep
 
 test: ./deal
-	./deal -I "line tests/input/sample.line" -i format/ddline 100 > test.out
+	$(BINARY) -I "line tests/input/sample.line" -i format/ddline 100 > test.out
 	diff test.out tests/output/sample.ddline
+
+smalltest: ./deal
+	$(BINARY) -I "line tests/input/sample.line" -i format/ddline 10 > test.out
+	head -10 tests/output/sample.ddline > correct.out
+	diff test.out correct.out
 
 ftp: $(SRCZIP)
 	cp $(SRCZIP) $(FTP)
