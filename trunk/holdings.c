@@ -924,9 +924,7 @@ static int IDeal_HoldingCmd(TCLOBJ_PARAMS) TCLOBJ_DECL
     subsetCmd,
     matchesCmd,
     lengthFlag,
-              
     spotFlag,
-
     initKeywords=1;
   int cmd;
 

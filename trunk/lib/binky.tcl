@@ -1,7 +1,7 @@
 #
 # Copyright (C) 1996-2001, Thomas Andrews
 #
-# $Id: binky.tcl,v 1.2 2008-05-22 00:56:08 thomaso Exp $
+# $Id: binky.tcl,v 1.3 2008-05-29 14:00:10 thomaso Exp $
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,7 +38,8 @@ namespace eval binky {
          set result [lindex $binkyData($key) $column]
          return $result
      }
-     return -13.00
+     puts stderr "Got unknown key $key"
+     return -1000.00
   }
 
   proc ddvalue {column holding len} {
