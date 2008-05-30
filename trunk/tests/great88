@@ -1,0 +1,33 @@
+proc problem {id title diagram goal {denomination notrump} {leader south}} {
+  set tricks [dds -diagram $diagram -leader $leader south $denomination]
+  if {$tricks != $goal} {
+    puts "ERROR"
+  }
+  puts "Problem $id ($title) makes $tricks tricks with goal $goal"
+}
+
+problem 1 Avoidance [list {A987 - A} {Q5 987 -} {64 K2 2} {K2 AQ3 -} ] 3 notrump
+problem 2 {The Pitt coup} [list {A2 753} {Q9 64 Q} {KJ - 753} {3 Q98 A}] 5 spades
+problem 3 {Gambit and jettison} [list {A 873 A} {6 9 K KJ} {- A6 - Q43} {8 Q Q98 -}] 4 spades
+problem 4 {Forced finesse} [list {842 32} {A76 K8} {KQ3 AQ} {J9 75 2}] 4 notrump
+problem 5 {Strip setup finesse} [list {7 - Q63 A} {9 - JT8 7} {- - K94 65} {5 - - K984}] 4 spades
+problem 6 {Double strip finesse} [list {- 86 - A96} {5 A53 - 5} {A 742 - 2} {- 9 8 874}] 4 notrump
+problem 7 {Crossruff strip} [list {97 - 72 2} {- Q3 Q KQ} {86 - A8 8} {J J KJ J}] 3 spades
+problem 8 {Jettison entry strip} [list {2 32 - A2} {- - J9 KJ6} {- - A43 Q3} {- KQ KQ 8}] 4 spades
+problem 9 {Jettison two-entry strip} [list {- A7 - QJ5} {- 65 AK9 -} {J J9 QJ -} {8 K3 - K9}] 4 spades
+problem 10 {Double-entry strip} [list {743 A A -} {Q Q Q QJ} {KJ2 - - 32} {A65 K K}] 4 notrump
+problem 11 {Fork strip} [list {52 5 5 5} {98 9 9 9} {AQ A 3 A} {K63 K A -}] 4 notrump
+problem 12 {Total fork strip} [list {T42 - A 4} {QJ7 - J Q} {K85 8 6 -} {A96 - 3 5}] 3 hearts
+problem 13 {Progressive fork strip} [list {Q3 - - KQJ} {KT2 - - 64} {AJ97 J - -} {8654 A - -}] 4 notrump
+problem 14 {Transfer fork strip} [list {6 4 - AJ5} {- - 65 Q84} {- - 72 K63} {- Q K4 92}] 4 spades
+problem 15 {Jettison double fork strip} [list {- - J T862} {7 8 - A97} {J 642 5 -} {9 953 8 -}] 3 spades
+problem 16 {Repeat-jettison fork strip} [list {- A A KJ7} {5 - Q9 AQ} {Q 2 KJ8 -} {J 3 764}] 4 spades
+problem 17 {Two-fork double strip} [list {- 8 J7 A9} {- Q7 A8 8} {A A93 6 -} {- 65 Q Q6}] 4 notrump
+problem 18 {Double blocked fork strip} [list {- Q9 J95} {- KT73 Q} {9 8 A64} {4 J K73}] 3 spades
+problem 19 {Crossruff or finesse strip} [list {T 5 - AT5} {- JT KQ J} {5 A - 432} {- KQ - KQ9}] 4 spades
+problem 20 {Crossruff entry strip} [list {3 4 A 32} {- K K KQJ} {54 A - 75} {- 75 98 A}] 4 spades
+problem 21 {Crossruff fork strip} [list {A AQ Q A} {- K5 K KQ} {3 32 3 3} {- J9 J J9}] 4 spades
+problem 22 {Crossruff split-fork strip} [list {3 Q - KT3} {- A9 - Q75} {4 6 - A94} {- K A J86}] 4 spades
+
+
+exit
