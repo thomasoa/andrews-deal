@@ -10,7 +10,7 @@ int totalNodes = 0;
 static int LastTrump = -1;
 static int CountCalls = 0;
 
-static int parse_diagram(Tcl_Interp *interp,Tcl_Obj *diagram, struct deal *aDeal) {
+static int parse_diagram(Tcl_Interp *interp,Tcl_Obj *diagram, struct deal *aDeal, int *handLength) {
   int retval,length;
   int suitHoldings[4];
   int countHand[4];
@@ -65,6 +65,7 @@ static int parse_diagram(Tcl_Interp *interp,Tcl_Obj *diagram, struct deal *aDeal
       return TCL_ERROR;
     }
   }
+  *handLength = countHand[0];
 
   return TCL_OK;
 
@@ -82,29 +83,34 @@ static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
     DiagramFlagID=-1,
     GoalFlagID=-1,
     NoReuseFlagID=-1,
-    ReuseFlagID=-1;
+    ReuseFlagID=-1,
+    LeaderFlagID=-1;
 
   int goal=-1;
-  int defenseGoal = -1;
+  int leaderGoal = -1;
   int hand, suit,result;
   int mode=-1;
+  int declarer = 2;
   struct deal d;
   int status;
+  int handLength;
   Tcl_Obj *diagram = NULL;
 
   struct futureTricks futp;
+
   if (doInit) {
     ReuseFlagID=Keyword_addKey("-reuse");
     NoReuseFlagID=Keyword_addKey("-noreuse");
     DiagramFlagID=Keyword_addKey("-diagram");
     GoalFlagID=Keyword_addKey("-goal");
+    LeaderFlagID=Keyword_addKey("-leader");
     doInit=0;
   }
 
   memset(&(d.currentTrickSuit), 0, 3*sizeof(int));
   memset(&(d.currentTrickRank), 0, 3*sizeof(int));
   d.trump=4; /* notrump */
-  d.first=WEST; /* west */
+  d.first=-1; /* unknown */
   finish_deal();
 
   while (objc > 1) {
@@ -118,7 +124,7 @@ static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
       mode=1;
       continue;
     }
-    if (id == DiagramFlagID || id == GoalFlagID) {
+    if (id == DiagramFlagID || id == GoalFlagID || id == LeaderFlagID) {
       Tcl_Obj *arg = objv[1];
       if (objc>1) {
 	objc--; objv++;
@@ -131,12 +137,18 @@ static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
 	  return TCL_ERROR;
 	}
 	diagram = arg;
-      } else {
+      } else if (id == GoalFlagID ) {
 	if (TCL_ERROR == Tcl_GetIntFromObj(interp,arg,&goal) || (goal!=-1 && (goal<1 && goal>13))) {
 	  Tcl_AppendResult(interp,"Invalid tricks goal: ",Tcl_GetString(arg),NULL);
 	  return TCL_ERROR;
 	}
 	
+      } else if (id == LeaderFlagID) {
+        d.first = getHandNumFromObj(interp,arg);
+        if (d.first == NOSEAT) {
+          Tcl_AppendResult(interp,"invalid seat name passed to -leader: ",Tcl_GetString(arg),NULL);
+          return TCL_ERROR;
+        }
       }
       continue;
 
@@ -154,22 +166,25 @@ static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
   }
 
   if (objc > 1) {
-    int declarer = getHandNumFromObj(interp,objv[1]);
+    declarer = getHandNumFromObj(interp,objv[1]);
     if (declarer == NOSEAT) {
-      Tcl_AppendResult(interp,"invalid seat name passed: ",Tcl_GetString(objv[1]),NULL);
+      Tcl_AppendResult(interp,"invalid declarer name passed: ",Tcl_GetString(objv[1]),NULL);
       return TCL_ERROR;
     }
+  }
+
+  if (d.first==-1) {
     d.first = (declarer+1)%4;
   }
 
-  if (goal>0) {
-    defenseGoal = 14-goal; /* Goal passed to DDS */
-  }
 
   if (diagram != NULL) {
-    parse_diagram(interp,diagram, &d);
+    int retval = parse_diagram(interp,diagram, &d,&handLength);
+    if (retval != TCL_OK) {
+      return TCL_ERROR;
+    }
   } else {
-
+    handLength = 13;
     for (hand=0; hand<4; hand++) {
       /* Double dummy solver has north hand zero */
       int ddsHand = hand;
@@ -179,6 +194,14 @@ static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
     }
   }
  
+  if (goal>0) {
+    if ((d.first + declarer)&1) {
+      leaderGoal = (handLength + 1)-goal; /* Goal passed to DDS */
+    } else {
+      leaderGoal = goal; /* Goal passed to DDS */
+    }
+  }
+
   if (CountCalls == 0) {
     mode = 0;
   } else if ( mode == -1 ) {
@@ -190,7 +213,7 @@ static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
   }
 
   /* fprintf(stderr,"mode = %d\n",mode); */
-  status = SolveBoard(d,defenseGoal,1,mode,&futp);
+  status = SolveBoard(d,leaderGoal,1,mode,&futp);
   LastTrump = d.trump;
   CountCalls++;
   
@@ -210,10 +233,16 @@ static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
     if (goal>0) {
       result = 1;
     } else {
-      result = 13;
+      result = handLength;
     }
   } else {
-    result = 13-futp.score[0];
+
+    if ((d.first + declarer)&1) {
+      result = handLength-futp.score[0];
+    } else {
+      result = futp.score[0];
+    }
+
     if (goal>0) {
       result = (result>=goal);
     }
@@ -226,7 +255,7 @@ static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
 static int tcl_double_dummy_solve(TCLOBJ_PARAMS) TCLOBJ_DECL
 {
   int goal=-1;
-  int defenseGoal = -1;
+  int leaderGoal = -1;
   int hand, suit,result;
   int mode;
   struct deal d;
@@ -263,7 +292,7 @@ static int tcl_double_dummy_solve(TCLOBJ_PARAMS) TCLOBJ_DECL
   }
 
   if (goal>0) {
-    defenseGoal = 14-goal; /* Goal passed to DDS */
+    leaderGoal = 14-goal; /* Goal passed to DDS */
   }
 
 
@@ -285,7 +314,7 @@ static int tcl_double_dummy_solve(TCLOBJ_PARAMS) TCLOBJ_DECL
     mode = 2;
   }
   /* fprintf(stderr,"mode = %d\n",mode); */
-  status = SolveBoard(d,defenseGoal,1,mode,&futp);
+  status = SolveBoard(d,leaderGoal,1,mode,&futp);
   LastTrump = d.trump;
   CountCalls++;
   
