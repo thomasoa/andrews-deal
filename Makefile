@@ -76,9 +76,6 @@ deal.cgi:
 	make clean
 	make CFLAGS="$(CFLAGS) -DCGI"
 
-ideal: $(OBJS)
-	proof $(CC) $(CFLAGS) $(OBJS) -o ideal $(LDFLAGS)
-
 vector.so: vector.c
 	$(CC) -c $(CFLAGS) -PIC vector.c
 	ld vector.o -o vector.so
@@ -91,23 +88,6 @@ stringbox.so: stringbox.c
 	$(CC) -c $(CFLAGS) -PIC stringbox.c
 	ld stringbox.o -o stringbox.so
 
-ccenter:
-	 #load $(CFLAGS) $(SRCS) $(LDFLAGS)
-
-ccentero: $(OBJS)
-	 #load -w $(CFLAGS) $(OBJS) $(LDFLAGS)
-
-cov:
-	$(MAKE) CC="covc"
-	cat qccov_work/*.M > deal.M
-
-expert:
-	$(MAKE) CC="exbuild $(CC)"
-
-rtc:
-	$(MAKE) clean
-	$(MAKE) CC="/s/latest/CenterLine/bin/ncc -rtc -Xa" DEBUG_FLAGS=-g deal
-
 $(SRCS): deal.h
 
 counttable.c: makecounttable
@@ -116,24 +96,9 @@ counttable.c: makecounttable
 makecounttable: makecounttable.c
 	$(CC) $(CFLAGS) makecounttable.c -o makecounttable $(LDFLAGS)
 
-checkin:
-	checkin.script $(SOURCEKIT)
-
-checkout:
-	co -u $(SOURCEKIT)
-
-firstcheckin:
-	ci $(SOURCEKIT)
-
-shar:
-	mv Make.dep Make.dep.saved
-	touch Make.dep
-	shar $(SOURCEKIT) >deal.shar
-	mv Make.dep.saved Make.dep
-
 KITNAME=deal
-DEAL_VERSION=311
-OLD_VERSION=308
+DEAL_VERSION=312
+OLD_VERSION=311
 RELEASE=$(KITNAME)$(DEAL_VERSION)
 SRCDIR=$(RELEASE)
 BINDIR=$(RELEASE)-bin
