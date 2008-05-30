@@ -18,20 +18,73 @@ static int tcl_double_dummy_reset(TCLOBJ_PARAMS) TCLOBJ_DECL
 
 static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
 {
-  int goal=-1,reuse=-1;
+  static int doInit=1,
+    DiagramFlagID=-1,
+    GoalFlagID=-1,
+    NoReuseFlagID=-1,
+    ReuseFlagID=-1;
+
+  int goal=-1;
   int defenseGoal = -1;
   int hand, suit,result;
-  int mode;
+  int mode=-1;
   struct deal d;
   int status;
+  Tcl_Obj *diagram = NULL;
 
   struct futureTricks futp;
+  if (doInit) {
+    ReuseFlagID=Keyword_addKey("-reuse");
+    NoReuseFlagID=Keyword_addKey("-noreuse");
+    DiagramFlagID=Keyword_addKey("-diagram");
+    GoalFlagID=Keyword_addKey("-goal");
+    doInit=0;
+  }
+
   memset(&(d.currentTrickSuit), 0, 3*sizeof(int));
   memset(&(d.currentTrickRank), 0, 3*sizeof(int));
   d.trump=4; /* notrump */
   d.first=WEST; /* west */
   finish_deal();
-  
+
+  while (objc > 1) {
+    int id = Keyword_getIdFromObj(interp,objv[1]);
+    objv++; objc--;
+    if (id == ReuseFlagID) {
+      mode=2;
+      continue;
+    }
+    if (id == NoReuseFlagID) {
+      mode=1;
+      continue;
+    }
+    if (id == DiagramFlagID || id == GoalFlagID) {
+      Tcl_Obj *arg = objv[1];
+      if (objc>1) {
+	objc--; objv++;
+      } else {
+	return TCL_ERROR;
+      }
+      
+      if (id == DiagramFlagID) {
+	if (diagram!=NULL) {
+	  return TCL_ERROR;
+	}
+	diagram = arg;
+      } else {
+	if (TCL_ERROR == Tcl_GetIntFromObj(interp,arg,&goal) || (goal!=-1 && (goal<1 && goal>13))) {
+	  Tcl_AppendResult(interp,"Invalid tricks goal: ",Tcl_GetString(arg),NULL);
+	  return TCL_ERROR;
+	}
+	
+      }
+      continue;
+
+    }
+    objv--; objc++;
+    break;
+  }
+
   if (objc > 2) {
     d.trump = getDenomNumFromObj(interp,objv[2]);
     if (d.trump==-1) {
@@ -39,6 +92,7 @@ static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
      return TCL_ERROR;
     }
   }
+
   if (objc > 1) {
     int declarer = getHandNumFromObj(interp,objv[1]);
     if (declarer == NOSEAT) {
@@ -46,20 +100,6 @@ static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
       return TCL_ERROR;
     }
     d.first = (declarer+1)%4;
-  }
-
-  if (objc > 3) {
-    if (TCL_ERROR == Tcl_GetIntFromObj(interp,objv[3],&goal) || (goal!=-1 && (goal<1 && goal>13))) {
-       Tcl_AppendResult(interp,"Invalid tricks goal: ",Tcl_GetString(objv[3]),NULL);
-       return TCL_ERROR;
-    }
-  }
-
-  if (objc > 4) {
-    if (TCL_ERROR == Tcl_GetIntFromObj(interp,objv[4],&reuse)) {
-       Tcl_AppendResult(interp,"Invalid reuse value: ",Tcl_GetString(objv[4]),NULL);
-       return TCL_ERROR;
-    }
   }
 
   if (goal>0) {
@@ -77,11 +117,14 @@ static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
  
   if (CountCalls == 0) {
     mode = 0;
-  } else if (d.trump != LastTrump && reuse!=1) {
-    mode = 1;
-  } else {
-    mode = 2;
+  } else if ( mode == -1 ) {
+    if (d.trump != LastTrump || diagram != NULL) {
+      mode = 1;
+    } else {
+      mode = 2;
+    }
   }
+
   /* fprintf(stderr,"mode = %d\n",mode); */
   status = SolveBoard(d,defenseGoal,1,mode,&futp);
   LastTrump = d.trump;
