@@ -3,7 +3,7 @@
 #
 # Copyright (C) 1996-2001, Thomas Andrews
 #
-# $Id: deal.tcl,v 1.8 2008-05-29 14:00:10 thomaso Exp $
+# $Id: deal.tcl,v 1.9 2008-05-30 15:55:35 thomaso Exp $
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -145,3 +145,9 @@ namespace eval deal {
 
 }
 
+#
+# Returns all of the hands in a list
+#
+proc full_deal {} {
+  return [list [north] [east] [south] [west]]
+}
