@@ -19,6 +19,9 @@ static int parse_diagram(Tcl_Interp *interp,Tcl_Obj *diagram, struct deal *aDeal
 
   for (suit=0; suit<4; suit++) {
     suitHoldings[suit]=0;
+    for (hand=0; hand<4; hand++) {
+      aDeal->remainCards[hand][suit]=0;
+    } 
   }
 
   retval = Tcl_ListObjGetElements(interp,diagram,&length,&hands);
