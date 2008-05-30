@@ -1,9 +1,11 @@
 proc problem {id title diagram goal {denomination notrump} {leader south}} {
   set tricks [dds -diagram $diagram -leader $leader south $denomination]
   if {$tricks != $goal} {
-    puts "ERROR"
+    set result FAIL
+  } else {
+    set result PASS
   }
-  puts "Problem $id ($title) makes $tricks tricks with goal $goal"
+  puts "$result: Problem $id ($title) makes $tricks tricks with goal $goal"
 }
 
 problem 1 Avoidance [list {A987 - A} {Q5 987 -} {64 K2 2} {K2 AQ3 -} ] 3 notrump
@@ -28,6 +30,56 @@ problem 19 {Crossruff or finesse strip} [list {T 5 - AT5} {- JT KQ J} {5 A - 432
 problem 20 {Crossruff entry strip} [list {3 4 A 32} {- K K KQJ} {54 A - 75} {- 75 98 A}] 4 spades
 problem 21 {Crossruff fork strip} [list {A AQ Q A} {- K5 K KQ} {3 32 3 3} {- J9 J J9}] 4 spades
 problem 22 {Crossruff split-fork strip} [list {3 Q - KT3} {- A9 - Q75} {4 6 - A94} {- K A J86}] 4 spades
+problem 23 {Entry or fork strip} [list {3 72 Q2} {2 J54 J} {- AK3 A7} {- Q98 K9}] 4 notrump
+problem 24 {Jettison-entry fork strip} [list {K984 - K -} {AJ - - 876} {- Q65 72 -} {- 98 A65 -}] 3 notrump
 
+problem 25 {Blocked fork strip or entry} {
+               {KJ3 - K 8}
+               {Q7 - QJ 9}
+               {- J 84 J6}
+               {- 9 9 Q72}
+           } 4 notrump
+
+problem 26 {Crossruff entry fork strip} {
+               {3 32 - 53}
+               {- - 98754 -}
+               {75 75 - 2}
+               {- 64 6 64}
+           } 4 spades
+
+problem 27 {En passant} {
+               {A54 2 - 2}
+               {7 - A7 87}
+               {- 3 32 A3}
+               {98 9 9 9}
+           } 4 spades
+
+problem 28 {Grand coup} {
+               {- 42 AK A}
+               {K4 - 43 4}
+               {AQ2 - 2 2}
+               {J9 - J9 J}
+           } 5 spades
+
+problem 29 {Grand coup fork strip} {
+               {876 A - 9}
+               {3 K K KQ}
+               {AJT2 - A -}
+               {KQ9 9 9 -}
+           } 4 spades
+
+problem 30 {Overruff grand coup} {
+               {Q972 - - Q}
+               {- - K6 K62}
+               {54 4 5 4}
+               {JT8 32 - -}
+           } 4 spades
 
 exit
+problem X {} {
+               {}
+               {}
+               {}
+               {}
+           } 
+
