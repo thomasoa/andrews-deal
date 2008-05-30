@@ -10,6 +10,66 @@ int totalNodes = 0;
 static int LastTrump = -1;
 static int CountCalls = 0;
 
+static int parse_diagram(Tcl_Interp *interp,Tcl_Obj *diagram, struct deal *aDeal) {
+  int retval,length;
+  int suitHoldings[4];
+  int countHand[4];
+  Tcl_Obj **hands;
+  int hand,suit;
+
+  for (suit=0; suit<4; suit++) {
+    suitHoldings[suit]=0;
+  }
+
+  retval = Tcl_ListObjGetElements(interp,diagram,&length,&hands);
+  if (retval !=TCL_OK) {
+    return TCL_ERROR;
+  }
+  if (length!=4) {
+    return TCL_ERROR;
+  }
+
+  for (hand=0; hand<4; hand++) {
+    int suitCount;
+    Tcl_Obj **suits;
+    countHand[hand]=0;
+    retval = Tcl_ListObjGetElements(interp,hands[hand],&suitCount, &suits);
+    if (retval != TCL_OK) {
+      return TCL_ERROR;
+    }
+    if (suitCount>4) {
+      return TCL_ERROR;
+    }
+    for (suit=0; suit<suitCount; suit++) {
+      int holding;
+      int suitLength;
+      holding = getHoldingNumFromObj(interp,suits[suit]);
+      if (holding<0) {
+	return TCL_ERROR;
+      }
+      holding &= 8191;
+      aDeal->remainCards[hand][suit] = holding << 2;
+      suitLength = counttable[holding];
+      countHand[hand] += suitLength;
+      if (suitHoldings[suit] & holding) {
+	/* Not disjoint */
+	return TCL_ERROR;
+      }
+      suitHoldings[suit] |= (holding);
+    }
+  }
+
+  for (hand=1; hand<4; hand++) {
+    if (countHand[hand] != countHand[0]) {
+      /* Hands not all same size */
+      return TCL_ERROR;
+    }
+  }
+
+  return TCL_OK;
+
+}
+
 static int tcl_double_dummy_reset(TCLOBJ_PARAMS) TCLOBJ_DECL
 {
    LastTrump = -1;
@@ -106,12 +166,16 @@ static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
     defenseGoal = 14-goal; /* Goal passed to DDS */
   }
 
+  if (diagram != NULL) {
+    parse_diagram(interp,diagram, &d);
+  } else {
 
-  for (hand=0; hand<4; hand++) {
-    /* Double dummy solver has north hand zero */
-    int ddsHand = hand;
-    for (suit=0; suit<4; suit++) {
-      d.remainCards[ddsHand][suit] = globalDeal.hand[hand].suit[suit] << 2;
+    for (hand=0; hand<4; hand++) {
+      /* Double dummy solver has north hand zero */
+      int ddsHand = hand;
+      for (suit=0; suit<4; suit++) {
+	d.remainCards[ddsHand][suit] = globalDeal.hand[hand].suit[suit] << 2;
+      }
     }
   }
  
