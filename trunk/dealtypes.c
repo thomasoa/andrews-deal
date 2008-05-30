@@ -182,6 +182,12 @@ static int convertToHoldingRep(Tcl_Interp *interp,Tcl_Obj *holding)
   char *cardCursor=cards;
   int hnum=0,spots=0;
   int cardnum=0;
+  if (*string == '-' && string[1]==0) {
+     holding->internalRep.longValue = 0;
+     holding->typePtr = &HoldingType;
+     return TCL_OK;
+  }
+  
   while (*cardCursor && *string) {
     if (*cardCursor==toupper(*string)) {
       hnum |= (1<<(12-cardnum));
