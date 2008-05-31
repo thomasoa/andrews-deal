@@ -190,12 +190,16 @@ tar:
 
 test: ./deal
 	$(BINARY) -I "line tests/input/sample.line" -i format/ddline 100 > test.out
-	diff test.out tests/output/sample.ddline
+	if cmp test.out tests/output/sample.ddline ; then echo PASS; else echo FAIL  ; fi
 
 smalltest: ./deal
 	$(BINARY) -I "line tests/input/sample.line" -i format/ddline 10 > test.out
 	head -10 tests/output/sample.ddline > correct.out
 	diff test.out correct.out
+	if cmp test.out correct.out ; then echo PASS; else echo FAIL  ; fi
+
+great88: ./deal
+	$(BINARY) -i tests/great88 | fgrep FAIL || echo "PASSED"
 
 ftp: $(SRCZIP)
 	cp $(SRCZIP) $(FTP)
