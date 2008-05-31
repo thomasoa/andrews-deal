@@ -500,7 +500,7 @@ public:
     return 1;
   }
 
-  if (mode!=2) {
+  if (mode<2) {
     Wipe();
 	winSetSizeLimit=WINIT;
     nodeSetSizeLimit=NINIT;
@@ -512,9 +512,9 @@ public:
     nodeCards=pn[0];
     posSearch=pl[0];
     wcount=0; ncount=0; lcount=0;
-    InitGame(0, FALSE, first, handRelFirst);
+    InitGame(0, FALSE, first, handRelFirst,mode);
   } else {
-    InitGame(0, TRUE, first, handRelFirst);
+    InitGame(0, TRUE, first, handRelFirst,mode);
 	/*fp2=fopen("dyn.txt", "a");
 	fprintf(fp2, "wcount=%d, ncount=%d, lcount=%d\n", 
 	  wcount, ncount, lcount);
@@ -883,7 +883,7 @@ public:
   return 1;
 }
 
-struct relRanksType * rel;
+const struct relRankLookup &rel=Globals.rel;
 struct ttStoreType * ttStore;
 struct nodeCardsType * nodeCards;
 struct winCardType * winCards;
@@ -1013,10 +1013,8 @@ void InitStart(void) {
   if (ttStore==NULL)
     exit(1);
 
-  rel = (struct relRanksType *)calloc(16384, sizeof(struct relRanksType));
+  /* rel = (struct relRanksType *)calloc(16384, sizeof(struct relRanksType)); */
   /*rel = new relRanksType[16384];*/
-  if (rel==NULL)
-    exit(1);
  
   /*fp2=fopen("dyn.txt", "w");
   fclose(fp2);*/
@@ -1028,12 +1026,9 @@ void InitStart(void) {
 }
 
 
-void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst) {
+void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst, int mode) {
 
-  int k, s, h, r, cardFound, currHand=0, order, m, temp1, temp2;
-  unsigned short int ind;
-  unsigned short int rankInSuit[4][4];
-  LONGLONG orderCode;
+  int k, temp1, temp2,m;
   /*int points[4], tricks;
   int addNS, addEW, addMAX, trumpNS, trumpEW;
   struct gameInfo gm;*/
@@ -1051,57 +1046,19 @@ void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst) {
   }
   #endif	
   
-  for (k=0; k<=3; k++)
-    for (m=0; m<=3; m++)
+  for (k=0; k<=3; k++) {
+    for (m=0; m<=3; m++) {
       iniPosition.rankInSuit[k][m]=game.suit[k][m];
+    }
+  }
 
   iniPosition.stack[game.noOfCards-4].first=first;
   iniPosition.handRelFirst=handRelFirst;
   lookAheadPos=iniPosition;
   
 
-  for (ind=0; ind<=16383; ind++) {
-    for (s=0; s<=3; s++) {
-      rel[ind].aggrRanks[s]=0;
-      for (h=0; h<=3; h++) {
-	rankInSuit[h][s]=0;
-      }
-
-      for (r=2; r<=14; r++) {
-	for (h=0; h<=3; h++) {
-	  if ((ind & game.suit[h][s] & BitRank(r))!=0) {
-	    rankInSuit[h][s] |= BitRank(r);
-	    break;
-	  }
-	}
-      }
-
-      k=14;
-      order=1;
-      while (k>=2) {
-	cardFound=FALSE;
-	for (h=0; h<=3; h++) {
-	  if ((rankInSuit[h][s] & BitRank(k))!=0) {
-	    currHand=h;
-	    cardFound=TRUE;
-	    break;
-	  }
-	}
-	if (cardFound==FALSE) {
-	  k--;
-	  continue;
-	}
-	orderCode=currHand << (26-order-order);
-	rel[ind].aggrRanks[s]|=orderCode;
-	orderCode=3 << (26-order-order);
-	rel[ind].winMask[s]|=orderCode;
-
-	order++;
-	k--;
-      }
-    }
-  }
-  
+  Globals.rel.initialize(game);
+    
   temp1=game.contract/100;
   temp2=game.contract-100*temp1;
   int trump=temp2/10-1;

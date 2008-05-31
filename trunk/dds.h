@@ -295,6 +295,79 @@ struct relRanksType {
   int winMask[4];
 };
 
+struct relRankLookup {
+  struct relRanksType relative[8192];
+  holding_t originals[4][4];
+
+  relRankLookup() {
+    for (int hand=0; hand<4; hand++) {
+      for (int suit=0; suit<4; suit++) {
+	originals[hand][suit]=0;
+      }
+    }
+  }
+
+  const struct relRanksType &operator [](int index) const {
+    return relative[index&8191];
+  }
+
+  void initialize(const struct gameInfo &game) {
+    holding_t ranks[4][4];
+    int ind, hand, suit;
+    int newDiagram = 0;
+
+    for (hand=0; hand<4; hand++) {
+      for (suit=0; suit<4; suit++) {
+	if (game.suit[hand][suit] != originals[hand][suit]) {
+	  newDiagram = 1;
+	}
+	originals[hand][suit]=game.suit[hand][suit];
+      }
+    }
+
+    if (!newDiagram) {
+      return;
+    }
+
+    for (ind=0; ind<8192; ind++) {
+      for (suit=0; suit<=3; suit++) {
+        relative[ind].aggrRanks[suit] = 0;
+	relative[ind].winMask[suit] = 0;
+
+        for (hand=0; hand<=3; hand++) {
+          ranks[hand][suit] = game.suit[hand][suit] & ind;
+        }
+
+	int rank = 14, order = 1, cardFound, currHand;
+	LONGLONG orderCode = orderCode;
+
+	while (rank>=2) {
+	  cardFound=FALSE;
+	  for (hand=0; hand<=3; hand++) {
+	    if ((ranks[hand][suit] & BitRank(rank))!=0) {
+	      currHand=hand;
+	      cardFound=TRUE;
+	      break;
+	    }
+	  }
+	  if (cardFound==FALSE) {
+	    rank--;
+	    continue;
+	  }
+	  orderCode=currHand << (26-order-order);
+	  relative[ind].aggrRanks[suit]|=orderCode;
+	  orderCode=3 << (26-2*order);
+	  relative[ind].winMask[suit]|=orderCode;
+	
+	  order++;
+	  rank--;
+	}
+      }
+    }
+  }
+
+};
+
 
 struct ttStoreType {
   struct nodeCardsType * cardsP;
@@ -408,6 +481,7 @@ struct GLOBALS {
 protected:
 public:
   ContractInfo _contract;
+  relRankLookup rel;
 
   inline void setContract(int trump=-1) {
     _contract.initialize(trump>=0 && trump<=3,trump);
@@ -434,7 +508,7 @@ extern struct moveType forbiddenMoves[14];  /* Initial depth moves that will be
 extern struct moveType initialMoves[4];
 extern struct moveType highMove;
 extern struct moveType * bestMove;
-extern struct relRanksType * rel;
+extern const struct relRankLookup &rel;
 extern struct winCardType **pw;
 extern struct nodeCardsType **pn;
 extern struct posSearchType **pl;
@@ -490,7 +564,7 @@ extern FILE * fp2, *fp7, *fp11;
   /* Pointers to logs */
 
 void InitStart(void);
-void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst);
+void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst, int mode);
 void InitSearch(struct pos * posPoint, int depth,
   struct moveType startMoves[], int first, int mtd);
 int ABsearch(struct pos * posPoint, int target, int depth);
