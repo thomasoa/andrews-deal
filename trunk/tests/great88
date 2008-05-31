@@ -322,4 +322,315 @@ problem 44 {Finesse jettison squeeze} {
               {Q764 - K -}
            } 4 notrump
 
+problem 45 {Progressive jettison squeeze} {
+              {A4 9 A 5}
+              {- 73 764 -}
+              {96 K4 8 -}
+              {QJ - KJ Q}
+           } 4 notrump
+
+problem 46 {Progressive jettison squeeze or squeeze} {
+              {- A3 A9 Q}
+              {- 75 876 -}
+              {9 86 QJ -}
+              {- Q4 K4 K}
+           } 5 notrump
+
+
+problem 47 {Trump squeeze} {
+              {KJ84 - - K}
+              {Q65 - - 32}
+              {A73 K K -}
+              {T9 A A A}
+           } 5 spades
+
+problem 48 {Squeeze or forced finesse} {
+              {KQ KQ J}
+              {9 A K93}
+              {2 3 AQ7}
+              {A8765 - -}
+           } 4 notrump
+
+problem 49 {Finesse squeeze} {
+              {82 - A9 2}
+              {- 62 8 74}
+              {- 54 Q A6}
+              {- 73 KJ 9}
+           } 5 spades
+
+# Tribe 4: Compund and Hybrid Endings
+
+problem 50 {One-way finesse or fork strip} {
+              {KJ - - A62}
+              {AQ9 - J7 -}
+              {853 - K4 -}
+              {- - Q5 QJ5}
+           } 3 notrump
+
+problem 51 {Forced jettison strip squeeze} {
+              {- A AJ64 -}
+              {8 - Q98 K}
+              {9 Q97 - 7}
+              {J JT86 - -}
+           } 3 spades
+
+problem 52 {Crossruff strip triple squeeze} {
+              {6 76 - 76}
+              {9 QJ - QJ}
+              {7 K8 Q 8}
+              {- - KJ876 -}
+           } 3 spades
+
+problem 53 {Forced triple squeeze (with fork strip)} {
+              {9 Q8 - Q7}
+              {- J7 - J64}
+              {A6 9 9 9}
+              {T8 - T T8}
+           } 4 notrump
+
+problem 54 {Squeeze strip or suitout} {
+              {- 76 A2 2}
+              {- J8 KQ K}
+              {7 AQ5 7 -}
+              {- K94 95 -}
+           } 4 spades
+
+problem 55 {Triple squeeze forced finesse} {
+              {Q6 3 8 2}
+              {K 82 A 8}
+              {- A4 K AK}
+              {T4 T - T4}
+           } 4 notrump
+
+problem 56 {Jettison squeeze finesse} {
+              {A K2 K2 -}
+              {42 - - QJ9}
+              {53 - - AK3}
+              {K A A 87}
+           } 4 notrump
+
+problem 57 {Squeeze or strip squeeze} {
+              {- AQ9 KQ -}
+              {7 KJ AJ -}
+              {K 2 2 JT}
+              {4 - - Q654}
+           } 4 spades
+
+problem 58 {Triple squeeze scoop strip} {
+              {K874 - - 2}
+              {A65 - - 98}
+              {2 9 9 AK}
+              {QJ Q Q Q}
+           } 4 notrump
+
+problem 59 {Triple squeeze entry strip} {
+              {A654 K - -}
+              {T987 - - K}
+              {KQJ - K 2}
+              {32 A A A}
+           } 4 notrump
+
+problem 60 {Jettison triple squeeze entry strip} {
+              {43 2 J A}
+              {K - 98 54}
+              {A - 432 6}
+              {95 9 - K9}
+           } 4 notrump
+
+problem 61 {Fork squeeze entry strip} {
+              {- A52 - A9}
+              {- J K9 K8}
+              {- K73 Q7 -}
+              {- Q86 - 64}
+           } 4 notrump
+
+problem 62 {Squeeze finesse} {
+              {K2 9 9 K}
+              {J864 - - J}
+              {A95 - - A2}
+              {Q3 A A Q}
+           } 5 notrump
+
+problem 63 {Finesse threat 3-2 squeeze} {
+              {2 - K5 A7}
+              {- J8 J97 -}
+              {- 2 AT43 -}
+              {- 9 Q8 J9}
+           } 5 spades
+
+problem 64 {Hexagon squeeze finesse} {
+              {2 A9 2 2}
+              {K Q Q4 J}
+              {- 2 A9 AK}
+              {A K4 K Q}
+           } 5 notrump
+
+problem 65 {One-way squeeze scoop finesse} {
+              {KJ2 K - 2}
+              {Q54 3 - 4}
+              {A63 - - AK}
+              {987 A - 3}
+           } 5 notrump
+
+problem 66 {Automatic squeeze scoop finesse} {
+              {- - T5 A52}
+              {98 - Q76 -}
+              {- 9 K8 K9}
+              {- - 93 T86}
+           } 5 notrump
+
+problem 67 {Squeeze ruffout} {
+              {A5 - K98 -}
+              {7 - - QJ87}
+              {93 T95 - -}
+              {- KQ QJT -}
+           } 5 spades
+
+problem 68 {Squeeze overruff} {
+              {Q5 5 - KQ}
+              {K KT 87 -}
+              {- A87 T 9}
+              {- J64 J 5}
+           } 5 clubs
+
+problem 69 {Repeat-squeeze entry strip} {
+              {2 K4 K K}
+              {AK97 9 - -}
+              {QJ64 8 - -}
+              {8 A2 Q Q}
+           } 2 notrump
+
+problem 70 {Forced unblock triple-squeeze scoop} {
+              {QJ8 7 7 -}
+              {- 9 J J94}
+              {965 - - Q8}
+              {AK7 - - K7}
+           } 2 notrump
+
+problem 71 {Squeeze unblock finesse} {
+              {Q5 32 - J}
+              {A64 K9 - -}
+              {K8 AJ - 9}
+              {JT97 - - A}
+           } 3 notrump
+
+problem 72 {Blocked fork strip} {
+              {- Q7 J92}
+              {- K952 Q}
+              {J 8 A73}
+              {3 J K85}
+           } 3 spades
+
+problem 73 {En passant mutate} {
+              {86 74 - 8}
+              {AQ 6 76 -}
+              {K AJ QT -}
+              {- Q98 KJ -}
+           } 4 spades
+
+problem 74 {Repeated trump discard} {
+              {42 QJ9 - -}
+              {KQ8 - QJ -}
+              {AJ63 - - 8}
+              {9 7 976 -}
+           } 4 spades west
+
+problem 75 {Squeeze scoop ruffout} {
+              {- K9 K AQ}
+              {- A8 - K54}
+              {97 - 9 97}
+              {- QJ Q J6}
+           } 5 spades
+
+problem 76 {Coup or squeeze} {
+              {864 - - Q9}
+              {- 5 JT K8}
+              {- 7 7 A42}
+              {75 - 6 T7}
+           } 5 spades
+
+problem 77 {Triple-squeeze ruffout} {
+	      {52 - 98 9}
+              {J 2 KQ Q}
+              {A4 - 74 7}
+              {- KQ975 - -}
+           } 4 spades west
+
+problem 78 {Progressive squeeze jettison scoop} {
+             {5 95 - A7}
+             {- Q8 - JT9}
+             {- J 76 Q3}
+             {9 AT - K8}
+           } 4 notrump
+
+problem 79 {Double squeeze strip} {
+             {- A97 83 -}
+             {- T86 T9 -}
+             {8 QJ3 - Q}
+             {K5 K54 - -}
+           } 4 notrump
+
+problem 80 {One-way squeeze or ditto} {
+             {7 Q7 7 7}
+             {- - A6 864}
+             {- J J4 J5}
+             {A 986 5 -}
+           } 4 notrump
+
+problem 81 {En passant or double squeeze} {
+             {J5 5 - J8}
+             {- - 98 Q74}
+             {3 - J3 K3}
+             {Q9 Q - 96}
+           } 4 spades
+
+problem 82 {Squeeze entry strip} {
+             {5 Q6 AJ -}
+             {9 J9 K K}
+             {8 - Q54 8}
+             {Q6 - 976 -}
+           } 4 notrump
+
+problem 83 {Double-squeeze scoop} {
+             {- - 86 AQ6}
+             {- 98 - K84}
+             {J J - 953}
+             {- - JT JT7}
+           } 3 notrump
+
+problem 84 {Jettison strip mutate} {
+             {- A A K92}
+             {3 J5 - AT}
+             {5 Q6 T8 -}
+             {- K 973 Q}
+           } 4 spades
+
+problem 85 {Split squeeze entry strip} {
+             {J53 - AQ}
+             {KQ9 - KJ}
+             {82 Q73 -}
+             {- 964 42}
+           } 3 notrump
+
+problem 86 {Hexagon squeeze finesse} {
+             {- 9 A9 75}
+             {- Q7 Q7 Q}
+             {8 K8 8 8}
+             {- J J6 J6}
+           } 4 notrump
+
+problem 87 {Endplays in series} {
+             {9 A8 - 87}
+             {T - T9 T9}
+             {- 92 5 A4}
+             {K K765 - -}
+           } 4 notrump
+
+problem 88 {Contra squeeze} {
+             {- A T43 A}
+             {A2 K J K}
+             {KQJ - K2 -}
+             {- - AQ765 -}
+           } 3 notrump
+
 exit
