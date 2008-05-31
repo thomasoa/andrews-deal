@@ -61,11 +61,12 @@ SRCS=additive.c hand.c deal.c formats.c tcl_deal.c dist.c vector.c stat.c countt
 SRCKIT=additive.c hand.c deal.c formats.c tcl_deal.c dist.c vector.c stat.c makecounttable.c stringbox.c dealtypes.c holdings.c keywords.c maindeal.c random.c tcl_dds.c dds.cpp
 HFILES=deck.h deal.h tcl_incl.h vector.h stat.h tcl_dist.h dist.h formats.h additive.h stringbox.h dealtypes.h holdings.h keywords.h ansidecl.h dds.h ddsInterface.h
 EXAMPLES= ex/*.tcl
+TESTS=tests
 BUILDFILES=Makefile Make.dep 
 OTHERFILES=CHANGES LICENSE GPL input format lib deal.tcl docs
 
-SOURCEKIT=$(SRCKIT) $(HFILES) $(EXAMPLES) $(BUILDFILES) $(OTHERFILES) $(EXTRAS)
-BINKIT=$(EXAMPLES) $(OTHERFILES)
+SOURCEKIT=$(SRCKIT) $(HFILES) $(EXAMPLES) $(BUILDFILES) $(OTHERFILES) $(EXTRAS) $(TESTS)
+BINKIT=$(EXAMPLES) $(OTHERFILES) $(TESTS)
 UUKIT=$(EXAMPLES) $(OTHERFILES) deal
 BINARY=./deal
 
