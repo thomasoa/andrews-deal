@@ -115,7 +115,7 @@ OLDDIR=$(KITNAME)$(OLD_VERSION)
 
 FTP=../ftp
 
-allzip: zip xzip dzip gzip diffzip
+allzip: zip dmg
 
 CHANGES: docs/html/CHANGES.txt
 	cp docs/html/CHANGES.txt CHANGES
