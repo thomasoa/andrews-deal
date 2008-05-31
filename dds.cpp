@@ -1193,8 +1193,7 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
         posPoint->stack[depth+k].move.rank=startMoves[k-1].rank;
         posPoint->stack[depth+k].high=HandStore(first,noOfStartMoves-k);
         move=posPoint->stack[depth+k].move;
-      }
-      else {
+      } else {
         posPoint->stack[depth+k].move=posPoint->stack[depth+k+1].move;
         posPoint->stack[depth+k].high=posPoint->stack[depth+k+1].high;
       }
@@ -1963,15 +1962,7 @@ struct makeType Make(struct pos * posPoint, int depth)  {
   if (posPoint->handRelFirst==3)  {   /* This hand is last hand */
     mo1=movePly[depth].move[r];
     mo2=previous.move;
-    if (mo1.suit==mo2.suit) {
-      if (mo1.rank>mo2.rank) {
-	current.move=mo1;
-        current.high=HandStore(firstHand,3);
-      } else {
-	current.move=previous.move;
-        current.high=previous.high;
-      }
-    } else if (contract.isTrump(mo1.suit)) {
+    if (contract.betterMove(mo1,mo2)) {
       current.move=mo1;
       current.high=HandStore(firstHand,3);
     } else {
@@ -1987,8 +1978,9 @@ struct makeType Make(struct pos * posPoint, int depth)  {
     count=0;
     for (h=0; h<=3; h++) {
       mcurr=movePly[depth+h].current;
-      if (movePly[depth+h].move[mcurr].suit==suit)
-          count++;
+      if (movePly[depth+h].move[mcurr].suit==suit) {
+	count++;
+      }
     }
 
     if (nodeTypeStore[current.high]==MAXNODE)
@@ -2053,18 +2045,7 @@ struct makeType Make(struct pos * posPoint, int depth)  {
   } else {
     mo1=movePly[depth].move[r];
     mo2=previous.move;
-    if (mo1.suit==mo2.suit) {
-      if (mo1.rank>mo2.rank) {
-	current.move=mo1;
-        current.high=HandStore(firstHand,posPoint->handRelFirst);
-	current.removeCard(mo2);
-      } else {
-	current.move=previous.move;
-        current.high=previous.high;
-	current.removeCard(mo1);
-      }
-    }
-    else if (contract.isTrump(mo1.suit)) {
+    if (contract.betterMove(mo1,mo2)) {
       current.move=mo1;
       current.high=HandStore(firstHand,posPoint->handRelFirst);
       current.removeCard(mo2);

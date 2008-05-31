@@ -113,6 +113,13 @@ struct moveType {
   unsigned short int sequence;          /* Whether or not this move is
                                         the first in a sequence */
   short int weight;                     /* Weight used at sorting */
+
+  inline moveType() {
+    suit=0;
+    rank=0;
+    sequence=0;
+    weight=0;
+  }
 };
 
 struct movePlyType {
@@ -317,7 +324,7 @@ struct ContractInfo {
       _firstSuit = trump;
       _nextSuit = nextSuitArray[trump];
     }
-    
+
   }
 
   inline ContractInfo() {
@@ -345,6 +352,20 @@ struct ContractInfo {
 
   inline int nextSuit(int suit) const {
     return _nextSuit[suit];
+  }
+
+  inline int betterMove(const struct moveType &nextMove,const struct moveType &bestMove) const {
+    if (bestMove.suit==nextMove.suit) {
+      if (nextMove.rank>bestMove.rank) {
+	return 1;
+      } else {
+	return 0;
+      }
+    } else if (isTrump(nextMove.suit)) {
+      return 1;
+    } else {
+      return 0;
+    }
   }
 
 #if 0
