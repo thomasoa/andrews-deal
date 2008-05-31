@@ -10,7 +10,7 @@
 TCL_DIR=/usr
 
 CC=gcc
-#DEBUG_FLAGS=-g -ansi -Wall 
+#DEBUG_FLAGS=-g -ansi -Wall
 #CPPFLAGS = -fno-rtti -g
 DEBUG_FLAGS=-O3 -ansi -Wall 
 CPPFLAGS = -fno-rtti -O3 -Winline -Wall
@@ -114,7 +114,7 @@ DIFFZIP=deal$(DEAL_VERSION)diff.zip
 OLDZIP=../deal/deal$(OLD_VERSION).zip
 OLDDIR=$(KITNAME)$(OLD_VERSION)
 
-FTP=../ftp
+SMALLTESTCOUNT=10
 
 allzip: zip dmg
 
@@ -193,8 +193,8 @@ test: ./deal
 	if cmp test.out tests/output/sample.ddline ; then echo PASS; else echo FAIL  ; fi
 
 smalltest: ./deal
-	$(BINARY) -I "line tests/input/sample.line" -i format/ddline 10 > test.out
-	head -10 tests/output/sample.ddline > correct.out
+	$(BINARY) -I "line tests/input/sample.line" -i format/ddline $(SMALLTESTCOUNT) > test.out
+	head -$(SMALLTESTCOUNT) tests/output/sample.ddline > correct.out
 	diff test.out correct.out
 	if cmp test.out correct.out ; then echo PASS; else echo FAIL  ; fi
 
