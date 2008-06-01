@@ -296,8 +296,7 @@ struct relRanksType {
 };
 
 struct relRankLookup {
-  mutable struct relRanksType relative[8192];
-  mutable int valid[8192];
+  struct relRanksType relative[8192];
   holding_t originals[4][4];
 
   relRankLookup() {
@@ -309,10 +308,6 @@ struct relRankLookup {
   }
 
   const struct relRanksType &operator [](int index) const {
-    if (!valid[index&8191]) {
-      compute(index&8191);
-      valid[index&8191] = 1;
-    }
     return relative[index&8191];
   }
 
@@ -330,11 +325,13 @@ struct relRankLookup {
     }
 
     if (newDiagram) {
-      memset((void *)valid,0,8192*sizeof(int));
+      for (int ind =0 ; ind<8192; ind++) {
+        compute(ind);
+      }
     }
   }
 
-  void compute(int ind) const {
+  inline void compute(int ind) {
     int hand, suit;
     holding_t ranks[4][4];
 
