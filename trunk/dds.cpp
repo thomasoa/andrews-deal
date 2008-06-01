@@ -4223,12 +4223,15 @@ void BuildSOP(struct pos * posPoint, int tricks, int firstHand, int target,
     }
     else {
       w=smallestRankInSuit(w);       /* Only lowest win */
-      for (hh=0; hh<=3; hh++)
+      for (hh=0; hh<=3; hh++) {
 	temp[hh][ss]=posPoint->rankInSuit[hh][ss] & (-w);
+      }
 
       aggr[ss]=0;
-      for (hh=0; hh<=3; hh++)
+      for (hh=0; hh<=3; hh++) {
 	aggr[ss]=aggr[ss] | temp[hh][ss];
+      }
+
       posPoint->winMask[ss]=rel[aggr[ss]].winMask[ss];
       posPoint->winOrderSet[ss]=rel[aggr[ss]].aggrRanks[ss];
       wm=posPoint->winMask[ss];
