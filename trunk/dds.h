@@ -307,11 +307,11 @@ struct relRankLookup {
     }
   }
 
-  const struct relRanksType &operator [](int index) const {
+  inline const struct relRanksType &operator [](int index) const {
     return relative[index&8191];
   }
 
-  void initialize(const struct gameInfo &game) {
+  inline void initialize(const struct gameInfo &game) {
     int newDiagram = 0;
     int hand, suit;
 
@@ -434,14 +434,14 @@ struct ContractInfo {
   inline int betterMove(const struct moveType &nextMove,const struct moveType &bestMove) const {
     if (bestMove.suit==nextMove.suit) {
       if (nextMove.rank>bestMove.rank) {
-	return 1;
+	return TRUE;
       } else {
-	return 0;
+	return FALSE;
       }
     } else if (isTrump(nextMove.suit)) {
-      return 1;
+      return TRUE;
     } else {
-      return 0;
+      return FALSE;
     }
   }
 
@@ -577,7 +577,7 @@ int MoveGen(const struct pos * posPoint, int depth);
 void InsertSort(int n, int depth);
 void UpdateWinner(struct pos * posPoint, int suit);
 void UpdateSecondBest(struct pos * posPoint, int suit);
-inline int WinningMove(const struct moveType * mvp1,const struct moveType * mvp2);
+inline int WinningMove(const struct moveType &mvp1,const struct moveType &mvp2);
 #ifdef __cplusplus
 inline unsigned short int CountOnes(unsigned short int b);
 #endif
