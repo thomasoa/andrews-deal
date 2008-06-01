@@ -577,7 +577,7 @@ int MoveGen(const struct pos * posPoint, int depth);
 void InsertSort(int n, int depth);
 void UpdateWinner(struct pos * posPoint, int suit);
 void UpdateSecondBest(struct pos * posPoint, int suit);
-int WinningMove(const struct moveType * mvp1,const struct moveType * mvp2);
+inline int WinningMove(const struct moveType * mvp1,const struct moveType * mvp2);
 #ifdef __cplusplus
 inline unsigned short int CountOnes(unsigned short int b);
 #endif

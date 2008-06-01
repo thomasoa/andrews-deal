@@ -3841,12 +3841,13 @@ int listNo;
 struct winCardType * nextp;
 
 
-int WinningMove(const struct moveType * mvp1, const struct moveType * mvp2) {
+inline int WinningMove(const struct moveType * mvp1, const struct moveType * mvp2) {
 /* Return TRUE if move 1 wins over move 2, with the assumption that
-move 2 is the presently winning card of the trick */
+   move 2 is the presently winning card of the trick */
 
   const ContractInfo contract = Globals.getContract();
-
+  return contract.betterMove(*mvp1,*mvp2);
+#if 0
   if (mvp1->suit==mvp2->suit) {
     if ((mvp1->rank)>(mvp2->rank)) {
       return TRUE;
@@ -3858,6 +3859,7 @@ move 2 is the presently winning card of the trick */
   } else {
     return FALSE;
   }
+#endif
 }
 
 
