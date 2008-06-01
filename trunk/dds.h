@@ -110,7 +110,7 @@ struct dealType {
 struct moveType {
   unsigned char suit;
   unsigned char rank;
-  unsigned short int sequence;          /* Whether or not this move is
+  holding_t sequence;          /* Whether or not this move is
                                         the first in a sequence */
   short int weight;                     /* Weight used at sorting */
 
@@ -564,7 +564,7 @@ extern FILE * fp2, *fp7, *fp11;
   /* Pointers to logs */
 
 void InitStart(void);
-void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst, int mode);
+void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst);
 void InitSearch(struct pos * posPoint, int depth,
   struct moveType startMoves[], int first, int mtd);
 int ABsearch(struct pos * posPoint, int target, int depth);
