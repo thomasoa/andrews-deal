@@ -500,7 +500,7 @@ public:
     return 1;
   }
 
-  if (mode<2) {
+  if (mode!=2) {
     Wipe();
 	winSetSizeLimit=WINIT;
     nodeSetSizeLimit=NINIT;
@@ -512,9 +512,9 @@ public:
     nodeCards=pn[0];
     posSearch=pl[0];
     wcount=0; ncount=0; lcount=0;
-    InitGame(0, FALSE, first, handRelFirst,mode);
+    InitGame(0, FALSE, first, handRelFirst);
   } else {
-    InitGame(0, TRUE, first, handRelFirst,mode);
+    InitGame(0, TRUE, first, handRelFirst);
 	/*fp2=fopen("dyn.txt", "a");
 	fprintf(fp2, "wcount=%d, ncount=%d, lcount=%d\n", 
 	  wcount, ncount, lcount);
@@ -1026,7 +1026,7 @@ void InitStart(void) {
 }
 
 
-void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst, int mode) {
+void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst) {
 
   int k, temp1, temp2,m;
   /*int points[4], tricks;
@@ -1500,9 +1500,9 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
   if (posPoint->handRelFirst==0) {  
     for (ss=0; ss<=3; ss++) {
       aggr[ss]=0;
-      for (hh=0; hh<=3; hh++)
-	aggr[ss]=aggr[ss] | posPoint->rankInSuit[hh][ss];
-	  /* New algo */
+      for (hh=0; hh<=3; hh++) {
+	aggr[ss] |= posPoint->rankInSuit[hh][ss];
+      }
       posPoint->orderSet[ss]=rel[aggr[ss]].aggrRanks[ss];
     }
     tricks=depth>>2;
@@ -1917,8 +1917,8 @@ struct makeType Make(struct pos * posPoint, int depth)  {
   r=movePly[depth].current;
 
   if (posPoint->handRelFirst==3)  {   /* This hand is last hand */
-    mo1=movePly[depth].move[r];
-    mo2=previous.move;
+    mo1 = movePly[depth].move[r];
+    mo2 = previous.move;
     if (contract.betterMove(mo1,mo2)) {
       current.move=mo1;
       current.high=HandStore(firstHand,3);
