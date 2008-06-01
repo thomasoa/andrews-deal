@@ -296,7 +296,8 @@ struct relRanksType {
 };
 
 struct relRankLookup {
-  struct relRanksType relative[8192];
+  mutable struct relRanksType relative[8192];
+  mutable int valid[8192];
   holding_t originals[4][4];
 
   relRankLookup() {
@@ -308,13 +309,16 @@ struct relRankLookup {
   }
 
   const struct relRanksType &operator [](int index) const {
+    if (!valid[index&8191]) {
+      compute(index&8191);
+      valid[index&8191] = 1;
+    }
     return relative[index&8191];
   }
 
   void initialize(const struct gameInfo &game) {
-    holding_t ranks[4][4];
-    int ind, hand, suit;
     int newDiagram = 0;
+    int hand, suit;
 
     for (hand=0; hand<4; hand++) {
       for (suit=0; suit<4; suit++) {
@@ -325,43 +329,46 @@ struct relRankLookup {
       }
     }
 
-    if (!newDiagram) {
-      return;
+    if (newDiagram) {
+      memset((void *)valid,0,8192*sizeof(int));
     }
+  }
 
-    for (ind=0; ind<8192; ind++) {
-      for (suit=0; suit<=3; suit++) {
-        relative[ind].aggrRanks[suit] = 0;
-	relative[ind].winMask[suit] = 0;
+  void compute(int ind) const {
+    int hand, suit;
+    holding_t ranks[4][4];
 
-        for (hand=0; hand<=3; hand++) {
-          ranks[hand][suit] = game.suit[hand][suit] & ind;
-        }
+    for (suit=0; suit<=3; suit++) {
+      relative[ind].aggrRanks[suit] = 0;
+      relative[ind].winMask[suit] = 0;
 
-	int rank = 14, order = 1, cardFound, currHand;
-	LONGLONG orderCode = orderCode;
+      for (hand=0; hand<=3; hand++) {
+        ranks[hand][suit] = originals[hand][suit] & ind;
+      }
 
-	while (rank>=2) {
-	  cardFound=FALSE;
-	  for (hand=0; hand<=3; hand++) {
-	    if ((ranks[hand][suit] & BitRank(rank))!=0) {
-	      currHand=hand;
-	      cardFound=TRUE;
-	      break;
-	    }
+      int rank = 14, order = 1, cardFound, currHand;
+      LONGLONG orderCode = orderCode;
+
+      while (rank>=2) {
+        cardFound=FALSE;
+	for (hand=0; hand<=3; hand++) {
+	  if ((ranks[hand][suit] & BitRank(rank))!=0) {
+	    currHand=hand;
+	    cardFound=TRUE;
+	    break;
 	  }
-	  if (cardFound==FALSE) {
-	    rank--;
-	    continue;
-	  }
-	  orderCode=currHand << (26-order-order);
-	  relative[ind].aggrRanks[suit]|=orderCode;
-	  orderCode=3 << (26-2*order);
-	  relative[ind].winMask[suit]|=orderCode;
-	
-	  order++;
-	  rank--;
 	}
+	if (cardFound==FALSE) {
+	  rank--;
+	  continue;
+	}
+	orderCode=currHand << (26-order-order);
+	relative[ind].aggrRanks[suit]|=orderCode;
+	orderCode=3 << (26-2*order);
+	relative[ind].winMask[suit]|=orderCode;
+
+        order++;
+	rank--;
       }
     }
   }
