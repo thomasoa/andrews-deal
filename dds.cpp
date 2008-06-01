@@ -1145,7 +1145,7 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
     movePly[depth+k].move[0].suit=startMoves[k-1].suit;
     movePly[depth+k].move[0].rank=startMoves[k-1].rank;
     if (k<noOfStartMoves) {     /* If there is more than one start move */
-      if (WinningMove(&startMoves[k-1], &move)) {
+      if (WinningMove(startMoves[k-1], move)) {
         posPoint->stack[depth+k].move.suit=startMoves[k-1].suit;
         posPoint->stack[depth+k].move.rank=startMoves[k-1].rank;
         posPoint->stack[depth+k].high=HandStore(first,noOfStartMoves-k);
@@ -3516,7 +3516,7 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
     case 2:
             
       leadSuit=posPoint->stack[depth+2].move.suit;
-      if (WinningMove(mp, &(posPoint->stack[depth+1].move))) {
+      if (WinningMove(*mp, (posPoint->stack[depth+1].move))) {
 	if (suit==leadSuit) {
 	  if (contract.notTrumpWithTrump(leadSuit)) {
 	    if (((posPoint->length[rho(first)][suit]!=0)||
@@ -3562,7 +3562,7 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
 	    } else {
               weight=60-(mp->rank)+suitAdd;
 	    }
-          } else if (WinningMove(mp, &(posPoint->stack[depth+1].move))) {
+          } else if (WinningMove(*mp, (posPoint->stack[depth+1].move))) {
              /* Own hand on top by ruffing */
             weight=70-(mp->rank)+suitAdd;
 	  } else if (contract.isTrump(suit)) {
@@ -3576,7 +3576,7 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
 	}
       } else {
         if (!notVoidInSuit) {
-          if (WinningMove(mp, &(posPoint->stack[depth+1].move)))
+          if (WinningMove(*mp, (posPoint->stack[depth+1].move)))
              /* Own hand on top by ruffing */
             weight=40-(mp->rank)+suitAdd;
           else if (contract.isTrump(suit)) {
@@ -3587,7 +3587,7 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
 	  }
         }
         else {
-          if (WinningMove(mp, &(posPoint->stack[depth+1].move))) {
+          if (WinningMove(*mp, (posPoint->stack[depth+1].move))) {
             if (mp->rank==posPoint->secondBest[leadSuit].rank)
               weight=25/*35*/;
             else if (mp->sequence)
@@ -3613,7 +3613,7 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
             weight=30-(mp->rank)+suitAdd;
 	  }
         }
-        else if (WinningMove(mp, &(posPoint->stack[depth+1].move)))  {
+        else if (WinningMove(*mp, posPoint->stack[depth+1].move))  {
           /* Own hand ruffs */
           weight=30-(mp->rank)+suitAdd;
 	} else if (suit==contract.trump) {
@@ -3630,7 +3630,7 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
 	} else {
           weight=30-(mp->rank);
 	}
-      } else if (WinningMove(mp, &(posPoint->stack[depth+1].move))) {
+      } else if (WinningMove(*mp, posPoint->stack[depth+1].move)) {
         /* If present move is superior to current winning move and the
         current winning move is not given by the partner */
         weight=30-(mp->rank);
@@ -3841,12 +3841,12 @@ int listNo;
 struct winCardType * nextp;
 
 
-inline int WinningMove(const struct moveType * mvp1, const struct moveType * mvp2) {
+inline int WinningMove(const struct moveType &mv1, const struct moveType &mv2) {
 /* Return TRUE if move 1 wins over move 2, with the assumption that
    move 2 is the presently winning card of the trick */
 
-  const ContractInfo contract = Globals.getContract();
-  return contract.betterMove(*mvp1,*mvp2);
+  //const ContractInfo contract = Globals.getContract();
+  return Globals.getContract().betterMove(mv1,mv2);
 #if 0
   if (mvp1->suit==mvp2->suit) {
     if ((mvp1->rank)>(mvp2->rank)) {
