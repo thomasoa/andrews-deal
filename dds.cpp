@@ -883,7 +883,7 @@ public:
   return 1;
 }
 
-const struct relRankLookup &rel=Globals.rel;
+const struct RelativeRanksFinder &rel=Globals.rel;
 struct ttStoreType * ttStore;
 struct nodeCardsType * nodeCards;
 struct winCardType * winCards;
