@@ -295,11 +295,13 @@ struct relRanksType {
   int winMask[4];
 };
 
-struct relRankLookup {
+class RelativeRanksFinder {
+ protected:
   struct relRanksType relative[8192];
   holding_t originals[4][4];
 
-  relRankLookup() {
+ public:
+  inline RelativeRanksFinder() {
     for (int hand=0; hand<4; hand++) {
       for (int suit=0; suit<4; suit++) {
 	originals[hand][suit]=0;
@@ -485,7 +487,7 @@ struct GLOBALS {
 protected:
 public:
   ContractInfo _contract;
-  relRankLookup rel;
+  RelativeRanksFinder rel;
 
   inline void setContract(int trump=-1) {
     _contract.initialize(trump>=0 && trump<=3,trump);
@@ -512,7 +514,7 @@ extern struct moveType forbiddenMoves[14];  /* Initial depth moves that will be
 extern struct moveType initialMoves[4];
 extern struct moveType highMove;
 extern struct moveType * bestMove;
-extern const struct relRankLookup &rel;
+extern const struct RelativeRanksFinder &rel;
 extern struct winCardType **pw;
 extern struct nodeCardsType **pn;
 extern struct posSearchType **pl;
