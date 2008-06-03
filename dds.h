@@ -270,7 +270,10 @@ struct relRanksType {
 
 class RelativeRanksFinder {
  protected:
-  struct relRanksType relative[8192][4];
+  struct {
+    relRanksType ranks[4];
+  } relative[8192];
+
   holding_t originalsBySuitFirst[4][4];
   holding_t allRanksInSuit[4];
 
@@ -284,7 +287,7 @@ class RelativeRanksFinder {
   }
 
   inline const struct relRanksType &operator ()(int suit,holding_t index) const {
-    return relative[index&8191][suit];
+    return relative[index&8191].ranks[suit];
   }
 
   inline void initialize(const struct gameInfo &game) {
@@ -303,7 +306,12 @@ class RelativeRanksFinder {
 
     if (newDiagram) {
       holding_t topBitRank = 1;
-      for (int ind=0; ind<8192; ind++) {
+      for (int suit=0; suit<4; suit++) {
+        relative[0].ranks[suit].aggrRanks = 0;
+        relative[0].ranks[suit].winMask   = 0;
+      }
+
+      for (int ind=1; ind<8192; ind++) {
         if (ind&(topBitRank<<1)) {
           topBitRank <<= 1;
         }
@@ -312,26 +320,22 @@ class RelativeRanksFinder {
     }
   }
 
+protected:
   inline void compute(const holding_t ind,const holding_t topBitRank) {
     int hand, suit;
     
-    if (ind==0) {
-      for (suit=0; suit<=3; suit++) {
-        relative[0][suit].aggrRanks = 0;
-        relative[0][suit].winMask   = 0;
-      }
-    } else {
-      for (suit=0; suit<=3; suit++) {
-        struct relRanksType &relRanks = relative[ind][suit];
-        struct relRanksType &prev = relative[ind ^ topBitRank][suit];
-        relRanks.aggrRanks = prev.aggrRanks;
-        relRanks.winMask = prev.winMask;
-        for (hand=0; hand<=3; hand++) {
-           if (originalsBySuitFirst[suit][hand] & topBitRank) {
-             relRanks.aggrRanks = (relRanks.aggrRanks >> 2) | (hand << 24);
-             relRanks.winMask   = (relRanks.winMask >> 2)   | (3   << 24);
-             break;
-           }
+    relative[ind] = relative[ind^topBitRank];
+
+    for (suit=0; suit<=3; suit++) {
+      struct relRanksType &relRanks = relative[ind].ranks[suit];
+      //struct relRanksType &prev = relative[ind ^ topBitRank][suit];
+      //relRanks.aggrRanks = prev.aggrRanks;
+      //relRanks.winMask = prev.winMask;
+      for (hand=0; hand<=3; hand++) {
+        if (originalsBySuitFirst[suit][hand] & topBitRank) {
+          relRanks.aggrRanks = (relRanks.aggrRanks >> 2) | (hand << 24);
+          relRanks.winMask   = (relRanks.winMask >> 2)   | (3   << 24);
+          break;
         }
       }
     }
