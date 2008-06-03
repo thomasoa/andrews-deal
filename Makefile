@@ -10,12 +10,12 @@
 TCL_DIR=/usr
 
 CC=gcc
-ARCH = 
-ARCH_UNIVERSAL = -arch i386 -arch ppc
-#DEBUG_FLAGS=-g -ansi -Wall -O2 $(ARCH)
-#CPPFLAGS = -fno-rtti -g -O2 $(ARCH)
-DEBUG_FLAGS=-O3 -ansi -Wall $(ARCH)
-CPPFLAGS = -fno-rtti -O3 -Winline -Wall $(ARCH)
+MAC_ARCH = 
+MAC_ARCH_UNIVERSAL = -arch i386 -arch ppc
+#DEBUG_FLAGS=-g -ansi -Wall -O2 $(MAC_ARCH)
+#CPPFLAGS = -fno-rtti -g -O2 $(MAC_ARCH)
+DEBUG_FLAGS=-O3 -ansi -Wall $(MAC_ARCH)
+CPPFLAGS = -fno-rtti -O3 -Winline -Wall $(MAC_ARCH)
 
 # Change TCL_INCL to point to the directory containing Tcl's
 # include files
@@ -77,7 +77,7 @@ deal: $(OBJS)
 
 universal:
 	$(MAKE) clean
-	$(MAKE) ARCH="$(ARCH_UNIVERSAL)"
+	$(MAKE) MAC_ARCH="$(MAC_ARCH_UNIVERSAL)"
 deal.cgi:
 	make clean
 	make CFLAGS="$(CFLAGS) -DCGI"
