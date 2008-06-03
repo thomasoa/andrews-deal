@@ -1500,7 +1500,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
       for (hh=0; hh<=3; hh++) {
 	aggr[ss] |= posPoint->rankInSuit[hh][ss];
       }
-      posPoint->orderSet[ss]=rel[aggr[ss]].aggrRanks[ss];
+      posPoint->orderSet[ss]=rel(ss,aggr[ss]).aggrRanks;
     }
     tricks=depth>>2;
     posPoint->getSuitLengths(suitLengths);
@@ -1633,7 +1633,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
 		aggr[ss] |= posPoint->rankInSuit[hh][ss];
 	      }
 	      /* New algo */
-	      posPoint->orderSet[ss]=rel[aggr[ss]].aggrRanks[ss];
+	      posPoint->orderSet[ss]=rel(ss,aggr[ss]).aggrRanks;
 	    }
 	    tricks=depth/4;
 	    hfirst=posPoint->stack[depth].first;
@@ -4269,8 +4269,8 @@ void BuildSOP(struct pos * posPoint, int tricks, int firstHand, int target,
 	aggr[ss]=aggr[ss] | temp[hh][ss];
       }
 
-      posPoint->winMask[ss]=rel[aggr[ss]].winMask[ss];
-      posPoint->winOrderSet[ss]=rel[aggr[ss]].aggrRanks[ss];
+      posPoint->winMask[ss]=rel(ss,aggr[ss]).winMask;
+      posPoint->winOrderSet[ss]=rel(ss,aggr[ss]).aggrRanks;
       wm=posPoint->winMask[ss];
       wm=smallestRankInSuit(wm);
       posPoint->leastWin[ss]=InvWinMask(wm);
