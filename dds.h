@@ -271,11 +271,10 @@ struct relRanksType {
 class RelativeRanksFinder {
  protected:
   struct {
-    relRanksType ranks[4];
+    relRanksType suits[4];
   } relative[8192];
 
   holding_t originalsBySuitFirst[4][4];
-  holding_t allRanksInSuit[4];
 
  public:
   inline RelativeRanksFinder() {
@@ -287,7 +286,7 @@ class RelativeRanksFinder {
   }
 
   inline const struct relRanksType &operator ()(int suit,holding_t index) const {
-    return relative[index&8191].ranks[suit];
+    return relative[index&8191].suits[suit];
   }
 
   inline void initialize(const struct gameInfo &game) {
@@ -300,15 +299,14 @@ class RelativeRanksFinder {
 	  newDiagram = 1;
 	}
 	originalsBySuitFirst[suit][hand]=game.suit[hand][suit];
-        allRanksInSuit[suit] |= game.suit[hand][suit];
       }
     }
 
     if (newDiagram) {
       holding_t topBitRank = 1;
       for (int suit=0; suit<4; suit++) {
-        relative[0].ranks[suit].aggrRanks = 0;
-        relative[0].ranks[suit].winMask   = 0;
+        relative[0].suits[suit].aggrRanks = 0;
+        relative[0].suits[suit].winMask   = 0;
       }
 
       for (int ind=1; ind<8192; ind++) {
@@ -327,10 +325,8 @@ protected:
     relative[ind] = relative[ind^topBitRank];
 
     for (suit=0; suit<=3; suit++) {
-      struct relRanksType &relRanks = relative[ind].ranks[suit];
-      //struct relRanksType &prev = relative[ind ^ topBitRank][suit];
-      //relRanks.aggrRanks = prev.aggrRanks;
-      //relRanks.winMask = prev.winMask;
+      struct relRanksType &relRanks = relative[ind].suits[suit];
+
       for (hand=0; hand<=3; hand++) {
         if (originalsBySuitFirst[suit][hand] & topBitRank) {
           relRanks.aggrRanks = (relRanks.aggrRanks >> 2) | (hand << 24);
