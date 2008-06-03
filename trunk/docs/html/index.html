@@ -1,6 +1,6 @@
 <html>
 <head>
-<!-- $Id: index.html,v 1.4 2008-05-22 04:20:31 thomasoa Exp $ -->
+<!-- $Id: index.html,v 1.5 2008-06-03 03:58:06 thomasoa Exp $ -->
 <title>
     Deal 3.1 Home Page
 </title>
@@ -28,7 +28,28 @@ Features:
 <td align=center valign="center"><img valign="middle" SRC="../graphics/falling_small.jpg" WIDTH=225 HEIGHT=216 ALT="Deal 3.1"></td>
 </table>
 <hr width="50%">
-
+<div class="toplevel">
+<?php
+  if (isset($argc) && $argc>1) {
+?><div style='float:right; margin: 1em;'>
+<script type="text/javascript"><!--
+google_ad_client = "pub-1155581695939561";
+google_ad_width = 120;
+google_ad_height = 600;
+google_ad_format = "120x600_as";
+google_ad_type = "text";
+google_ad_channel ="";
+google_color_border = "336699";
+google_color_bg = "FFFFFF";
+google_color_link = "0000FF";
+google_color_url = "008000";
+google_color_text = "000000";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+<?php } ?>
+</div>
 <H2>Information found on these pages:</H2>
 <UL>
     <LI> <span class="alert">New!</span> <a href="dds.html">Built-in double-dummy solver</a>
@@ -72,6 +93,7 @@ The people in charge of Tcl are <a href="http://www.scriptics.com/">
 Scriptics.</a>  But don't let their web site fool you - the basic software is free.
 
 <p>
+</div>
 <hr>
 <table><tr><td><a href="../index.html">
 <image border=0 width=40 height=56 src="../graphics/StampSm.gif"></a><td>
