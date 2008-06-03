@@ -10,10 +10,12 @@
 TCL_DIR=/usr
 
 CC=gcc
-#DEBUG_FLAGS=-g -ansi -Wall -O2
-#CPPFLAGS = -fno-rtti -g -O2
-DEBUG_FLAGS=-O3 -ansi -Wall 
-CPPFLAGS = -fno-rtti -O3 -Winline -Wall
+ARCH = 
+ARCH_UNIVERSAL = -arch i386 -arch ppc
+#DEBUG_FLAGS=-g -ansi -Wall -O2 $(ARCH)
+#CPPFLAGS = -fno-rtti -g -O2 $(ARCH)
+DEBUG_FLAGS=-O3 -ansi -Wall $(ARCH)
+CPPFLAGS = -fno-rtti -O3 -Winline -Wall $(ARCH)
 
 # Change TCL_INCL to point to the directory containing Tcl's
 # include files
@@ -73,6 +75,9 @@ BINARY=./deal
 deal: $(OBJS)
 	g++ $(CFLAGS) $(OBJS) -o deal $(LDFLAGS)
 
+universal:
+	$(MAKE) clean
+	$(MAKE) ARCH="$(ARCH_UNIVERSAL)"
 deal.cgi:
 	make clean
 	make CFLAGS="$(CFLAGS) -DCGI"
