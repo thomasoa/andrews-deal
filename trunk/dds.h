@@ -62,22 +62,6 @@ using namespace std;
 #define Min(x, y) (((x) <= (y)) ? (x) : (y))
 
 
-#if 0
-struct CanonicalBridgeDiagram {
-  holding_t _cards[4][4];
-  unsigned int _lengths[4][4];
-
-  inline int hasCardBitRank(int hand, int suit, holding_t bitRank) const {
-    return (_cards[hand][suit] & bitRank);
-  }
-
-  inline int hasCard(int hand,int suit, int rank) const {
-    return hasCardBitRank(hand,suit,BitRank(rank));
-  }
-
-}
-#endif
-
 inline int partner(int hand) {
   return (hand^2); /* slightly faster */
 }
@@ -145,17 +129,6 @@ inline holding_t BitRank(int rank) {
    * Equivalent to 1<<(rank-2) for rank>=2, and 0 for rank<2.
    */
   return (1<<rank)>>2;
-#if 0
-  return bitMapRank[rank];
-  /* Old code was */
-
-  /* Direct code is */
-  if (rank>=2 && rank<=15) {
-    return 1<<(rank-2);
-  } else {
-    return 0;
-  }
-#endif
 }
 
 struct posStackItem {
@@ -291,83 +264,75 @@ struct evalType {
 };
 
 struct relRanksType {
-  int aggrRanks[4];
-  int winMask[4];
+  int aggrRanks;
+  int winMask;
 };
 
 class RelativeRanksFinder {
  protected:
-  struct relRanksType relative[8192];
-  holding_t originals[4][4];
+  struct relRanksType relative[8192][4];
+  holding_t originalsBySuitFirst[4][4];
+  holding_t allRanksInSuit[4];
 
  public:
   inline RelativeRanksFinder() {
-    for (int hand=0; hand<4; hand++) {
-      for (int suit=0; suit<4; suit++) {
-	originals[hand][suit]=0;
+    for (int suit=0; suit<4; suit++) {
+      for (int hand=0; hand<4; hand++) {
+	originalsBySuitFirst[suit][hand]=0;
       }
     }
   }
 
-  inline const struct relRanksType &operator [](int index) const {
-    return relative[index&8191];
+  inline const struct relRanksType &operator ()(int suit,holding_t index) const {
+    return relative[index&8191][suit];
   }
 
   inline void initialize(const struct gameInfo &game) {
     int newDiagram = 0;
     int hand, suit;
 
-    for (hand=0; hand<4; hand++) {
-      for (suit=0; suit<4; suit++) {
-	if (game.suit[hand][suit] != originals[hand][suit]) {
+    for (suit=0; suit<4; suit++) {
+      for (hand=0; hand<4; hand++) {
+	if (game.suit[hand][suit] != originalsBySuitFirst[suit][hand]) {
 	  newDiagram = 1;
 	}
-	originals[hand][suit]=game.suit[hand][suit];
+	originalsBySuitFirst[suit][hand]=game.suit[hand][suit];
+        allRanksInSuit[suit] |= game.suit[hand][suit];
       }
     }
 
     if (newDiagram) {
-      for (int ind =0 ; ind<8192; ind++) {
-        compute(ind);
+      holding_t topBitRank = 1;
+      for (int ind=0; ind<8192; ind++) {
+        if (ind&(topBitRank<<1)) {
+          topBitRank <<= 1;
+        }
+        compute(ind, topBitRank);
       }
     }
   }
 
-  inline void compute(int ind) {
+  inline void compute(const holding_t ind,const holding_t topBitRank) {
     int hand, suit;
-    holding_t ranks[4][4];
-
-    for (suit=0; suit<=3; suit++) {
-      relative[ind].aggrRanks[suit] = 0;
-      relative[ind].winMask[suit] = 0;
-
-      for (hand=0; hand<=3; hand++) {
-        ranks[hand][suit] = originals[hand][suit] & ind;
+    
+    if (ind==0) {
+      for (suit=0; suit<=3; suit++) {
+        relative[0][suit].aggrRanks = 0;
+        relative[0][suit].winMask   = 0;
       }
-
-      int rank = 14, order = 1, cardFound, currHand;
-      int orderCode = 1;
-
-      while (rank>=2) {
-        cardFound=FALSE;
-	for (hand=0; hand<=3; hand++) {
-	  if ((ranks[hand][suit] & BitRank(rank))!=0) {
-	    currHand=hand;
-	    cardFound=TRUE;
-	    break;
-	  }
-	}
-	if (cardFound==FALSE) {
-	  rank--;
-	  continue;
-	}
-	orderCode=currHand << (26-order-order);
-	relative[ind].aggrRanks[suit]|=orderCode;
-	orderCode=3 << (26-2*order);
-	relative[ind].winMask[suit]|=orderCode;
-
-        order++;
-	rank--;
+    } else {
+      for (suit=0; suit<=3; suit++) {
+        struct relRanksType &relRanks = relative[ind][suit];
+        struct relRanksType &prev = relative[ind ^ topBitRank][suit];
+        relRanks.aggrRanks = prev.aggrRanks;
+        relRanks.winMask = prev.winMask;
+        for (hand=0; hand<=3; hand++) {
+           if (originalsBySuitFirst[suit][hand] & topBitRank) {
+             relRanks.aggrRanks = (relRanks.aggrRanks >> 2) | (hand << 24);
+             relRanks.winMask   = (relRanks.winMask >> 2)   | (3   << 24);
+             break;
+           }
+        }
       }
     }
   }
