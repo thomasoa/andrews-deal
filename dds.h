@@ -104,7 +104,7 @@ struct gameInfo  {          /* All info of a particular deal */
 };
 
 struct dealType {
-  unsigned short int deal[4][4];
+  holding_t deal[4][4];
 };  
 
 struct moveType {
@@ -134,7 +134,7 @@ struct highCardType {
 };
 
 struct makeType {
-  unsigned short int winRanks[4];
+  holding_t winRanks[4];
 };
 
 //static const holding_t bitMapRank[] = { 0, 0, 0x1, 0x2,0x4,0x8,0x10,0x20,0x40,0x80,0x100,0x200,0x400,0x800,0x1000,0x2000,0x4000 };
@@ -162,7 +162,7 @@ struct posStackItem {
   int first;                 /* Hand that leads the trick for each ply*/
   int high;                  /* Hand that is presently winning the trick */
   struct moveType move;      /* Presently winning move */              
-  unsigned short int winRanks[4];  /* Cards that win by rank,
+  holding_t winRanks[4];  /* Cards that win by rank,
                                        indices are depth and suit */
   holding_t removed[4];
 
@@ -184,7 +184,7 @@ struct posStackItem {
 
 struct pos {
   struct posStackItem stack[50];
-  unsigned short int rankInSuit[4][4];   /* 1st index is hand, 2nd index is
+  holding_t rankInSuit[4][4];   /* 1st index is hand, 2nd index is
                                         suit id */
   int orderSet[4];
   int winOrderSet[4];
@@ -346,7 +346,7 @@ class RelativeRanksFinder {
       }
 
       int rank = 14, order = 1, cardFound, currHand;
-      LONGLONG orderCode = orderCode;
+      int orderCode = 1;
 
       while (rank>=2) {
         cardFound=FALSE;
@@ -519,8 +519,8 @@ extern struct winCardType **pw;
 extern struct nodeCardsType **pn;
 extern struct posSearchType **pl;
 
-extern unsigned short int iniRemovedRanks[4];
-extern unsigned short int relRankInSuit[4][4];
+extern holding_t iniRemovedRanks[4];
+extern holding_t relRankInSuit[4][4];
 extern int sum;
 extern int score1Counts[50], score0Counts[50];
 extern int c1[50], c2[50], c3[50], c4[50], c5[50], c6[50], c7[50],
@@ -580,9 +580,7 @@ void InsertSort(int n, int depth);
 void UpdateWinner(struct pos * posPoint, int suit);
 void UpdateSecondBest(struct pos * posPoint, int suit);
 inline int WinningMove(const struct moveType &mvp1,const struct moveType &mvp2);
-#ifdef __cplusplus
 inline unsigned short int CountOnes(unsigned short int b);
-#endif
 int AdjustMoveList(void);
 int QuickTricks(struct pos * posPoint, int hand, 
 	int depth, int target, int *result);
@@ -604,8 +602,8 @@ struct posSearchType * SearchLenAndInsert(struct posSearchType
 void Undo(struct pos * posPoint, int depth);
 int CheckDeal(struct moveType * cardp);
 void WinAdapt(struct pos * posPoint, int depth, const struct nodeCardsType * cp,
-   unsigned short int aggr[]);
-int InvBitMapRank(unsigned short bitMap);
+   holding_t aggr[]);
+inline int InvBitMapRank(holding_t bitMap);
 int InvWinMask(int mask);
 void ReceiveTTstore(struct pos *posPoint, struct nodeCardsType * cardsP, int target, int depth);
 int DismissX(struct pos *posPoint, int depth); 

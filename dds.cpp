@@ -34,10 +34,7 @@ inline int HandStore(int hand, int relative) {
 
 GLOBALS Globals;
 
-//int handStore[4][4];
 int nodeTypeStore[4];
-//int lho[4], rho[4], partner[4];
-//unsigned short int bitMapRank[16];
 unsigned short int lowestWin[50][4];
 int nodes;
 int trickNodes;
@@ -156,7 +153,7 @@ extern "C" inline holding_t distinctUnplayedCards(holding_t origHolding, holding
    return  result;
 }
 
-#define UNPLAYEDLOOKUPTABLE
+/* #define UNPLAYEDLOOKUPTABLE */
 struct UnplayedCardsFinder {
 protected:
 #ifdef UNPLAYEDLOOKUPTABLE
@@ -888,7 +885,7 @@ struct ttStoreType * ttStore;
 struct nodeCardsType * nodeCards;
 struct winCardType * winCards;
 struct posSearchType * posSearch;
-unsigned short int iniRemovedRanks[4];
+holding_t iniRemovedRanks[4];
 int nodeSetSize=0; /* Index with range 0 to nodeSetSizeLimit */
 int winSetSize=0;  /* Index with range 0 to winSetSizeLimit */
 int lenSetSize=0;  /* Index with range 0 to lenSetSizeLimit */
@@ -1311,9 +1308,9 @@ struct winCardType * np;
 struct posSearchType * pp;
 struct nodeCardsType * sopP;
 struct nodeCardsType  * tempP;
-unsigned short int aggr[4];
-unsigned short int tricksLeft;
-unsigned short int ranks;
+holding_t aggr[4];
+holding_t tricksLeft;
+holding_t ranks;
 
 int ABsearch(struct pos * posPoint, int target, int depth) {
     /* posPoint points to the current look-ahead position,
@@ -2094,7 +2091,8 @@ void Undo(struct pos * posPoint, int depth)  {
 
 
 struct evalType Evaluate(const struct pos * posPoint)  {
-  int s, smax=0, max, k, firstHand, count;
+  int s, smax=0, k, firstHand, count;
+  unsigned short int max;
   struct evalType eval;
   const ContractInfo contract = Globals.getContract();
 
@@ -3079,10 +3077,28 @@ int MoveGen(const struct pos * posPoint, const int depth) {
   /* Not first hand and not void in suit */
     holding_t sequences;
     holding_t unplayedCardsRank;
+    holding_t allCards, bitRank;
+    holding_t sequence = 0;
     unplayedCardsRank = 
-      unplayedFinder.getUnplayed(q,t, 
-				 (holding_t)(posPoint->removedRanks[t]),
-				 sequences);
+    unplayedFinder.getUnplayed(q,t, 
+			 (holding_t)(posPoint->removedRanks[t]),
+			 sequences);
+    allCards = unplayedCardsRank | sequences;
+    while (allCards) {
+      bitRank = smallestRankInSuit(allCards);
+      allCards ^= bitRank;
+      if (unplayedCardsRank & bitRank) {
+        movePly[depth].move[m].suit=t;
+        movePly[depth].move[m].rank=InvBitMapRank(bitRank);
+        movePly[depth].move[m].sequence= sequence;
+        sequence = 0;
+        m++;
+      } else {
+        sequence |= bitRank;
+      }
+    }
+
+#if 0
     k=14;
     while (k>=2) {
       if (unplayedCardsRank & BitRank(k)) {
@@ -3095,6 +3111,7 @@ int MoveGen(const struct pos * posPoint, const int depth) {
       }
       k--;
     }
+#endif
 
     if (m!=1) {
       for (k=0; k<=m-1; k++) 
@@ -3111,27 +3128,45 @@ int MoveGen(const struct pos * posPoint, const int depth) {
       m=AdjustMoveList();
       return m;
     }
-  }
-  else {                  /* First hand or void in suit */
+  } else {                  /* First hand or void in suit */
     holding_t sequences;
-    holding_t unplayedCardsRanks;
+    holding_t unplayedCardsRank;
+    holding_t bitRank;
+    holding_t allCards;
+    holding_t sequence = 0;
     for (suit=0; suit<=3; suit++)  {
-      unplayedCardsRanks = 
+      unplayedCardsRank = 
 	unplayedFinder.getUnplayed(q,suit, 
 				   (holding_t)(posPoint->removedRanks[suit]),
 				   sequences);
-      k=14;
-      while (k>=2) {
-	if (unplayedCardsRanks & BitRank(k)) {
+      allCards = unplayedCardsRank | sequences;
+      while (allCards) {
+        bitRank = smallestRankInSuit(allCards);
+        allCards ^= bitRank;
+	if (unplayedCardsRank & bitRank) {
 	  movePly[depth].move[m].suit=suit;
-	  movePly[depth].move[m].rank=k;
+	  movePly[depth].move[m].rank=InvBitMapRank(bitRank);
+	  movePly[depth].move[m].sequence=sequence;
+          sequence = 0;
+	  m++;
+	} else {
+          sequence |= bitRank;
+        }
+      }
+
+#if 0
+      for (k=12; k>=0; k--) {
+        bitRank = 1<<k;
+	if (unplayedCardsRank & bitRank) {
+	  movePly[depth].move[m].suit=suit;
+	  movePly[depth].move[m].rank=k+2;
 	  movePly[depth].move[m].sequence=0;
 	  m++;
-	} else if (sequences & BitRank(k)) {
-          movePly[depth].move[m-1].sequence |= BitRank(k);
+	} else if (sequences & bitRank) {
+          movePly[depth].move[m-1].sequence |= bitRank;
         }
-	k--;
       }
+#endif
     }
 
     for (k=0; k<=m-1; k++) 
@@ -3796,7 +3831,7 @@ int AdjustMoveList(void) {
 }
 
 
-int InvBitMapRank(unsigned short bitMap) {
+inline int InvBitMapRank(holding_t bitMap) {
 
   switch (bitMap) {
     case 0x1000: return 14;
@@ -4209,8 +4244,8 @@ void BuildSOP(struct pos * posPoint, int tricks, int firstHand, int target,
   const int depth, int scoreFlag, int score) {
   int ss, hh, res, wm;
   unsigned short int w;
-  unsigned short int temp[4][4];
-  unsigned short int aggr[4];
+  holding_t temp[4][4];
+  holding_t aggr[4];
   struct nodeCardsType * cardsP;
   struct posSearchType * np;
 
@@ -4344,7 +4379,7 @@ void BuildSOP(struct pos * posPoint, int tricks, int firstHand, int target,
 
 int CheckDeal(struct moveType * cardp) {
   int h, s, k, found;
-  unsigned short int temp[4][4];
+  holding_t temp[4][4];
 
   for (h=0; h<=3; h++)
     for (s=0; s<=3; s++)
@@ -4374,7 +4409,7 @@ int CheckDeal(struct moveType * cardp) {
 /* New algo */
 
 void WinAdapt(struct pos * posPoint, const int depth, const struct nodeCardsType * cp,
-   unsigned short int aggr[]) {
+   holding_t aggr[]) {
    int ss, rr, k;
 
    for (ss=0; ss<=3; ss++) {
@@ -4399,7 +4434,7 @@ void WinAdapt(struct pos * posPoint, const int depth, const struct nodeCardsType
 
 int DismissX(struct pos *posPoint, const int depth) {
   int mcurrent;
-  unsigned short int lw;
+  holding_t lw;
   struct moveType currMove;
   
   mcurrent=movePly[depth].current;
