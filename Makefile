@@ -14,8 +14,8 @@ MAC_ARCH =
 MAC_ARCH_UNIVERSAL = -arch i386 -arch ppc
 #DEBUG_FLAGS=-g -ansi -Wall -O2 $(MAC_ARCH)
 #CPPFLAGS = -fno-rtti -g -O2 $(MAC_ARCH)
-DEBUG_FLAGS=-O3 -ansi -Wall $(MAC_ARCH)
-CPPFLAGS = -fno-rtti -O3 -Winline -Wall $(MAC_ARCH)
+DEBUG_FLAGS=-fast -ansi -Wall $(MAC_ARCH)
+CPPFLAGS = -fno-rtti -fast -Winline -Wall $(MAC_ARCH)
 
 # Change TCL_INCL to point to the directory containing Tcl's
 # include files
