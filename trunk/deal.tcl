@@ -3,7 +3,7 @@
 #
 # Copyright (C) 1996-2001, Thomas Andrews
 #
-# $Id: deal.tcl,v 1.10 2008-06-04 00:41:19 thomaso Exp $
+# $Id: deal.tcl,v 1.11 2008-06-04 04:07:00 thomasoa Exp $
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,6 +32,8 @@ if {[string equal [info commands dds_reset] "dds_reset"]} {
 namespace eval deal {
 
     variable metadata
+    variable unicode 1
+
     #
     # Put data in the cache, to be unset at next call
     # to deal_deck

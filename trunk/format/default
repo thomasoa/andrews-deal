@@ -1,7 +1,7 @@
 #
 # Copyright (C) 1996-2001, Thomas Andrews
 #
-# $Id: default,v 1.4 2008-06-04 00:41:19 thomaso Exp $
+# $Id: default,v 1.5 2008-06-04 04:07:01 thomasoa Exp $
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -57,7 +57,7 @@ writer.$hand write $row 0 "$symbol [$hand -void --- $suit]"
     }
 }
 
-if {[info exists env(LANG)] && [string first "UTF-8" [string toupper $env(LANG)]]>=0} {
+if {$deal::unicode && [info exists env(LANG)] && [string first "UTF-8" [string toupper $env(LANG)]]>=0} {
    set ::formatter::suitsymbols $::formatter::suitsunicode
 }
 
