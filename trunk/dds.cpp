@@ -19,7 +19,7 @@
 
 #include "dds.h"
 
-extern unsigned short int counttable[];
+extern "C" unsigned short int counttable[];
 
 const int ContractInfo::nextSuitArray[4][4] = {
     { 1, 2, 3, 4},
@@ -828,7 +828,7 @@ public:
   return 1;
 }
 
-const struct RelativeRanksFinder &rel=Globals.rel;
+const RelativeRanksFinder &rel=Globals.rel;
 struct ttStoreType * ttStore;
 struct nodeCardsType * nodeCards;
 struct winCardType * winCards;
