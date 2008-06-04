@@ -1,3 +1,25 @@
+Changes in Deal 3.1.2
+
+   * Added dds command for more control over the double dummy solver
+
+   * Added 'universal' target to Makefile for building Mac universal binaries
+
+   * Added tests for double-dummy solver, including Great 88 file
+
+   * Performance tweaks to the double-dummy solver
+
+   * Fixed a typo bug in deal.tcl
+
+   * Added full_deal command
+
+   * Added unicode output option for default format (to put out suit symbols)
+
+   * Changed to allow "-" as void in inputs
+
+   * Fixed seeding with seed_deal command
+
+   * Updated documentation and built a documentation-management system
+
 Changes in Deal 3.1.1
 
    * Implemented deal::tricks for caching of double dummy data
