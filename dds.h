@@ -6,14 +6,7 @@ using namespace std;
 
 #include "ddsInterface.h"
 
-#if !defined(_MSC_VER)
 #define LONGLONG long long
-#endif
-
-#if defined(_WIN32)
-#    include <windows.h>
-#    include <process.h>
-#endif
 
 /* end of portability-macros section */
 
@@ -478,7 +471,7 @@ extern struct moveType forbiddenMoves[14];  /* Initial depth moves that will be
 extern struct moveType initialMoves[4];
 extern struct moveType highMove;
 extern struct moveType * bestMove;
-extern const struct RelativeRanksFinder &rel;
+extern const RelativeRanksFinder &rel;
 extern struct winCardType **pw;
 extern struct nodeCardsType **pn;
 extern struct posSearchType **pl;
