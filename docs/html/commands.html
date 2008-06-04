@@ -1,5 +1,5 @@
 <head>
-<!-- $Id: commands.html,v 1.8 2008-06-04 04:07:45 thomasoa Exp $ -->
+<!-- $Id: commands.html,v 1.9 2008-06-04 07:50:13 thomaso Exp $ -->
 <title>Deal Commands</title>
 <body bgcolor="#EEEEFF">
 <h1>Introduction</h1>
@@ -1156,6 +1156,21 @@ usage.
 </table>
 
 <h1>Utility Procedures </h1>
+
+<a name="exitflag"></a>
+<h2>Command Line: -x flag</h2>
+<table cellpadding=5 width="100%">
+<tr valign=top><td width="65%">
+<h3>Usage</h3>
+<blockquote><pre>
+   deal -x <em>filename</em>
+</pre></blockquote>
+<p>The '-x' flag tells deal to source the file and then exit.</p>
+<p>This is useful if you want to skip the entire deal loop, and process stuff on your own.  For example, the code in <code>tests/great88</code> does not generate any deals, it just solves 88 5-card double-dummy problems.  Before the -x flag, you had to
+explicitly call 'exit' from such scripts.</p>
+</td>
+<td></td>
+</table>
 
 <a name="seed_deal"></a>
 <h2>Command: <code>seed_deal</code></h2>
