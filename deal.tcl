@@ -3,7 +3,7 @@
 #
 # Copyright (C) 1996-2001, Thomas Andrews
 #
-# $Id: deal.tcl,v 1.9 2008-05-30 15:55:35 thomaso Exp $
+# $Id: deal.tcl,v 1.10 2008-06-04 00:41:19 thomaso Exp $
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-source format/default
 
 proc dds_reset_command {} {
   dds_reset
@@ -151,3 +150,5 @@ namespace eval deal {
 proc full_deal {} {
   return [list [north] [east] [south] [west]]
 }
+
+source format/default
