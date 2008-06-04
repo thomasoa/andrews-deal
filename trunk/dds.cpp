@@ -822,9 +822,6 @@ public:
 	fprintf(fp2, "\n");
     fclose(fp2);
   }*/
-#if 0
-  unplayedFinder.log();
-#endif
   return 1;
 }
 
@@ -864,30 +861,6 @@ void InitStart(void) {
   /*bestMove = new moveType [50];*/
   if (bestMove==NULL)
     exit(1);
-#if 0
-  handStore[0][0]=0;
-  handStore[0][1]=1;
-  handStore[0][2]=2;
-  handStore[0][3]=3;
-  handStore[1][0]=1;
-  handStore[1][1]=2;
-  handStore[1][2]=3;
-  handStore[1][3]=0;
-  handStore[2][0]=2;
-  handStore[2][1]=3;
-  handStore[2][2]=0;
-  handStore[2][3]=1;
-  handStore[3][0]=3;
-  handStore[3][1]=0;
-  handStore[3][2]=1;
-  handStore[3][3]=2;
-#endif
-
-#if 0
-  lho[0]=1; lho[1]=2; lho[2]=3; lho[3]=0;
-  rho[0]=3; rho[1]=0; rho[2]=1; rho[3]=2;
-  partner[0]=2; partner[1]=3; partner[2]=0; partner[3]=1;
-#endif
 
   cardRank[2]='2'; cardRank[3]='3'; cardRank[4]='4'; cardRank[5]='5';
   cardRank[6]='6'; cardRank[7]='7'; cardRank[8]='8'; cardRank[9]='9';
@@ -1566,7 +1539,6 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
   } else { /* Not at maximum depth */
     moveExists=MoveGen(posPoint, depth);
 
-	/*#if 0*/
 	if ((posPoint->handRelFirst==3)&&(depth>=/*29*/33/*37*/)&&(depth!=iniDepth)) {
 	  movePly[depth].current=0;
 	  mexists=TRUE;
@@ -3046,21 +3018,6 @@ int MoveGen(const struct pos * posPoint, const int depth) {
       }
     }
 
-#if 0
-    k=14;
-    while (k>=2) {
-      if (unplayedCardsRank & BitRank(k)) {
-        movePly[depth].move[m].suit=t;
-        movePly[depth].move[m].rank=k;
-        movePly[depth].move[m].sequence=sequences & BitRank(k);
-        m++;
-      } else if (sequences & BitRank(k)) {
-          movePly[depth].move[m-1].sequence |= BitRank(k);
-      }
-      k--;
-    }
-#endif
-
     if (m!=1) {
       for (k=0; k<=m-1; k++) 
         movePly[depth].move[k].weight=WeightAlloc(posPoint,
@@ -3102,19 +3059,6 @@ int MoveGen(const struct pos * posPoint, const int depth) {
         }
       }
 
-#if 0
-      for (k=12; k>=0; k--) {
-        bitRank = 1<<k;
-	if (unplayedCardsRank & bitRank) {
-	  movePly[depth].move[m].suit=suit;
-	  movePly[depth].move[m].rank=k+2;
-	  movePly[depth].move[m].sequence=0;
-	  m++;
-	} else if (sequences & bitRank) {
-          movePly[depth].move[m-1].sequence |= bitRank;
-        }
-      }
-#endif
     }
 
     for (k=0; k<=m-1; k++) 
@@ -3830,19 +3774,6 @@ inline int WinningMove(const struct moveType &mv1, const struct moveType &mv2) {
 
   //const ContractInfo contract = Globals.getContract();
   return Globals.getContract().betterMove(mv1,mv2);
-#if 0
-  if (mvp1->suit==mvp2->suit) {
-    if ((mvp1->rank)>(mvp2->rank)) {
-      return TRUE;
-    } else {
-      return FALSE;
-    }
-  } else if (contract.isTrump(mvp1->suit)) {
-    return TRUE;
-  } else {
-    return FALSE;
-  }
-#endif
 }
 
 
