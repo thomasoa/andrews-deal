@@ -64,10 +64,11 @@ SRCKIT=additive.c hand.c deal.c formats.c tcl_deal.c dist.c vector.c stat.c make
 HFILES=deck.h deal.h tcl_incl.h vector.h stat.h tcl_dist.h dist.h formats.h additive.h stringbox.h dealtypes.h holdings.h keywords.h ansidecl.h dds.h ddsInterface.h
 EXAMPLES= ex/*.tcl
 TESTS=tests
+HTML=html
 BUILDFILES=Makefile Make.dep 
-OTHERFILES=CHANGES LICENSE GPL input format lib deal.tcl docs
+OTHERFILES=CHANGES LICENSE GPL input format lib deal.tcl
 
-SOURCEKIT=$(SRCKIT) $(HFILES) $(EXAMPLES) $(BUILDFILES) $(OTHERFILES) $(EXTRAS) $(TESTS)
+SOURCEKIT=$(SRCKIT) $(HFILES) $(EXAMPLES) $(BUILDFILES) $(OTHERFILES) $(EXTRAS) $(TESTS) $(HTML)
 BINKIT=$(EXAMPLES) $(OTHERFILES) $(TESTS)
 UUKIT=$(EXAMPLES) $(OTHERFILES) deal
 BINARY=./deal
@@ -109,7 +110,7 @@ RELEASE=$(KITNAME)$(DEAL_VERSION)
 SRCDIR=$(RELEASE)
 BINDIR=$(RELEASE)-bin
 SRCZIP=$(SRCDIR).zip
-EXEZIP=$(SRCDIR)exe.zip
+EXEZIP=$(SRCDIR)win.zip
 DOCZIP=$(SRCDIR)doc.zip
 SRCTAR=$(SRCDIR).tar
 SRCGZIP=$(SRCTAR).gz
@@ -118,6 +119,8 @@ DMG=$(BINDIR).dmg
 DIFFZIP=deal$(DEAL_VERSION)diff.zip
 OLDZIP=../deal/deal$(OLD_VERSION).zip
 OLDDIR=$(KITNAME)$(OLD_VERSION)
+DOCDEST=html
+DOCTYPE=release
 
 SMALLTESTCOUNT=10
 
@@ -134,13 +137,35 @@ xzip: $(EXEZIP)
 
 dzip: $(DOCZIP)
 
-$(BINDIR): $(BINKIT) docs/html docs/graphics
+documentation:
+	rm -rf $(DOCDEST)
+	mkdir $(DOCDEST)
+	cp -r docs/graphics $(DOCDEST)/graphics
+	cp -r docs/html/*.css docs/html/ex $(DOCDEST)
+	cd docs/html; for file in *.html; do \
+		php process.php $(DOCTYPE) $$file > ../../$(DOCDEST)/$$file ; done
+
+sitedoc:
+	$(MAKE) DOCDEST=site DOCTYPE=site documentation
+
+newsite:
+	$(MAKE) clean
+	$(MAKE) universal
+	$(MAKE) dmg
+	cp $(DMG) site
+	$(MAKE) zip
+	cp $(SRCZIP) site
+	$(MAKE) xzip
+	cp $(EXEZIP) site
+	
+
+$(BINDIR): $(BINKIT) sitedoc documentation
 	rm -rf $(BINDIR)
 	mkdir $(BINDIR)
 	/bin/ls -1d $(BINKIT) | xargs tar cf - | (cd $(BINDIR) ; tar xf -)
 	find $(BINDIR) -name CVS -print | xargs /bin/rm -rf
 
-$(SRCDIR): $(SOURCEKIT) docs/html docs/graphics
+$(SRCDIR): $(SOURCEKIT) docs/html docs/graphics documentation
 	mv Make.dep Make.dep.saved
 	touch Make.dep
 	rm -rf $(SRCDIR)
@@ -152,19 +177,23 @@ $(SRCZIP): $(SRCDIR)
 	zip -r $(SRCZIP) $(SRCDIR) -x \*~ -x *CVS/\*
 
 $(EXEZIP): $(SRCDIR)
-	rm -f $(EXEZIP)
-	zip -r $(EXEZIP) $(SRCDIR)/ex $(SRCDIR)/input $(SRCDIR)/format $(SRCDIR)/docs $(SRCDIR)/CHANGES $(SRCDIR)/LICENSE $(SRCDIR)/GPL $(SRCDIR)/lib $(SRCDIR)/deal.tcl -x \*~
+	rm -f $(EXEZIP) $(SRCDIR)/deal
+	test -f deal.exe 
+	test -f tcl85.dll
+	cp deal.exe $(SRCDIR)
+	cp tcl85.dll $(SRCDIR)
+	zip -r $(EXEZIP) $(SRCDIR)/ex $(SRCDIR)/input $(SRCDIR)/format $(SRCDIR)/docs $(SRCDIR)/CHANGES $(SRCDIR)/LICENSE $(SRCDIR)/GPL $(SRCDIR)/lib $(SRCDIR)/deal.tcl $(SRCDIR)/deal.exe $(SRCDIR)/tcl85.dll -x \*~ -x *CVS/\*
 
 $(DMG): $(BINDIR) deal
 	cp deal $(BINDIR)/deal
-	/bin/rm -rf dmg
+	/bin/rm -rf dmg $(DMG)
 	mkdir dmg
 	cp -r $(BINDIR) dmg/$(SRCDIR)
-	hdiutil create -srcfolder dmg $(DMG)
+	hdiutil create -srcfolder dmg -volname "Deal $(DEAL_VERSION)" $(DMG)
 
 $(DOCZIP): $(SRCDIR)
 	rm -f $(DOCZIP)
-	zip -r $(DOCZIP) $(SRCDIR)/CHANGES $(SRCDIR)/LICENSE $(SRCDIR)/GPL $(SRCDIR)/docs -x \*~
+	zip -r $(DOCZIP) $(SRCDIR)/CHANGES $(SRCDIR)/LICENSE $(SRCDIR)/GPL $(SRCDIR)/docs -x \*~ -x *CVS/\*
 
 gzip: $(SRCTAR).gz
 
@@ -213,6 +242,6 @@ depends:
 	$(CC) $(CFLAGS) -M *.c *.cpp >Make.dep
 
 clean:
-	rm -rf deal $(OBJS) $(SRCDIR) $(SRCZIP) $(SRCGZIP) $(DOCZIP) $(DMG) $(EXEZIP) $(BINDIR)
+	rm -rf deal $(OBJS) $(SRCDIR) $(SRCZIP) $(SRCGZIP) $(DOCZIP) $(DMG) $(EXEZIP) $(BINDIR) html site
 
 include Make.dep
