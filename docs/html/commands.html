@@ -1,5 +1,5 @@
 <head>
-<!-- $Id: commands.html,v 1.9 2008-06-04 07:50:13 thomaso Exp $ -->
+<!-- $Id: commands.html,v 1.10 2008-06-04 08:32:17 thomasoa Exp $ -->
 <title>Deal Commands</title>
 <body bgcolor="#EEEEFF">
 <h1>Introduction</h1>
@@ -1168,6 +1168,19 @@ usage.
 <p>The '-x' flag tells deal to source the file and then exit.</p>
 <p>This is useful if you want to skip the entire deal loop, and process stuff on your own.  For example, the code in <code>tests/great88</code> does not generate any deals, it just solves 88 5-card double-dummy problems.  Before the -x flag, you had to
 explicitly call 'exit' from such scripts.</p>
+</td>
+<td></td>
+</table>
+
+<a name="full_deal"></a>
+<h2>Command: <code>full_deal</code></h2>
+<table cellpadding=5 width="100%">
+<tr valign=top><td width="65%">
+<h3>Usage</h3>
+<blockquote><pre>
+   set deal [full_deal]
+</pre></blockquote>
+<p>This simple utility command returns the deal as a list of hands in the order of north, east, south, and west.  Suitable for psassing into <a href="#ddscmd"><code>dds</code></a> with the <code>-diagram</code> flag, or remembering a deal after the end of the loop.
 </td>
 <td></td>
 </table>
