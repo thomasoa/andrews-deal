@@ -182,7 +182,7 @@ $(EXEZIP): $(SRCDIR)
 	test -f tcl85.dll
 	cp deal.exe $(SRCDIR)
 	cp tcl85.dll $(SRCDIR)
-	zip -r $(EXEZIP) $(SRCDIR)/ex $(SRCDIR)/input $(SRCDIR)/format $(SRCDIR)/docs $(SRCDIR)/CHANGES $(SRCDIR)/LICENSE $(SRCDIR)/GPL $(SRCDIR)/lib $(SRCDIR)/deal.tcl $(SRCDIR)/deal.exe $(SRCDIR)/tcl85.dll -x \*~ -x *CVS/\*
+	zip -r $(EXEZIP) $(SRCDIR)/ex $(SRCDIR)/input $(SRCDIR)/format $(SRCDIR)/docs $(SRCDIR)/CHANGES $(SRCDIR)/LICENSE $(SRCDIR)/GPL $(SRCDIR)/lib $(SRCDIR)/deal.tcl $(SRCDIR)/deal.exe $(SRCDIR)/tcl85.dll $(SRCDIR)/tests $(SRCDIR)/html -x \*~ -x *CVS/\*
 
 $(DMG): $(BINDIR) deal
 	cp deal $(BINDIR)/deal
