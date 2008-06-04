@@ -1,7 +1,7 @@
 #
 # Copyright (C) 1996-2001, Thomas Andrews
 #
-# $Id: default,v 1.3 2008-06-03 23:15:01 thomaso Exp $
+# $Id: default,v 1.4 2008-06-04 00:41:19 thomaso Exp $
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,9 @@ namespace eval formatter {
     set loc(col:west) 1
     set loc(row:south) 8
     set loc(col:south) 10
-    variable suitsymbols [list S: H: D: C:]
+    variable suitletters [list S: H: D: C:]
+    variable suitsunicode [list "\u2660" "\u2665" "\u2666" "\u2663"]
+    variable suitsymbols $suitletters
 
     stringbox ::formatter::writer 12 60
 
@@ -56,7 +58,7 @@ writer.$hand write $row 0 "$symbol [$hand -void --- $suit]"
 }
 
 if {[info exists env(LANG)] && [string first "UTF-8" [string toupper $env(LANG)]]>=0} {
-   set ::formatter::suitsymbols [list "\u2660" "\u2665" "\u2666" "\u2663"]
+   set ::formatter::suitsymbols $::formatter::suitsunicode
 }
 
 proc write_deal {} {
