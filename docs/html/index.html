@@ -1,8 +1,8 @@
 <html>
 <head>
-<!-- $Id: index.html,v 1.5 2008-06-03 03:58:06 thomasoa Exp $ -->
+<!-- $Id: index.html,v 1.6 2008-06-04 04:07:48 thomasoa Exp $ -->
 <title>
-    Deal 3.1 Home Page
+    Deal <?php echo $shorterVersion; ?> Home Page
 </title>
 
 <link rev="made" href="mailto:thomaso@centerline.com (Thomas Andrews)">
@@ -10,12 +10,12 @@
 
 </head>
 
-<body background="../graphics/idealbg.jpg" bgcolor="#EEEEFF">
+<body background="graphics/idealbg.jpg" bgcolor="#EEEEFF">
 
 <TABLE width=100%>
 <TR valign="middle">
 <td><center>
-<h2>Deal 3.1</h2>
+<h2>Deal <?php echo $shorterVersion;?></h2>
 <h3> A bridge hand generator</h3> <h4> by Thomas Andrews</h4></center>
 Features:
 <DL>
@@ -25,12 +25,12 @@ Features:
 <LI>Easily portable to most platforms
 <LI>Free (GNU public license)
 </DL> </td>
-<td align=center valign="center"><img valign="middle" SRC="../graphics/falling_small.jpg" WIDTH=225 HEIGHT=216 ALT="Deal 3.1"></td>
+<td align=center valign="center"><img valign="middle" SRC="graphics/falling_small.jpg" WIDTH=225 HEIGHT=216 ALT="Deal <?php echo $shorterVersion;?>"></td>
 </table>
 <hr width="50%">
 <div class="toplevel">
 <?php
-  if (isset($argc) && $argc>1) {
+  if ($output == "site") {
 ?><div style='float:right; margin: 1em;'>
 <script type="text/javascript"><!--
 google_ad_client = "pub-1155581695939561";
@@ -57,7 +57,7 @@ google_color_text = "000000";
     <LI> <a href="quickdos.html">An Introductory Tutorial for Windows</a>
     <LI> <a href="quickstart.html">An Introductory Tutorial for Unix</a>
     <LI> <a href="advanced.html">An Advanced User's Guide</a>
-    <LI> <a href="commtop.html">A list of all Deal 3.1 Commands</a>
+    <LI> <a href="commtop.html">A list of all Deal <?php echo $shorterVersion;?> Commands</a>
     <LI> <a href="examples.html">Example Scripts</a>
     <LI> <A href="ext-ref.html">External Resources</a>
     <LI> <a href="history.html">History</a>
@@ -74,7 +74,7 @@ google_color_text = "000000";
         occur?  How often does this slam make?
     <LI> <strong>"Problem solver" contests</strong>: Solve magazine
         problems, and learn where even the experts go wrong
-    <LI> <strong>Interface with other programs</strong>: Deal 3.1 comes
+    <LI> <strong>Interface with other programs</strong>: Deal <?php echo $shorterVersion; ?> comes
         with the ability to call the GIB double dummy solver.
 </UL>
 
@@ -95,8 +95,8 @@ Scriptics.</a>  But don't let their web site fool you - the basic software is fr
 <p>
 </div>
 <hr>
-<table><tr><td><a href="../index.html">
-<image border=0 width=40 height=56 src="../graphics/StampSm.gif"></a><td>
+<table><tr><td><a href="<?php echo $bridgeFantasia;?>">
+<image border=0 width=40 height=56 src="graphics/StampSm.gif"></a><td>
 <address><a NAME="mysig"> Thomas Andrews</a>
 (<a href="mailto:thomaso@best.com">thomaso@best.com</a>)
 <a name="caveat"> Copyright 1996-2001.</a> Deal is copyrighted under the
