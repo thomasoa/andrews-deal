@@ -481,7 +481,7 @@ int old_main(argc,argv)
   
   Deal_Init(interp);
 
-  while (-1!=(opt=getopt(argc,argv,"lve:S:N:E:W:i:ts:fo:VI:"))) {
+  while (-1!=(opt=getopt(argc,argv,"lve:S:N:E:W:i:ts:fo:VI:x:"))) {
     switch (opt) {
     case 'l':
       writecmd="write_deal_compact";
@@ -533,11 +533,15 @@ int old_main(argc,argv)
 #endif
 
       break;
+    case 'x':
     case 'i':
       sprintf(tcl_command_string,"source %s",optarg);
       result=Tcl_VarEval(interp,tcl_command_string,NULL);
       if (result==TCL_ERROR) {
 	tcl_error(interp);
+      }
+      if (opt=='x') {
+        exit(0);
       }
       break;
 	  
