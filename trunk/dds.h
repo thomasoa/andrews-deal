@@ -4,7 +4,6 @@
 using namespace std;
 #endif
 
-//#define UNPLAYEDLOOKUPTABLE
 #include "ddsInterface.h"
 
 #if !defined(_MSC_VER)

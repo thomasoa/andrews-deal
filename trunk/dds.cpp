@@ -153,16 +153,8 @@ extern "C" inline holding_t distinctUnplayedCards(holding_t origHolding, holding
    return  result;
 }
 
-/* #define UNPLAYEDLOOKUPTABLE */
 struct UnplayedCardsFinder {
 protected:
-#ifdef UNPLAYEDLOOKUPTABLE
-  struct unplayed {
-    holding_t unplayed;
-    holding_t sequence; /* Nonzero if lookup has occured */
-  };
-  struct unplayed table[4][4][8192];
-#endif
   holding_t starting[4][4];
 
 public:
@@ -170,61 +162,17 @@ public:
   UnplayedCardsFinder() {}
 
   void initialize(const holding_t init[4][4]) {
-#ifdef UNPLAYEDLOOKUPTABLE
-    int changed = 0;
-#endif
     for (int hand=0; hand<4; hand++) {
       for (int suit=0; suit<4; suit++) {
-#ifdef UNPLAYEDLOOKUPTABLE
-	if (starting[hand][suit] != init[hand][suit]) {
-	  changed = 1;
-	}
-#endif
 	starting[hand][suit] = init[hand][suit];
       }
     }
-#ifdef UNPLAYEDLOOKUPTABLE
-    if (changed) {
-      memset((void *)table,0,sizeof(table));
-    }
-#endif
   }
-
-#if 0
-  inline void log() const {
-    cout << "Unplayed lookup " << lookupCount << " of " << callCount << endl;
-  }
-#endif
 
 
   inline holding_t getUnplayed(int hand, int suit, holding_t played,holding_t &sequence) {
     holding_t holding = starting[hand][suit];
-#ifdef UNPLAYEDLOOKUPTABLE
-    if (holding==0) { sequence = 0; return 0; }
-
-    holding_t index = played;
-
-    struct unplayed &lookup = table[hand][suit][index];
-
-    
-    if (lookup.sequence == 0) {
-      
-      lookup.unplayed = distinctUnplayedCards(holding,played,&lookup.sequence);
-      if (lookup.sequence == 0) { lookup.sequence = 8192; }
-    } else {
-    }
-    
-
-    if (lookup.unplayed) {
-      sequence = lookup.sequence;
-    } else {
-      sequence = 0;
-    }
-
-    return lookup.unplayed;
-#else
     return distinctUnplayedCards(holding,played,&sequence);
-#endif
   }
 
 } unplayedFinder;
