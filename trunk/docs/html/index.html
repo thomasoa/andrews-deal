@@ -1,6 +1,6 @@
 <html>
 <head>
-<!-- $Id: index.html,v 1.6 2008-06-04 04:07:48 thomasoa Exp $ -->
+<!-- $Id: index.html,v 1.7 2008-06-05 10:11:29 thomaso Exp $ -->
 <title>
     Deal <?php echo $shorterVersion; ?> Home Page
 </title>
@@ -16,7 +16,9 @@
 <TR valign="middle">
 <td><center>
 <h2>Deal <?php echo $shorterVersion;?></h2>
-<h3> A bridge hand generator</h3> <h4> by Thomas Andrews</h4></center>
+<h3> A bridge hand generator</h3> <h4> by Thomas Andrews</h4>
+<h4>Latest version: <?php echo $version; ?></h4>
+</center>
 Features:
 <DL>
 <LI>Easy to use for quick, simple dealing
@@ -52,8 +54,9 @@ google_color_text = "000000";
 </div>
 <H2>Information found on these pages:</H2>
 <UL>
-    <LI> <span class="alert">New!</span> <a href="dds.html">Built-in double-dummy solver</a>
     <LI> <a href="downloading.html">Downloading and Building Instructions</a> 
+    <LI> <span class="alert">New!</span> <a href="dds.html">Built-in double-dummy solver</a>
+    <LI> <span class="alert">New!</span> <a href="http://dealreleasenews.blogspot.com/">Release announcement blog</a>.  Just subscribe to the feed if you want to received news about new releases.
     <LI> <a href="quickdos.html">An Introductory Tutorial for Windows</a>
     <LI> <a href="quickstart.html">An Introductory Tutorial for Unix</a>
     <LI> <a href="advanced.html">An Advanced User's Guide</a>
@@ -94,16 +97,4 @@ Scriptics.</a>  But don't let their web site fool you - the basic software is fr
 
 <p>
 </div>
-<hr>
-<table><tr><td><a href="<?php echo $bridgeFantasia;?>">
-<image border=0 width=40 height=56 src="graphics/StampSm.gif"></a><td>
-<address><a NAME="mysig"> Thomas Andrews</a>
-(<a href="mailto:thomaso@best.com">thomaso@best.com</a>)
-<a name="caveat"> Copyright 1996-2001.</a> Deal is copyrighted under the
-<a href="http://www.gnu.org/copyleft/gpl.html">GNU General Public License.</a>
-</address>
-<p>
-<em>Plane Dealing</em> graphic
-above created using
-<a href="http://www.povray.org/">POV-Ray.</a>
-</tr></table>
+<?php include("sig.html");?>
