@@ -343,8 +343,7 @@ public:
     game.leadHand=dl.first;
     game.leadSuit=dl.currentTrickSuit[0];
     game.leadRank=dl.currentTrickRank[0];
-  }
-  else {
+  } else {
     game.leadHand=0;
     game.leadSuit=0;
     game.leadRank=0;
@@ -360,10 +359,12 @@ public:
     initialMoves[noStartMoves-1-k].rank=dl.currentTrickRank[k];
   }
 
-  if (cardCount % 4)
+  if (cardCount % 4) {
     totalTricks=(cardCount-4)/4+2;
-  else
+  } else {
     totalTricks=(cardCount-4)/4+1;
+  }
+
   checkRes=CheckDeal(&cd);
   if (game.noOfCards<=0) {
     DumpInput(-2, dl, target, solutions, mode);

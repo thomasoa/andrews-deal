@@ -1,3 +1,5 @@
+#ifndef __DDS_HOLDING_H__
+#define __DDS_HOLDING_H__
 #include "ddsInterface.h"
 
 struct Holding {
@@ -22,3 +24,4 @@ inline ostream& operator <<(ostream &out,const Holding &holding) {
   }
   return out;
 }
+#endif
