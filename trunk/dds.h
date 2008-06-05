@@ -5,6 +5,7 @@ using namespace std;
 #endif
 
 #include "ddsInterface.h"
+#include "Holding.h"
 
 #define LONGLONG long long
 
@@ -129,6 +130,7 @@ struct posStackItem {
   struct moveType move;      /* Presently winning move */              
   holding_t winRanks[4];  /* Cards that win by rank,
                                        indices are depth and suit */
+#if 0
   holding_t removed[4];
 
   inline void initializeRemoved(const posStackItem &prev) {
@@ -138,12 +140,13 @@ struct posStackItem {
   }
 
   inline void removeCard(const moveType &aMove) {
-     removed[move.suit] |= BitRank(move.rank);
+    removed[aMove.suit] |= BitRank(aMove.rank);
   }
 
   inline int isRemoved(int suit,int rank) const {
     return removed[suit] & BitRank(rank);
   }
+#endif
 
 };
 

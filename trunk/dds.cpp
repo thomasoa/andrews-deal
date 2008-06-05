@@ -92,48 +92,13 @@ inline holding_t smallestRankInSuit(holding_t h) {
   return (h & -h);
 }
 
-/*
- * If you have the remaining cards in a suit as
- *
- *        AJ
- * K43          T8
- *        75
- *
- * from a play point of view, this is exactly the same as
- *
- *        AQ
- * K76          JT
- *        98
- *
- * We'll call this the "canonical" version of the remaining cards
- * in the suit.
- *
- * This function takes the original holding in a suit, and a holding
- * representing the played cards in the suit, and returns the canonical
- * holding 
- */
-extern "C" inline holding_t canonicUnplayedCards(holding_t origHolding, holding_t played) {
-  holding_t origCard;
-  holding_t cardsLeft = origHolding & (~played);
-  holding_t canonicalCard;
-  holding_t result = 0;
-  for (origCard=canonicalCard=1<<12; origCard; origCard >>= 1) {
-    if (!(origCard & played)) {
-      if (origCard & cardsLeft) {
-        result |= canonicalCard;
-      }
-      canonicalCard >>= 1;
-    }
-  }
-  return result;
-}
-
 extern "C" inline holding_t distinctUnplayedCards(holding_t origHolding, holding_t played,holding_t *sequence) {
    holding_t bitRank;
    holding_t unplayed = origHolding & (~played);
    holding_t result = 0;
    int inSequence=0;
    *sequence = 0;
+
    if (unplayed) {
      for (bitRank = (1<<12); bitRank; bitRank >>= 1) {
        if (unplayed & bitRank) {
@@ -1829,8 +1794,6 @@ struct makeType Make(struct pos * posPoint, int depth)  {
   for (suit=0; suit<=3; suit++)
     trickCards.winRanks[suit]=0;
 
-  current.initializeRemoved(previous);
-
   firstHand=current.first;
   r=movePly[depth].current;
 
@@ -1841,12 +1804,10 @@ struct makeType Make(struct pos * posPoint, int depth)  {
       current.move=mo1;
       current.high=HandStore(firstHand,3);
     } else {
-      current.move=previous.move;
+      current.move=mo2;
       current.high=previous.high;
     }
 
-    current.removeCard(mo1);
-    current.removeCard(mo2);
     /* Is the trick won by rank? */
     suit=current.move.suit;
     /*rank=posPoint->stack[depth+h].stack[depth].move.rank;*/
@@ -1891,8 +1852,7 @@ struct makeType Make(struct pos * posPoint, int depth)  {
         if (count>=2) {
           trickCards.winRanks[u]=BitRank(w);
           /* Mark ranks as winning if they are part of a sequence */
-          trickCards.winRanks[u]=trickCards.winRanks[u]
-            | movePly[depth+s].move[r].sequence; 
+          trickCards.winRanks[u] |= movePly[depth+s].move[r].sequence; 
         }
       }
     }
@@ -1901,6 +1861,7 @@ struct makeType Make(struct pos * posPoint, int depth)  {
                                             next move */
     current.high=firstHand;
     current.move=movePly[depth].move[r];
+
     t=firstHand;
     posPoint->handRelFirst=1;
     r=movePly[depth].current;
@@ -1908,26 +1869,15 @@ struct makeType Make(struct pos * posPoint, int depth)  {
     w=movePly[depth].move[r].rank;
     posPoint->rankInSuit[t][u]=posPoint->rankInSuit[t][u] &
       (~BitRank(w));
-    int removeThisPlay=0;
-    for (int relHand = 1; relHand<4 && !removeThisPlay; relHand++) {
-      int otherHand=(firstHand+relHand)%4;
-      // If there is a later hand which has only cards higher than this card, treat
-      // this card as played
-      if (posPoint->rankInSuit[otherHand][u] && !(posPoint->rankInSuit[otherHand][u] & (BitRank(w)-1))) {
-	current.removeCard(current.move);
-      }
-    }
   } else {
     mo1=movePly[depth].move[r];
     mo2=previous.move;
     if (contract.betterMove(mo1,mo2)) {
       current.move=mo1;
       current.high=HandStore(firstHand,posPoint->handRelFirst);
-      current.removeCard(mo2);
     } else {
       current.move=previous.move;
       current.high=previous.high;
-      current.removeCard(mo1);
     }
     
     t=HandStore(firstHand,posPoint->handRelFirst);
@@ -3000,10 +2950,11 @@ int MoveGen(const struct pos * posPoint, const int depth) {
     holding_t unplayedCardsRank;
     holding_t allCards, bitRank;
     holding_t sequence = 0;
+
     unplayedCardsRank = 
-    unplayedFinder.getUnplayed(q,t, 
-			 (holding_t)(posPoint->removedRanks[t]),
-			 sequences);
+      unplayedFinder.getUnplayed(q,t, 
+      			       (holding_t)posPoint->removedRanks[t],
+			       sequences);
     allCards = unplayedCardsRank | sequences;
     while (allCards) {
       bitRank = smallestRankInSuit(allCards);
