@@ -141,6 +141,7 @@ extern "C" inline holding_t distinctUnplayedCards(holding_t origHolding, holding
             *sequence |= bitRank;
           } else {
             result |= bitRank;
+            inSequence = 1;
           }
        } else {
           if (!(played & bitRank)) {
