@@ -1,3 +1,9 @@
+Changes in Deal 3.1.3
+
+   * Fixed performance issue in DDS that I introduced in Deal 3.1.0.
+
+   * Added -x command line flag
+
 Changes in Deal 3.1.2
 
    * Added dds command for more control over the double dummy solver
