@@ -235,6 +235,7 @@ smalltest: ./deal
 great88: ./deal
 	$(BINARY) -x tests/great88 | fgrep FAIL || echo "PASSED"
 
+html: documentation
 ftp: $(SRCZIP)
 	cp $(SRCZIP) $(FTP)
 
