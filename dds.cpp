@@ -526,20 +526,22 @@ public:
     upperbound=13;
     lowerbound=0;
     do {
-      if (g==lowerbound)
+      if (g==lowerbound) {
         tricks=g+1;
-      else
+      } else {
         tricks=g;
+      }
       val=ABsearch(&lookAheadPos, tricks, iniDepth);
-      #ifdef CANCEL
+#ifdef CANCEL
       if (cancelStarted) {
         cancelOrdered=FALSE;
         cancelStarted=FALSE;
         return 2;
       }
-      #endif
-      if (val==TRUE)
+#endif
+      if (val==TRUE) {
         mv=bestMove[game.noOfCards-4];
+      }
       hiwinSetSize=Max(hiwinSetSize, winSetSize);
       hinodeSetSize=Max(hinodeSetSize, nodeSetSize);
 	hilenSetSize=Max(hilenSetSize, lenSetSize);
@@ -552,15 +554,13 @@ public:
       if (val==FALSE) {
 	  upperbound=tricks-1;
 	  g=upperbound;
-	}	
-	else {
-	  lowerbound=tricks;
-	  g=lowerbound;
-	}
+      } else {
+         lowerbound=tricks;
+         g=lowerbound;
+      }
       InitSearch(&iniPosition, game.noOfCards-4,
         initialMoves, first, TRUE);
-    }
-    while (lowerbound<upperbound);
+    } while (lowerbound<upperbound);
     payOff=g;
     temp=movePly[iniDepth];
     last=movePly[iniDepth].last;
@@ -573,12 +573,11 @@ public:
       futp->suit[0]=movePly[game.noOfCards-4].move[0].suit;
       futp->rank[0]=movePly[game.noOfCards-4].move[0].rank;
 	futp->equals[0]=(movePly[game.noOfCards-4].move[0].sequence)<<2;
-    }
-    else {
+    } else {
       futp->score[0]=payOff;
       futp->suit[0]=bestMove[game.noOfCards-4].suit;
       futp->rank[0]=bestMove[game.noOfCards-4].rank;
-	futp->equals[0]=(bestMove[game.noOfCards-4].sequence)<<2;
+      futp->equals[0]=(bestMove[game.noOfCards-4].sequence)<<2;
     }
     tricksTarget=payOff;
   }
@@ -613,20 +612,21 @@ public:
           forb++;
         }
       }
-      if (1/*(winSetSize<winSetFill)&&(nodeSetSize<nodeSetFill)*/)
+      if (1/*(winSetSize<winSetFill)&&(nodeSetSize<nodeSetFill)*/) {
         InitSearch(&iniPosition, game.noOfCards-4,
           initialMoves, first, TRUE);
-      else
+      } else {
         InitSearch(&iniPosition, game.noOfCards-4,
           initialMoves, first, FALSE);
+      }
       val=ABsearch(&lookAheadPos, tricksTarget, iniDepth);
-      #ifdef CANCEL
+#ifdef CANCEL
       if (cancelStarted) {
         cancelOrdered=FALSE;
         cancelStarted=FALSE;
         return 2;
       }
-      #endif
+#endif
       hiwinSetSize=winSetSize;
       hinodeSetSize=nodeSetSize;
 	  hilenSetSize=lenSetSize;
@@ -647,9 +647,7 @@ public:
       else
         payOff=0;
     }
-  }
-  else if ((solutions==2)&&(payOff==0)&&
-	((target==-1)||(tricksTarget==1))) {
+  } else if ((solutions==2)&&(payOff==0)&&((target==-1)||(tricksTarget==1))) {
     futp->cards=noMoves;
     /* Find the cards that were in the initial move list
     but have not been listed in the current result */
