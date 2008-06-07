@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+     "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<!-- $Id: downloading.html,v 1.6 2008-06-05 10:11:29 thomaso Exp $ -->
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<LINK REL="SHORTCUT ICON" HREF="/icon/bridge.ico">
+<link rev="made" href="mailto:thomaso@centerline.com (Thomas Andrews)">
+<link rel="stylesheet" type="text/css" href="look.css">
+<title>
+    Deal <?php echo $shorterVersion; ?> - Downloading
+</title>
+
+</head>
+
+<body>
+<div class="back"><A href="index.html">Back to <em>Deal Top Page</em></A></div>
+<TABLE class="toplevel">
+<TR valign="middle"><td align="center"><img
+style="width:225px;height:216px"
+ SRC="graphics/falling_small.jpg" alt="Deal <?php echo $shorterVersion;?>"></td>
+<td valign="middle">
+<div class="header"><h2>Downloading Deal</h2></div>
+<UL>
+<li> <a href="#downloading">Downloading Deal <?php echo $version;?></a>
+<li> <a href="#changes">Recent Changes</a>
+<li> <a href="#building">Building Deal</a>
+</UL></td>
+</tr></table>
+
+<div class="toplevel">
+<hr>
+
+<h3><a name="downloading">Downloading Deal <?php echo $version;?></a></h3>
+<?php
+  if ($output == "release") {
+?>
+<p>Go to the <a href="http://bridge.thomasoandrews.com/deal/">main Deal page</a> to download the latest version.
+<?php
+  } else {
+?>
+<ul>
+<li><a href="<?php echo $package;?>-bin.dmg">Mac OS X Universal Binary release</a> - A disc image containing an OS X binary for Intel and PowerPC Macs.
+<li><a href="<?php echo $package;?>win.zip">Windows binary release</a>
+<span class="alert">Note: </span>This is <em>not</em> a Windows program - it is a DOS program.  If, after
+unzipping, you double click on the Deal application, it will open a DOS
+window, deal 10 deals, then close, which is hardly useful.  See the
+<a href="quickdos.html">Windows/DOS tutorial</a> for operation instructions.
+
+<li><a href="<?php echo $package;?>.zip">The Deal <?echo $version;?> source code (.zip file)</a>,
+[280K]. Unzip this file - it should create
+a source directory called <?php echo $package;?>. Then go to <a
+href="#building">Building Deal</a> for hints on how to build Deal on 
+your platform.  
+</ul>
+<?php
+  }
+?>
+<h3><a name="changes">Recent Changes</a></h3>
+<pre class="codesample">
+<?php include("CHANGES.txt"); ?>
+</pre>
+
+<h3><a name="building">Building Deal</a></h3>
+<h4>Selecting Tcl</h4>
+Many Unix and Linux computers already have Tcl installed, as do Mac's running OS X.  If your
+computer does not, you will need to select a version and install it.
+<p>
+On Unix, I'd recommend Tcl 8.3.x (or later,) but on Windows, I'd recommend Tcl
+8.0.5, because I've had problems with Tcl hanging with later versions.
+<p>
+All versions of Tcl can be downloaded from the
+<a href="http://www.scriptics.com/">Scriptics web site.</a>
+<p>
+<h4>The <code>Makefile</code></h4>
+After <a href="#deal31">downloading the Deal source code,</a>
+you should get a zip file.  When you unzip it, you should get a directory,
+<code><?php echo $package;?></code>.
+<p>
+On Unix machines, you will need to edit the Makefile to point to
+your installation of Tcl.  You may have to
+change the following variables in the Makefile:
+<dl>
+<dt><strong><tt>TCL_LIB</tt></strong>
+<dd> The directory where the Tcl library is installed.
+        default value is <tt>/usr/local/lib</tt>.
+<dt><strong><tt>TCL_INCL</tt></strong>
+<dd> The directory where <tt>tcl.h</tt> is installed.  The default
+        value is <tt>/usr/local/include</tt>.
+<dt><strong><tt>LDFLAGS</tt></strong>
+<dd> Really a list of liabraries needed at link time.  By default,
+        "<tt>-L($TCL_LIB) -ltcl8.3 -lm</tt>", which works
+        at least on SunOS 4, HP, and SGI.  On Solaris 2, you need to
+        add "<tt>-ldl -lsocket -lnsl</tt>".
+<dt><strong><tt>EXTRA_CFLAGS</tt></strong>
+<dd> Whatever else you need...
+</dl>
+<?php include("sig.html"); ?>
+</div>
+</body>
+</html>
