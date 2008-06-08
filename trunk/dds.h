@@ -47,9 +47,9 @@ using namespace std;
 #define NSIZE	100000
 #define WSIZE   100000
 #define LSIZE   20000
-#define NINIT	250000/*400000*/
-#define WINIT	700000/*1000000*/
-#define LINIT	50000
+#define NINIT	2*250000/*400000*/
+#define WINIT	2*700000/*1000000*/
+#define LINIT	2*50000
 
 #define Max(x, y) (((x) >= (y)) ? (x) : (y))
 #define Min(x, y) (((x) <= (y)) ? (x) : (y))
