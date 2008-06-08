@@ -352,6 +352,7 @@ struct ContractInfo {
   int _firstSuit;
   const int *_nextSuit;
   
+  inline ContractInfo(int _trumpContract,int _trump) : trumpContract(_trumpContract), trump(_trump) {}
 
   inline void initialize(int trumpContract,int trump) {
     this->trumpContract = trumpContract;

@@ -1198,16 +1198,27 @@ holding_t aggr[4];
 holding_t tricksLeft;
 holding_t ranks;
 
-int ABsearch(struct pos * posPoint, int target, int depth) {
     /* posPoint points to the current look-ahead position,
        target is number of tricks to take for the player,
        depth is the remaining search length, must be positive,
        the value of the subtree is returned.  */
+template <int hasTrump> int TABsearch(struct pos *posPoint, int target, int depth, int suit=4);
 
+int ABsearch(struct pos * posPoint, int target, int depth) {
+  const ContractInfo contract = Globals.getContract();
+  if (contract.trumpContract) {
+    return TABsearch<1>(posPoint,target,depth,contract.trump);
+  } else {
+    return TABsearch<0>(posPoint,target,depth,contract.trump);
+  }
+}
+
+template<int hasTrump> int TABsearch(struct pos *posPoint, int target, int depth, int suit=4)
+{
   int moveExists, value;
   struct makeType makeData;
   struct nodeCardsType * cardsP;
-  const ContractInfo contract = Globals.getContract();
+  const ContractInfo contract(hasTrump,suit);
 
   struct evalType Evaluate(const struct pos * posPoint);
   struct makeType Make(struct pos * posPoint, int depth);
