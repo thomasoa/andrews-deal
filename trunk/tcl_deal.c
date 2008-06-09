@@ -273,7 +273,11 @@ int tcl_seed_deal(TCLOBJ_PARAMS) TCLOBJ_DECL
   }
   result=Tcl_GetIntFromObj(interp,objv[1],&value);
   if (result==TCL_OK) {
-    srand(value);
+#ifdef USE_RAND48
+    srand48(value);
+#else
+    srandom(value);
+#endif
   }
   return TCL_OK;
 }
