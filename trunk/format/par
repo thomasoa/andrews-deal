@@ -1,7 +1,7 @@
 #
 # Copyright (C) 1996-2001, Thomas Andrews
 #
-# $Id: par,v 1.4 2008-05-22 00:54:57 thomaso Exp $
+# $Id: par,v 1.5 2008-06-10 20:48:43 thomaso Exp $
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,11 @@ namespace eval par {
     set par(dealer) [list north east south west]
     set par(vul) [list None NS EW All NS EW All None EW All None NS All None NS EW]
 
-    set par(Date) [clock format [clock seconds] -format "%Y.%m.%d"]
+    if {[info commands clock]=="clock"} {
+	set par(Date) [clock format [clock seconds] -format "%Y.%m.%d"]
+    } else {
+	set par(Date) "1965.01.01"
+    }
 
     foreach seat {North East South West} {
 	set par($seat) "$seat"
