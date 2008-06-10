@@ -2,6 +2,11 @@
 #define __DDS_HOLDING_H__
 #include "ddsInterface.h"
 
+/*
+ * This is just a utility class so you can say:
+ *      cout << Holding(h) << endl;
+ * when h is of type holding_t.
+ */
 struct Holding {
   holding_t _h;
   inline Holding(holding_t h) : _h(h) { }
