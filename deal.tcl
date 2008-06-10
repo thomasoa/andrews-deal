@@ -3,7 +3,7 @@
 #
 # Copyright (C) 1996-2001, Thomas Andrews
 #
-# $Id: deal.tcl,v 1.13 2008-06-10 20:12:49 thomaso Exp $
+# $Id: deal.tcl,v 1.14 2008-06-10 20:48:21 thomaso Exp $
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,10 +24,10 @@
 #set tcl_library /System/Library/Frameworks/Tcl.framework/Versions/8.4/Resources/Scripts
 
 # Windows default value for tcl_library
-#set tcl_library C:/tcl/lib/tcl8.5
+if {[string first "Windows" $tcl_platform(os)]>=0} {
+    set tcl_library C:/tcl/lib/tcl8.5
+}
 
 catch { deal_init_tcl }
-#puts $tcl_library
-#puts $auto_path
 
 source lib/features.tcl
