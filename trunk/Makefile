@@ -104,8 +104,8 @@ makecounttable: makecounttable.c
 	$(CC) $(CFLAGS) makecounttable.c -o makecounttable $(LDFLAGS)
 
 KITNAME=deal
-DEAL_VERSION=314
-OLD_VERSION=313
+DEAL_VERSION=315
+OLD_VERSION=314
 RELEASE=$(KITNAME)$(DEAL_VERSION)
 SRCDIR=$(RELEASE)
 BINDIR=$(RELEASE)-bin
