@@ -3,7 +3,7 @@
 #
 # Copyright (C) 1996-2001, Thomas Andrews
 #
-# $Id: deal.tcl,v 1.11 2008-06-04 04:07:00 thomasoa Exp $
+# $Id: deal.tcl,v 1.12 2008-06-10 19:58:50 thomaso Exp $
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,9 +25,6 @@ proc dds_reset_command {} {
   deal_reset_cmds [list dds_reset_command]
 }
 
-if {[string equal [info commands dds_reset] "dds_reset"]} {
-  dds_reset_command
-}
 
 namespace eval deal {
 
@@ -55,6 +52,7 @@ namespace eval deal {
 	next
 	write
     }
+
 
     proc input {format args} {
 	uplevel #0 [list source "input/$format.tcl" ]
@@ -89,9 +87,14 @@ namespace eval deal {
 # These two routines used to be defined in C, but it's better for them
 # to fit the pattern of shape functions.
 
+deal_init_tcl
+if {[string equal [info commands dds_reset] "dds_reset"]} {
+  dds_reset_command
+}
 shapecond balanced {($h<5)&&($s<5)&&($s*$s+$h*$h+$d*$d+$c*$c)<=47}
 shapecond semibalanced {$h<=5&&$s<=5&&$d<=6&&$c<=6&&$c>=2&&$d>=2&&$h>=2&&$s>=2}
 shapecond AnyShape {1}
+source format/default
 
 #
 #  The three routines, joinclass, negateclass, intersectclass, used to be
@@ -153,4 +156,3 @@ proc full_deal {} {
   return [list [north] [east] [south] [west]]
 }
 
-source format/default
