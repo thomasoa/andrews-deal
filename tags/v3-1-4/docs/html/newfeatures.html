@@ -1,0 +1,217 @@
+<html>
+<head>
+<!-- $Id: newfeatures.html,v 1.4 2008-06-05 10:11:29 thomaso Exp $ -->
+<title>
+    Deal 3.1 - New Features
+</title>
+<LINK REL="SHORTCUT ICON" HREF="/icon/bridge.ico">
+<link rev="made" href="mailto:thomaso@centerline.com (Thomas Andrews)">
+
+</head>
+
+<body bgcolor="#EEEEFF">
+<A href="index.html">Back to <em>Deal Top Page</em></A>.
+<TABLE width="100%">
+<TR valign=center><td align=center><img width=225 height=216
+ SRC="graphics/falling_small.jpg" "Deal 3.1"></td>
+<td valign=center><center>
+<h1>Deal 3.1 - New Features</h1>
+</center> <UL>
+<li>General performance improvements using Tcl 8.x features
+<li>Fast holding procedures
+<li>Interface to the GIB double dummy solver
+<li>More input formats, and extensible input formats
+<li>Smart hand stacking
+</UL></td>
+</tr></table>
+
+<hr>
+
+<a name="Performance"></a>
+<h2>Performance Improvements</h2>
+There are a number of performance improvements in <strong>Deal 3.1.</strong>
+
+<h3>Tcl 8.x Improvements</h3>
+In early releases of Tcl (7.x and earlier) the interpreter treated
+everything as a string.  That meant that Tcl data and procedures were
+regularly parsed and reparsed, which made it a fairly slow language.
+Tcl 8.x changed that - it uses
+internal objects which have optional string representations.
+<p>
+This means that the first time you pass the string "AK4" to a
+<strong>Deal</strong> procedure, it will parse it into an
+internal represention, and then never parses it again.  The
+internals of <strong>Deal</strong> now take advantage of this
+in quite a lot of places.
+<a name="holdingProc"></a>
+<h3>Fast and general holding procedures</h3>
+Many bridge evaluators can be seen as evaluating the holdings
+in each suit, and then adding up the values.  For example,
+in the hand:  
+<blockquote><pre>
+  Spades: AKx
+  Hearts: KQJ
+Diamonds: xxxx
+   Clubs: Axx
+</pre></blockquote>
+We compute the high card points as 7, 6, 0, and 4, in spades, hearts,
+diamonds, and clubs, for a total of 17 points.  We compute losers
+in the suits as 1, 1, 3, and 2, for a total of 7 losers.
+<p>
+In Deal 2.0, you could define a very limited set of procedures of this
+sort - the so-called <a href="advanced.html#vector">vector procedures.</a>
+You could, for example, define "high card points" or "controls," but
+not "losers."
+<p>
+In Deal 3.1, virtually any such procedure can be written.
+<p>
+See <a href="holding.html">seperate document</a> for more details.
+
+<h2>Other Features</h2>
+<h3>GIB interfaces</h3>
+
+Deal 3.1 now has a a set of tools for people who own
+<a href="http://www.gibware.com/">GIB</a>.  Specifically,
+it provides a procedure for determing the number of tricks
+available on a deal, double dummy.
+<p>
+See <a href="GIBstuff.html">separate document</a> for details.
+<h3>Input formats</h3>
+<strong>Deal 3.1</strong> now lets you read deals from a file easily.  It is
+also easy to write extensions which change the way <strong>Deal 3.1</strong>
+reads from files or generates deals.  
+<p>
+To access an input format, you can either add the line:
+<blockquote><pre>
+deal::input <em>formatName</em> [<em>args...</em>]
+</pre></blockquote>
+or, from the command line, use the <code>-I</code> switch:
+<blockquote><pre>
+deal -I "<em>FormatName</em>[ <em>args...</em>]" ...
+</pre></blockquote>
+<strong>Deal 3.1</strong> includes the following input formats:
+<dl>
+<dt><code>line</code>
+<dd>This reads in deals in the format written by deal with the <code>-l</code>
+flag.  For example, you can generate a file of 1000 deals then run two
+seperate queries on the file with:
+<blockquote><pre>
+deal -l 1000 > sample.txt
+deal -I "line sample.txt" -i query1.tcl > out1.txt
+deal -I "line sample.txt" -i query2.tcl > out2.txt
+</pre></blockquote>
+If no file is given, the lines are read from standard input.
+<p>
+<dt><code>giblib</code>
+<dd>Matt Ginsberg has made available a large file of 700,000+ deals
+with double dummy data.  This input format lets read this data
+file sequentially.  Calls to the GIB procedure <code>gib::tricks</code>
+take the data from this file, rather than calling the double-dummy
+solver.
+<blockquote><pre>
+deal::input giblib [<em>filename</em>]
+</pre></blockquote>
+
+If no file is given, <strong>Deal</strong> looks in the
+current directory for a file named <code>library.dat</code>.
+<p>
+<em>The data file is not included in this release - it's really huge.</em>
+See <a href="http://www.cirl.uoregon.edu/ginsberg/gibresearch.html">the
+GIB research project page</a> for more details.
+<dt><code>smartstack</code>
+<dd>The deal of the <code>smartstack</code> is to find certain rare
+types of deals very quickly, not using the standard dealing techniques,
+but using a more complicated and data-heavy approach.
+<a href="#smartstack"><code>Smart stacking</code></a> is documented
+seperately below.
+</dl>
+To add a new input format named Foo, you write a file named
+<code>input/Foo.tcl</code> which contains a Tcl package named Foo
+with procedures called <code>set_input</code> and <code>next</code>.
+See the input formats included with <strong>Deal</strong> for examples.
+The <code>next</code> procedure should return an error when it has
+reached the end of input.
+<p>
+An input format does not have to read from a file.  For example,
+the <code>smartstack</code> code is a factory which builds deals
+on the fly with one hand fitting a certain condition.
+<a name="smartstack"></a>
+<h3>Smart Stacking</h3>
+Deal, by default, just keeps dealing hands until it finds one that
+fits a pattern.  This can be too slow sometimes when looking for
+specific hands.
+<p>
+Suppose we want north to have a balanced hand with 22 or 23 high card
+points. We can force this
+by using the <code>smartstack</code> input format:
+<blockquote><pre>
+deal::input smartstack north balanced hcp 22 23
+</pre></blockquote>
+The arguments tell the stacker to randomly build north hands that
+are balanced with high card points in the range of 22 and 23.
+<p>
+Any shape class can be used in the place of <code>balanced</code>,
+and any holding procedure can be used in place of <code>hcp</code>
+in the above example.  If an evaluator is not passed in, there
+is no range requirement.  If you wish no shape restrictions,
+use the shapeclass <code>AnyShape</code>.
+<p>
+Specific cards can still be placed in specific hands:
+<blockquote><pre>
+        deal::input smartstack north balanced hcp {20 21}
+	south is K52 KJ3 98542 AK
+        north gets AS QS QH
+</pre></blockquote>
+Smart stacking can also put restrictions on specific suits:
+
+<blockquote><pre>
+deal::input smartstack north balanced hcp 20 21
+smartstack::holding diamonds controls 2 3
+</pre></blockquote>
+This requires north to have 2-3 controls in diamonds.
+<p>
+The tighter the restrictions, the faster <strong>Deal</strong>
+will be able to build hands which satisfy them.
+<p>
+Any additional conditions you want to place on any of the hands can
+still be placed in <code>main</code>, as usual.
+<h4>Performance issues</h4>
+Smart stacking costs a lot of initial overhead.  For example, on
+my Linux computer, <code>ex/1-shapeclass.tcl</code> in the release
+has no startup
+time, and takes about 0.014 seconds per match found.  The equivalent
+script using <code>smartstack</code>, <code>ex/1-stack.tcl</code>,
+takes almost 13 seconds at startup
+time, but then takes onlu 0.002 seconds per match found.  So
+if I'm generating 10,000 with these deals, it takes about
+36 with smart stacking, and about 140 seconds without.  But if
+I'm generating 1,000, they take about the same time, and if I'm generating
+only 10, using smart stacking is costly.
+<p>
+Is smart stacking ever useful when dealing with small sample requests?
+Definitely - if the hand is *very* specific and/or rare.  For example,
+the two above scripts use a point range of 11-15, but if they are
+changed to seek 21-22 hcp hands of the same shape, they both take about 10
+seconds to find 10 deals, but the smart stacker takes only 14 seconds
+to find 1,000, while the standard algorithm takes 1,000 second!
+<p>
+Originally, I was going to call the "smart stacker" by the name,
+"deal factory."  Like a real world factory, there is a large startup
+cost, but after it is built, it builds deals to specification far
+faster.  The more specific your needs and/or the larger supply you
+need, the more useful that initial investment is.
+<p>
+If I use smartstack to generate balanced hands with 20 points, it has
+a startup time of about 20 seconds.  If I request balanced 25-counts,
+17 seconds, balanced 29-counts 12 seconds.  After startup, the amount
+of time to find examples is almost nil.  Without smartstack, it takes
+about five minutes to generate ten examples of balanced 29-counts.
+With smartstack, only 13 seconds.
+<p>
+For the evaluator, don't use one that has too many possible values,
+or the size of the stacker's table balloons horribly. 
+For example, in each suit, the values possible for <code>hcp</code> are
+0-10.  But if you were to use something really complex with floating
+point values, you might screw the pooch.  No smart checking is applied
+when building the table, either, so <em>Deal</em> might just appear to churn.
+<?php include("sig.html");?>
