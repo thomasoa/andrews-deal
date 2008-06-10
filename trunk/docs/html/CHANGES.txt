@@ -1,3 +1,5 @@
+Changes in Deal 3.1.5
+
 Changes in Deal 3.1.4
 
    * Added -trick flag to dds
