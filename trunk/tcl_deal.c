@@ -329,6 +329,11 @@ int tcl_deal_loop(TCLOBJ_PARAMS) TCLOBJ_DECL
 
 static Tcl_Obj *logicObj[2]={ NULL, NULL};
 
+static int tcl_init(TCLOBJ_PARAMS) TCLOBJ_DECL
+{
+   return Tcl_Init(interp);
+}
+
 /*
  * implements the 'accept' and 'reject' commands
  */
@@ -446,10 +451,13 @@ DEAL31_API int *Deal_Init(Tcl_Interp *interp)
 
   Tcl_CreateObjCommand(interp,"deal_reset_cmds",add_reset_cmds,NULL,NULL);
 
+  Tcl_CreateObjCommand(interp,"deal_init_tcl",tcl_init,NULL,NULL);
+
   result=Tcl_VarEval(interp,"source deal.tcl",NULL);
   if (result==TCL_ERROR) {
     tcl_error(interp);
   }
+
   Tcl_VarEval(interp,"reset_deck",NULL);
 
   return TCL_OK;
