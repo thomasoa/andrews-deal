@@ -99,6 +99,7 @@ static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
   int status;
   int handLength;
   int cardsPlayedToTrick=0;
+  int totalTricksPlayed=0;
   int played[4];
   Tcl_Obj *diagram = NULL;
 
@@ -166,7 +167,7 @@ static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
          }
 
          if (TCL_ERROR == Tcl_ListObjGetElements(interp,arg,&cardsPlayedToTrick,&cards) || 
-		cardsPlayedToTrick>3) {
+		cardsPlayedToTrick>4) {
            Tcl_AppendResult(interp,"Invalid -trick argument: ",Tcl_GetString(arg),NULL);
            return TCL_ERROR;
          }
@@ -179,9 +180,16 @@ static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
            }
            rank = RANK(card);
            suit = SUIT(card);
-           d.currentTrickRank[playNo]=14-rank;
-           d.currentTrickSuit[playNo]=suit;
            played[suit] |= 1<<(14-rank);
+           if (cardsPlayedToTrick<4) {
+             d.currentTrickRank[playNo]=14-rank;
+             d.currentTrickSuit[playNo]=suit;
+           }
+         }
+
+         if (cardsPlayedToTrick==4) {
+           totalTricksPlayed++;
+           cardsPlayedToTrick=0;
          }
       }
       continue;
@@ -231,12 +239,10 @@ static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
 
   for (hand=0; hand<4; hand++) {
     for (suit=0; suit<4; suit++) {
-      int oldCards = d.remainCards[hand][suit];
       d.remainCards[hand][suit] &= (~played[suit]);
-      if (d.remainCards[hand][suit]!=oldCards) {
-      }
     }
   }
+  handLength = handLength - totalTricksPlayed;
  
   if (goal>0) {
     if ((d.first + cardsPlayedToTrick + declarer)&1) {
