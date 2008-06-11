@@ -1,5 +1,5 @@
 <head>
-<!-- $Id: commands.html,v 1.10 2008-06-04 08:32:17 thomasoa Exp $ -->
+<!-- $Id: commands.html,v 1.11 2008-06-11 14:48:24 thomaso Exp $ -->
 <title>Deal Commands</title>
 <body bgcolor="#EEEEFF">
 <h1>Introduction</h1>
@@ -744,7 +744,8 @@ advantage of caching values.</p>
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
 <blockquote><pre>
-dds [-reuse | -noreuse] [-diagram <em>diagram</em>] [-goal <em>goal</em>]  [-leader <em>leader</em>] [ <em>declarer</em> [ <em>denomination</em> ] ]
+dds [-reuse | -noreuse] [-diagram <em>diagram</em>] [-goal <em>goal</em>]  
+     [-leader <em>leader</em>] [-trick <em>list of cards</em>] [ <em>declarer</em> [ <em>denomination</em> ] ]
 </pre></blockquote>
 
 <h3>Summary</h3>
@@ -753,7 +754,8 @@ dds [-reuse | -noreuse] [-diagram <em>diagram</em>] [-goal <em>goal</em>]  [-lea
 <p>The <code>-reuse</code> flag tells the double-dummy solver to reuse the data it generated from the last call.  For example, if the hand is identical to the previous call and played in the same denomination, you'll want to reuse the data.
 <p>The <code>-noreuse</code> flag tells the double-dummy solver not to reuse the data.  This is the default.
 <p>The <code>-diagram</code> flag tells the double-dummy solver to solve a specific diagram, rather than the current deal.  A diagram is of the form of a Tcl list in the order north, east, south, west.  
-<p>The <code>-leader</code> flag tells the double-dummy solver who is on lead.
+<p>The <code>-leader</code> flag tells the double-dummy solver who is on lead to the current trick.
+<p>The <code>-trick</code> flag gives a list of cards played to the current trick.
 <p>For example, to solve George Coffin's "Avoidance" end position from his <a target="_top" href="http://www.rpbridge.net/9p01.htm">Great 88</a>, you would write:
 <blockquote><pre>
 set diagram {
@@ -765,6 +767,11 @@ set diagram {
 set tricks [dds -leader south -diagram $diagram south notrump]
 ...
 </pre></blockquote>
+<p>If you wanted to see how many tricks are made if south plays a particular card, say the two of clubs, you would use the -trick flag:
+<blockquote><pre>
+set tricks [dds -leader south -diagram $diagram -trick 2C south notrump]
+</pre></blockquote>
+
 <p>There are example tests of all the Great 88 in the file <code>tests/great88</code> that is included in this release.
 </td>
 <td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
