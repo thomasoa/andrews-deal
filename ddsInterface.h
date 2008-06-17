@@ -24,7 +24,7 @@
 #    define EXTERN_C
 #endif
 
-typedef unsigned int holding_t;
+typedef unsigned short int holding_t;
 
 
 struct diagram {

@@ -89,7 +89,11 @@ int threshold=CANCELCHECK;
 #endif
 
 inline holding_t smallestRankInSuit(holding_t h) {
-  return (h & -h);
+  return h & (-h);
+}
+
+inline unsigned int smallestBitInInteger(unsigned int h) {
+  return h & (-h);
 }
 
 extern "C" inline holding_t distinctUnplayedCards(holding_t origHolding, holding_t played,holding_t *sequence) {
@@ -2978,6 +2982,7 @@ int MoveGen(const struct pos * posPoint, const int depth) {
 			       sequences);
     allCards = unplayedCardsRank | sequences;
     while (allCards) {
+      //cerr << Holding(allCards) << endl;
       bitRank = smallestRankInSuit(allCards);
       allCards ^= bitRank;
       if (unplayedCardsRank & bitRank) {
@@ -3019,6 +3024,7 @@ int MoveGen(const struct pos * posPoint, const int depth) {
 				   sequences);
       allCards = unplayedCardsRank | sequences;
       while (allCards) {
+	//cerr << Holding(allCards) << endl;
         bitRank = smallestRankInSuit(allCards);
         allCards ^= bitRank;
 	if (unplayedCardsRank & bitRank) {
@@ -4111,6 +4117,8 @@ void BuildSOP(struct pos * posPoint, int tricks, int firstHand, int target,
         temp[hh][ss]=0;
     }
     else {
+      
+      //cerr << "BuildSOP " << Holding(w) << endl;
       w=smallestRankInSuit(w);       /* Only lowest win */
       for (hh=0; hh<=3; hh++) {
 	temp[hh][ss]=posPoint->diagram.cards[hh][ss] & (-w);
@@ -4124,7 +4132,8 @@ void BuildSOP(struct pos * posPoint, int tricks, int firstHand, int target,
       posPoint->winMask[ss]=rel(ss,aggr[ss]).winMask;
       posPoint->winOrderSet[ss]=rel(ss,aggr[ss]).aggrRanks;
       wm=posPoint->winMask[ss];
-      wm=smallestRankInSuit(wm);
+      //cerr << "BuildSOP 2 " << Holding(wm) << endl;
+      wm=smallestBitInInteger(wm);
       posPoint->leastWin[ss]=InvWinMask(wm);
     }
   }
