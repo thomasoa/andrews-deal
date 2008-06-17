@@ -88,12 +88,12 @@ int threshold=CANCELCHECK;
 #pragma managed(push, off)
 #endif
 
-inline holding_t smallestRankInSuit(holding_t h) {
-  return h & (-h);
+template<class INT> inline INT smallestBitInInteger(INT value) {
+  return value & (-value);
 }
 
-inline unsigned int smallestBitInInteger(unsigned int h) {
-  return h & (-h);
+inline holding_t smallestRankInSuit(holding_t h) {
+  return smallestBitInInteger<holding_t>(h);
 }
 
 extern "C" inline holding_t distinctUnplayedCards(holding_t origHolding, holding_t played,holding_t *sequence) {
