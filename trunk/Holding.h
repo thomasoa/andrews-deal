@@ -22,15 +22,16 @@ inline ostream& operator <<(ostream &out,const Holding &holding) {
   int index=0;
   holding_t h = holding._h;
 
-  if (h) {
+  if (h&8191) {
     for (holding_t card=1<<12; card; card >>= 1, index++) {
       if (h & card) {
         out << cards[index];
       }
     }
   } else {
-      out << "(void)";
+      out << "void";
   }
+  out << " (" << holding._h << ")";
   return out;
 }
 #endif
