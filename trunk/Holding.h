@@ -10,6 +10,10 @@
 struct Holding {
   holding_t _h;
   inline Holding(holding_t h) : _h(h) { }
+  inline operator holding_t() const {
+    return _h;
+  }
+
 };
 
 
