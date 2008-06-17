@@ -27,12 +27,16 @@
 typedef unsigned int holding_t;
 
 
+struct diagram {
+   holding_t cards[4][4];
+};
+
 struct deal {
   int trump;
   int first;
   int currentTrickSuit[3];
   int currentTrickRank[3];
-  unsigned int remainCards[4][4];
+  struct diagram remaining;
 };
 
 struct futureTricks {

@@ -20,7 +20,7 @@ static int parse_diagram(Tcl_Interp *interp,Tcl_Obj *diagram, struct deal *aDeal
   for (suit=0; suit<4; suit++) {
     suitHoldings[suit]=0;
     for (hand=0; hand<4; hand++) {
-      aDeal->remainCards[hand][suit]=0;
+      aDeal->remaining.cards[hand][suit]=0;
     } 
   }
 
@@ -51,7 +51,7 @@ static int parse_diagram(Tcl_Interp *interp,Tcl_Obj *diagram, struct deal *aDeal
 	return TCL_ERROR;
       }
       holding &= 8191;
-      aDeal->remainCards[hand][suit] = holding << 2;
+      aDeal->remaining.cards[hand][suit] = holding;
       suitLength = counttable[holding];
       countHand[hand] += suitLength;
       if (suitHoldings[suit] & holding) {
@@ -180,7 +180,7 @@ static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
            }
            rank = RANK(card);
            suit = SUIT(card);
-           played[suit] |= 1<<(14-rank);
+           played[suit] |= 1<<(12-rank);
            if (cardsPlayedToTrick<4) {
              d.currentTrickRank[playNo]=14-rank;
              d.currentTrickSuit[playNo]=suit;
@@ -232,14 +232,14 @@ static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
       /* Double dummy solver has north hand zero */
       int ddsHand = hand;
       for (suit=0; suit<4; suit++) {
-	d.remainCards[ddsHand][suit] = globalDeal.hand[hand].suit[suit] << 2;
+	d.remaining.cards[ddsHand][suit] = globalDeal.hand[hand].suit[suit];
       }
     }
   }
 
   for (hand=0; hand<4; hand++) {
     for (suit=0; suit<4; suit++) {
-      d.remainCards[hand][suit] &= (~played[suit]);
+      d.remaining.cards[hand][suit] &= (~played[suit]);
     }
   }
   handLength = handLength - totalTricksPlayed;
@@ -350,7 +350,7 @@ static int tcl_double_dummy_solve(TCLOBJ_PARAMS) TCLOBJ_DECL
     /* Double dummy solver has north hand zero */
     int ddsHand = hand;
     for (suit=0; suit<4; suit++) {
-      d.remainCards[ddsHand][suit] = globalDeal.hand[hand].suit[suit] << 2;
+      d.remaining.cards[ddsHand][suit] = globalDeal.hand[hand].suit[suit];
     }
   }
  

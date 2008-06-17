@@ -1,4 +1,4 @@
-/* portability-macros header prefix */
+/* POrtability-macros header prefix */
 #ifdef __cplusplus
 #include <iostream>
 using namespace std;
@@ -76,13 +76,9 @@ struct gameInfo  {          /* All info of a particular deal */
   int leadRank;
   int first;
   int noOfCards;
-  holding_t suit[4][4];
+  struct diagram diagram;
     /* 1st index is hand id, 2nd index is suit id */
 };
-
-struct dealType {
-  holding_t deal[4][4];
-};  
 
 struct moveType {
   unsigned char suit;
@@ -114,8 +110,6 @@ struct makeType {
   holding_t winRanks[4];
 };
 
-//static const holding_t bitMapRank[] = { 0, 0, 0x1, 0x2,0x4,0x8,0x10,0x20,0x40,0x80,0x100,0x200,0x400,0x800,0x1000,0x2000,0x4000 };
-
 inline holding_t BitRank(int rank) {
   /*
    * Trick calculation
@@ -128,31 +122,12 @@ struct posStackItem {
   int first;                 /* Hand that leads the trick for each ply*/
   int high;                  /* Hand that is presently winning the trick */
   struct moveType move;      /* Presently winning move */              
-  holding_t winRanks[4];  /* Cards that win by rank,
-                                       indices are depth and suit */
-#if 0
-  holding_t removed[4];
-
-  inline void initializeRemoved(const posStackItem &prev) {
-    for (int suit=0; suit<4; suit++) {
-      removed[suit] = prev.removed[suit];
-    }
-  }
-
-  inline void removeCard(const moveType &aMove) {
-    removed[aMove.suit] |= BitRank(aMove.rank);
-  }
-
-  inline int isRemoved(int suit,int rank) const {
-    return removed[suit] & BitRank(rank);
-  }
-#endif
-
+  holding_t winRanks[4];  /* Cards that win by rank, index by suit */
 };
 
 struct pos {
   struct posStackItem stack[50];
-  holding_t rankInSuit[4][4];   /* 1st index is hand, 2nd index is
+  struct diagram diagram;   /* 1st index is hand, 2nd index is
                                         suit id */
   int orderSet[4];
   int winOrderSet[4];
@@ -196,7 +171,7 @@ struct pos {
   }
 
   inline int hasCardBitRank(int hand, int suit, holding_t bitRank) const {
-    return (rankInSuit[hand][suit] & bitRank);
+    return (diagram.cards[hand][suit] & bitRank);
   }
 
   inline int hasCard(int hand,int suit, int rank) const {
@@ -213,16 +188,6 @@ struct pos {
       }
     }
   }
-
-#if 0
-  inline void removeCard(int depth,const moveType &move) {
-     stack[depth].removeCard(move);
-  }
-
-  inline int isRemoved(int depth, int suit,int rank) const {
-    return stack[depth].isRemoved(suit,rank);
-  }
-#endif
 
 };
 
@@ -269,13 +234,13 @@ class RelativeRanksFinder {
     relRanksType suits[4];
   } relative[8192];
 
-  holding_t originalsBySuitFirst[4][4];
+  struct diagram originalsBySuitFirst;
 
  public:
   inline RelativeRanksFinder() {
     for (int suit=0; suit<4; suit++) {
       for (int hand=0; hand<4; hand++) {
-	originalsBySuitFirst[suit][hand]=0;
+	originalsBySuitFirst.cards[suit][hand]=0;
       }
     }
   }
@@ -284,16 +249,16 @@ class RelativeRanksFinder {
     return relative[index&8191].suits[suit];
   }
 
-  inline void initialize(const struct gameInfo &game) {
+  inline void initialize(const struct diagram &diagram) {
     int newDiagram = 0;
     int hand, suit;
 
     for (suit=0; suit<4; suit++) {
       for (hand=0; hand<4; hand++) {
-	if (game.suit[hand][suit] != originalsBySuitFirst[suit][hand]) {
+	if (diagram.cards[hand][suit] != originalsBySuitFirst.cards[suit][hand]) {
 	  newDiagram = 1;
 	}
-	originalsBySuitFirst[suit][hand]=game.suit[hand][suit];
+	originalsBySuitFirst.cards[suit][hand]=diagram.cards[hand][suit];
       }
     }
 
@@ -313,7 +278,7 @@ class RelativeRanksFinder {
     }
   }
 
-protected:
+ protected:
   inline void compute(const holding_t ind,const holding_t topBitRank) {
     int hand, suit;
     
@@ -323,7 +288,7 @@ protected:
       struct relRanksType &relRanks = relative[ind].suits[suit];
 
       for (hand=0; hand<=3; hand++) {
-        if (originalsBySuitFirst[suit][hand] & topBitRank) {
+        if (originalsBySuitFirst.cards[suit][hand] & topBitRank) {
           relRanks.aggrRanks = (relRanks.aggrRanks >> 2) | (hand << 24);
           relRanks.winMask   = (relRanks.winMask >> 2)   | (3   << 24);
           break;
