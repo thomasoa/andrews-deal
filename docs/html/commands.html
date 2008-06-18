@@ -1,5 +1,5 @@
 <head>
-<!-- $Id: commands.html,v 1.11 2008-06-11 14:48:24 thomaso Exp $ -->
+<!-- $Id: commands.html,v 1.12 2008-06-18 16:28:34 thomaso Exp $ -->
 <title>Deal Commands</title>
 <body bgcolor="#EEEEFF">
 <h1>Introduction</h1>
@@ -745,7 +745,7 @@ advantage of caching values.</p>
 <h3>Usage</h3>
 <blockquote><pre>
 dds [-reuse | -noreuse] [-diagram <em>diagram</em>] [-goal <em>goal</em>]  
-     [-leader <em>leader</em>] [-trick <em>list of cards</em>] [ <em>declarer</em> [ <em>denomination</em> ] ]
+     [-leader <em>leader</em>] [-trick <em>list of cards</em> [-trick <em>cards</em> ] ...] [ <em>declarer</em> [ <em>denomination</em> ] ]
 </pre></blockquote>
 
 <h3>Summary</h3>
@@ -759,19 +759,23 @@ dds [-reuse | -noreuse] [-diagram <em>diagram</em>] [-goal <em>goal</em>]
 <p>For example, to solve George Coffin's "Avoidance" end position from his <a target="_top" href="http://www.rpbridge.net/9p01.htm">Great 88</a>, you would write:
 <blockquote><pre>
 set diagram {
-           {A987 - A} 
-           {Q5 987 -} 
-           {64 K2 2} 
-           {K2 AQ3 -} 
+           {A987 - A -} 
+           {Q5 987 - -} 
+           {64 K2 2 -} 
+           {K2 AQ3 - -} 
 }
 set tricks [dds -leader south -diagram $diagram south notrump]
 ...
 </pre></blockquote>
 <p>If you wanted to see how many tricks are made if south plays a particular card, say the two of clubs, you would use the -trick flag:
 <blockquote><pre>
-set tricks [dds -leader south -diagram $diagram -trick 2C south notrump]
+set tricks [dds -leader south -diagram $diagram -trick 4S south notrump]
 </pre></blockquote>
-
+You can also pass full tricks, as in:
+<blockquote><pre>
+set tricks [dds -leader west -diagram $diagram -trick {4S KS 7S 5S} south notrump]
+</pre></blockquote>
+<p>Note that the -leader option always refers to the leader to the current trick, not the leader of earlier completed tricks passed with -trick. Also, the number of tricks returned is the number of tricks after all completed tricks.
 <p>There are example tests of all the Great 88 in the file <code>tests/great88</code> that is included in this release.
 </td>
 <td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
