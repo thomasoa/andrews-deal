@@ -209,7 +209,7 @@ public:
       DumpInput(-12, dl, target, solutions, mode);
       return -12;
     }
-    handToPlay=RelativeHand(dl.first,3);
+    handToPlay=rho(dl.first);
     handRelFirst=3;
     noStartMoves=3;
     if (cardCount<=4) {
@@ -221,12 +221,12 @@ public:
           break;
         }
       }
-      latestTrickSuit[RelativeHand(dl.first,2)]=dl.currentTrickSuit[2];
-      latestTrickRank[RelativeHand(dl.first,2)]=dl.currentTrickRank[2];
-      latestTrickSuit[RelativeHand(dl.first,1)]=dl.currentTrickSuit[1];
-      latestTrickRank[RelativeHand(dl.first,1)]=dl.currentTrickRank[1];
-      latestTrickSuit[RelativeHand(dl.first,0)]=dl.currentTrickSuit[0];
-      latestTrickRank[RelativeHand(dl.first,0)]=dl.currentTrickRank[0];
+      latestTrickSuit[partner(dl.first)]=dl.currentTrickSuit[2];
+      latestTrickRank[partner(dl.first)]=dl.currentTrickRank[2];
+      latestTrickSuit[lho(dl.first)]=dl.currentTrickSuit[1];
+      latestTrickRank[lho(dl.first)]=dl.currentTrickRank[1];
+      latestTrickSuit[dl.first]=dl.currentTrickSuit[0];
+      latestTrickRank[dl.first]=dl.currentTrickRank[0];
     }
   } else if (dl.currentTrickRank[1]) {
     if ((dl.currentTrickRank[1]<2)||(dl.currentTrickRank[1]>14)
@@ -234,7 +234,7 @@ public:
       DumpInput(-12, dl, target, solutions, mode);
       return -12;
     }
-    handToPlay=RelativeHand(dl.first,2);
+    handToPlay=partner(dl.first);
     handRelFirst=2;
     noStartMoves=2;
     if (cardCount<=4) {
@@ -247,17 +247,17 @@ public:
         }
       }
       for (k=0; k<=3; k++) {
-        if (game.diagram.cards[RelativeHand(dl.first,3)][k]!=0) {
-          latestTrickSuit[RelativeHand(dl.first,3)]=k;
-          latestTrickRank[RelativeHand(dl.first,3)]=
-            InvBitMapRank(game.diagram.cards[RelativeHand(dl.first,3)][k]);
+        if (game.diagram.cards[rho(dl.first)][k]!=0) {
+          latestTrickSuit[rho(dl.first)]=k;
+          latestTrickRank[rho(dl.first)]=
+            InvBitMapRank(game.diagram.cards[rho(dl.first)][k]);
           break;
         }
       }
-      latestTrickSuit[RelativeHand(dl.first,1)]=dl.currentTrickSuit[1];
-      latestTrickRank[RelativeHand(dl.first,1)]=dl.currentTrickRank[1];
-      latestTrickSuit[RelativeHand(dl.first,0)]=dl.currentTrickSuit[0];
-      latestTrickRank[RelativeHand(dl.first,0)]=dl.currentTrickRank[0];
+      latestTrickSuit[lho(dl.first)]=dl.currentTrickSuit[1];
+      latestTrickRank[lho(dl.first)]=dl.currentTrickRank[1];
+      latestTrickSuit[dl.first]=dl.currentTrickSuit[0];
+      latestTrickRank[dl.first]=dl.currentTrickRank[0];
     }
   } else if (dl.currentTrickRank[0]) {
     if ((dl.currentTrickRank[0]<2)||(dl.currentTrickRank[0]>14)
@@ -265,7 +265,7 @@ public:
       DumpInput(-12, dl, target, solutions, mode);
       return -12;
     }
-    handToPlay=RelativeHand(dl.first,1);
+    handToPlay=lho(dl.first);
     handRelFirst=1;
     noStartMoves=1;
     if (cardCount<=4) {
@@ -278,18 +278,18 @@ public:
         }
       }
       for (k=0; k<=3; k++) {
-        if (game.diagram.cards[RelativeHand(dl.first,3)][k]!=0) {
-          latestTrickSuit[RelativeHand(dl.first,3)]=k;
-          latestTrickRank[RelativeHand(dl.first,3)]=
-            InvBitMapRank(game.diagram.cards[RelativeHand(dl.first,3)][k]);
+        if (game.diagram.cards[rho(dl.first)][k]!=0) {
+          latestTrickSuit[rho(dl.first)]=k;
+          latestTrickRank[rho(dl.first)]=
+            InvBitMapRank(game.diagram.cards[rho(dl.first)][k]);
           break;
         }
       }
       for (k=0; k<=3; k++) {
-        if (game.diagram.cards[RelativeHand(dl.first,2)][k]!=0) {
-          latestTrickSuit[RelativeHand(dl.first,2)]=k;
-          latestTrickRank[RelativeHand(dl.first,2)]=
-            InvBitMapRank(game.diagram.cards[RelativeHand(dl.first,2)][k]);
+        if (game.diagram.cards[partner(dl.first)][k]!=0) {
+          latestTrickSuit[partner(dl.first)]=k;
+          latestTrickRank[partner(dl.first)]=
+            InvBitMapRank(game.diagram.cards[partner(dl.first)][k]);
           break;
         }
       }
@@ -310,26 +310,26 @@ public:
         }
       }
       for (k=0; k<=3; k++) {
-        if (game.diagram.cards[RelativeHand(dl.first,3)][k]!=0) {
-          latestTrickSuit[RelativeHand(dl.first,3)]=k;
-          latestTrickRank[RelativeHand(dl.first,3)]=
-            InvBitMapRank(game.diagram.cards[RelativeHand(dl.first,3)][k]);
+        if (game.diagram.cards[rho(dl.first)][k]!=0) {
+          latestTrickSuit[rho(dl.first)]=k;
+          latestTrickRank[rho(dl.first)]=
+            InvBitMapRank(game.diagram.cards[rho(dl.first)][k]);
           break;
         }
       }
       for (k=0; k<=3; k++) {
-        if (game.diagram.cards[RelativeHand(dl.first,2)][k]!=0) {
-          latestTrickSuit[RelativeHand(dl.first,2)]=k;
-          latestTrickRank[RelativeHand(dl.first,2)]=
-            InvBitMapRank(game.diagram.cards[RelativeHand(dl.first,2)][k]);
+        if (game.diagram.cards[partner(dl.first)][k]!=0) {
+          latestTrickSuit[partner(dl.first)]=k;
+          latestTrickRank[partner(dl.first)]=
+            InvBitMapRank(game.diagram.cards[partner(dl.first)][k]);
           break;
         }
       }
       for (k=0; k<=3; k++) {
-        if (game.diagram.cards[RelativeHand(dl.first,1)][k]!=0) {
-          latestTrickSuit[RelativeHand(dl.first,1)]=k;
-          latestTrickRank[RelativeHand(dl.first,1)]=
-            InvBitMapRank(game.diagram.cards[RelativeHand(dl.first,1)][k]);
+        if (game.diagram.cards[lho(dl.first)][k]!=0) {
+          latestTrickSuit[lho(dl.first)]=k;
+          latestTrickRank[lho(dl.first)]=
+            InvBitMapRank(game.diagram.cards[lho(dl.first)][k]);
           break;
         }
       }
@@ -1823,7 +1823,7 @@ struct makeType Make(struct pos * posPoint, int depth)  {
     mo2 = previous.move;
     if (contract.betterMove(mo1,mo2)) {
       current.move=mo1;
-      current.high=RelativeHand(firstHand,3);
+      current.high=rho(firstHand);
     } else {
       current.move=mo2;
       current.high=previous.high;
@@ -1845,7 +1845,7 @@ struct makeType Make(struct pos * posPoint, int depth)  {
       posPoint->stack[depth-1].first=current.high;   
       /* Defines who is first in the next move */
 
-    t=RelativeHand(firstHand,3);
+    t=rho(firstHand);
     posPoint->handRelFirst=0;      /* Hand pointed to by posPoint->first
                                     will lead the next trick */
 
@@ -1957,7 +1957,7 @@ void Undo(struct pos * posPoint, int depth)  {
         posPoint->secondBest[u].hand=RelativeHand(firstHand,3-s);
       }
     }
-    t=RelativeHand(firstHand,3);
+    t=rho(firstHand);
 
         
     if (nodeTypeStore[posPoint->stack[depth-1].first]==MAXNODE) {
