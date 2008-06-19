@@ -992,7 +992,7 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
     suit[k]=startMoves[k].suit;
     rank[k]=startMoves[k].rank;
     if (k<noOfStartMoves)
-      startMovesBitMap[hand[k]][suit[k]] |=        BitRank(rank[k]);
+      startMovesBitMap[hand[k]][suit[k]] |= BitRank(rank[k]);
   }
 
   for (d=0; d<=49; d++) {
