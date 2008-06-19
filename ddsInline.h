@@ -3,6 +3,10 @@
 
 #include "ddsInterface.h"
 
+/**
+ * Repository for simple inline functions used by DDS
+ */
+
 inline int RelativeHand(int hand, int relative) {
   return (hand + relative)&3;
 }
