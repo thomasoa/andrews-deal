@@ -5,6 +5,7 @@ using namespace std;
 #endif
 
 #include "ddsInterface.h"
+#include "ddsInline.h"
 #include "Holding.h"
 
 #define LONGLONG long long
@@ -55,18 +56,6 @@ using namespace std;
 #define Min(x, y) (((x) <= (y)) ? (x) : (y))
 
 
-inline int partner(int hand) {
-  return (hand^2); /* slightly faster */
-}
-
-inline int lho(int hand) {
-  return (hand+1)&3;
-}
-
-inline int rho(int hand) {
-  return (hand+3)&3;
-}
-
 struct gameInfo  {          /* All info of a particular deal */
   int vulnerable;
   int declarer;
@@ -109,14 +98,6 @@ struct highCardType {
 struct makeType {
   holding_t winRanks[4];
 };
-
-inline holding_t BitRank(int rank) {
-  /*
-   * Trick calculation
-   * Equivalent to 1<<(rank-2) for rank>=2, and 0 for rank<2.
-   */
-  return (1<<rank)>>2;
-}
 
 struct posStackItem {
   int first;                 /* Hand that leads the trick for each ply*/

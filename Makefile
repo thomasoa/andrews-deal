@@ -61,7 +61,7 @@ OBJS=random.o additive.o hand.o deal.o formats.o tcl_deal.o maindeal.o stat.o co
 	vector.o dist.o stringbox.o dealtypes.o keywords.o holdings.o tcl_dds.o dds.o $(EXTRA_OBJS) 
 SRCS=additive.c hand.c deal.c formats.c tcl_deal.c dist.c vector.c stat.c counttable.c stringbox.c dealtypes.c holdings.c keywords.c maindeal.c random.c dds.cpp
 SRCKIT=additive.c hand.c deal.c formats.c tcl_deal.c dist.c vector.c stat.c makecounttable.c stringbox.c dealtypes.c holdings.c keywords.c maindeal.c random.c tcl_dds.c dds.cpp
-HFILES=deck.h deal.h tcl_incl.h vector.h stat.h tcl_dist.h dist.h formats.h additive.h stringbox.h dealtypes.h holdings.h keywords.h ansidecl.h dds.h ddsInterface.h Holding.h
+HFILES=deck.h deal.h tcl_incl.h vector.h stat.h tcl_dist.h dist.h formats.h additive.h stringbox.h dealtypes.h holdings.h keywords.h ansidecl.h dds.h ddsInline.h ddsInterface.h Holding.h
 EXAMPLES= ex/*.tcl
 TESTS=tests
 HTML=html
