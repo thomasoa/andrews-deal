@@ -28,10 +28,6 @@ const int ContractInfo::nextSuitArray[4][4] = {
     { 1, 2, 4, 0}
 };
 
-inline int HandStore(int hand, int relative) {
-  return (hand + relative)&3;
-}
-
 GLOBALS Globals;
 
 int nodeTypeStore[4];
@@ -213,7 +209,7 @@ public:
       DumpInput(-12, dl, target, solutions, mode);
       return -12;
     }
-    handToPlay=HandStore(dl.first,3);
+    handToPlay=RelativeHand(dl.first,3);
     handRelFirst=3;
     noStartMoves=3;
     if (cardCount<=4) {
@@ -225,12 +221,12 @@ public:
           break;
         }
       }
-      latestTrickSuit[HandStore(dl.first,2)]=dl.currentTrickSuit[2];
-      latestTrickRank[HandStore(dl.first,2)]=dl.currentTrickRank[2];
-      latestTrickSuit[HandStore(dl.first,1)]=dl.currentTrickSuit[1];
-      latestTrickRank[HandStore(dl.first,1)]=dl.currentTrickRank[1];
-      latestTrickSuit[HandStore(dl.first,0)]=dl.currentTrickSuit[0];
-      latestTrickRank[HandStore(dl.first,0)]=dl.currentTrickRank[0];
+      latestTrickSuit[RelativeHand(dl.first,2)]=dl.currentTrickSuit[2];
+      latestTrickRank[RelativeHand(dl.first,2)]=dl.currentTrickRank[2];
+      latestTrickSuit[RelativeHand(dl.first,1)]=dl.currentTrickSuit[1];
+      latestTrickRank[RelativeHand(dl.first,1)]=dl.currentTrickRank[1];
+      latestTrickSuit[RelativeHand(dl.first,0)]=dl.currentTrickSuit[0];
+      latestTrickRank[RelativeHand(dl.first,0)]=dl.currentTrickRank[0];
     }
   } else if (dl.currentTrickRank[1]) {
     if ((dl.currentTrickRank[1]<2)||(dl.currentTrickRank[1]>14)
@@ -238,7 +234,7 @@ public:
       DumpInput(-12, dl, target, solutions, mode);
       return -12;
     }
-    handToPlay=HandStore(dl.first,2);
+    handToPlay=RelativeHand(dl.first,2);
     handRelFirst=2;
     noStartMoves=2;
     if (cardCount<=4) {
@@ -251,17 +247,17 @@ public:
         }
       }
       for (k=0; k<=3; k++) {
-        if (game.diagram.cards[HandStore(dl.first,3)][k]!=0) {
-          latestTrickSuit[HandStore(dl.first,3)]=k;
-          latestTrickRank[HandStore(dl.first,3)]=
-            InvBitMapRank(game.diagram.cards[HandStore(dl.first,3)][k]);
+        if (game.diagram.cards[RelativeHand(dl.first,3)][k]!=0) {
+          latestTrickSuit[RelativeHand(dl.first,3)]=k;
+          latestTrickRank[RelativeHand(dl.first,3)]=
+            InvBitMapRank(game.diagram.cards[RelativeHand(dl.first,3)][k]);
           break;
         }
       }
-      latestTrickSuit[HandStore(dl.first,1)]=dl.currentTrickSuit[1];
-      latestTrickRank[HandStore(dl.first,1)]=dl.currentTrickRank[1];
-      latestTrickSuit[HandStore(dl.first,0)]=dl.currentTrickSuit[0];
-      latestTrickRank[HandStore(dl.first,0)]=dl.currentTrickRank[0];
+      latestTrickSuit[RelativeHand(dl.first,1)]=dl.currentTrickSuit[1];
+      latestTrickRank[RelativeHand(dl.first,1)]=dl.currentTrickRank[1];
+      latestTrickSuit[RelativeHand(dl.first,0)]=dl.currentTrickSuit[0];
+      latestTrickRank[RelativeHand(dl.first,0)]=dl.currentTrickRank[0];
     }
   } else if (dl.currentTrickRank[0]) {
     if ((dl.currentTrickRank[0]<2)||(dl.currentTrickRank[0]>14)
@@ -269,7 +265,7 @@ public:
       DumpInput(-12, dl, target, solutions, mode);
       return -12;
     }
-    handToPlay=HandStore(dl.first,1);
+    handToPlay=RelativeHand(dl.first,1);
     handRelFirst=1;
     noStartMoves=1;
     if (cardCount<=4) {
@@ -282,18 +278,18 @@ public:
         }
       }
       for (k=0; k<=3; k++) {
-        if (game.diagram.cards[HandStore(dl.first,3)][k]!=0) {
-          latestTrickSuit[HandStore(dl.first,3)]=k;
-          latestTrickRank[HandStore(dl.first,3)]=
-            InvBitMapRank(game.diagram.cards[HandStore(dl.first,3)][k]);
+        if (game.diagram.cards[RelativeHand(dl.first,3)][k]!=0) {
+          latestTrickSuit[RelativeHand(dl.first,3)]=k;
+          latestTrickRank[RelativeHand(dl.first,3)]=
+            InvBitMapRank(game.diagram.cards[RelativeHand(dl.first,3)][k]);
           break;
         }
       }
       for (k=0; k<=3; k++) {
-        if (game.diagram.cards[HandStore(dl.first,2)][k]!=0) {
-          latestTrickSuit[HandStore(dl.first,2)]=k;
-          latestTrickRank[HandStore(dl.first,2)]=
-            InvBitMapRank(game.diagram.cards[HandStore(dl.first,2)][k]);
+        if (game.diagram.cards[RelativeHand(dl.first,2)][k]!=0) {
+          latestTrickSuit[RelativeHand(dl.first,2)]=k;
+          latestTrickRank[RelativeHand(dl.first,2)]=
+            InvBitMapRank(game.diagram.cards[RelativeHand(dl.first,2)][k]);
           break;
         }
       }
@@ -314,26 +310,26 @@ public:
         }
       }
       for (k=0; k<=3; k++) {
-        if (game.diagram.cards[HandStore(dl.first,3)][k]!=0) {
-          latestTrickSuit[HandStore(dl.first,3)]=k;
-          latestTrickRank[HandStore(dl.first,3)]=
-            InvBitMapRank(game.diagram.cards[HandStore(dl.first,3)][k]);
+        if (game.diagram.cards[RelativeHand(dl.first,3)][k]!=0) {
+          latestTrickSuit[RelativeHand(dl.first,3)]=k;
+          latestTrickRank[RelativeHand(dl.first,3)]=
+            InvBitMapRank(game.diagram.cards[RelativeHand(dl.first,3)][k]);
           break;
         }
       }
       for (k=0; k<=3; k++) {
-        if (game.diagram.cards[HandStore(dl.first,2)][k]!=0) {
-          latestTrickSuit[HandStore(dl.first,2)]=k;
-          latestTrickRank[HandStore(dl.first,2)]=
-            InvBitMapRank(game.diagram.cards[HandStore(dl.first,2)][k]);
+        if (game.diagram.cards[RelativeHand(dl.first,2)][k]!=0) {
+          latestTrickSuit[RelativeHand(dl.first,2)]=k;
+          latestTrickRank[RelativeHand(dl.first,2)]=
+            InvBitMapRank(game.diagram.cards[RelativeHand(dl.first,2)][k]);
           break;
         }
       }
       for (k=0; k<=3; k++) {
-        if (game.diagram.cards[HandStore(dl.first,1)][k]!=0) {
-          latestTrickSuit[HandStore(dl.first,1)]=k;
-          latestTrickRank[HandStore(dl.first,1)]=
-            InvBitMapRank(game.diagram.cards[HandStore(dl.first,1)][k]);
+        if (game.diagram.cards[RelativeHand(dl.first,1)][k]!=0) {
+          latestTrickSuit[RelativeHand(dl.first,1)]=k;
+          latestTrickRank[RelativeHand(dl.first,1)]=
+            InvBitMapRank(game.diagram.cards[RelativeHand(dl.first,1)][k]);
           break;
         }
       }
@@ -992,7 +988,7 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
   noOfStartMoves=handRelFirst;
 
   for (k=0; k<=2; k++) {
-    hand[k]=HandStore(first,k);
+    hand[k]=RelativeHand(first,k);
     suit[k]=startMoves[k].suit;
     rank[k]=startMoves[k].rank;
     if (k<noOfStartMoves)
@@ -1006,8 +1002,8 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
     bestMove[d].sequence=0; 0315 */
   }
 
-  if ((HandStore(first,handRelFirst)==0)||
-    (HandStore(first,handRelFirst)==2)) {
+  if ((RelativeHand(first,handRelFirst)==0)||
+    (RelativeHand(first,handRelFirst)==2)) {
     nodeTypeStore[0]=MAXNODE;
     nodeTypeStore[1]=MINNODE;
     nodeTypeStore[2]=MAXNODE;
@@ -1040,7 +1036,7 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
       if (WinningMove(startMoves[k-1], move)) {
         posPoint->stack[depth+k].move.suit=startMoves[k-1].suit;
         posPoint->stack[depth+k].move.rank=startMoves[k-1].rank;
-        posPoint->stack[depth+k].high=HandStore(first,noOfStartMoves-k);
+        posPoint->stack[depth+k].high=RelativeHand(first,noOfStartMoves-k);
         move=posPoint->stack[depth+k].move;
       } else {
         posPoint->stack[depth+k].move=posPoint->stack[depth+k+1].move;
@@ -1234,7 +1230,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
   #endif
 
   /*cardsP=NULL;*/
-  const int hand=HandStore(posPoint->stack[depth].first,posPoint->handRelFirst);
+  const int hand=RelativeHand(posPoint->stack[depth].first,posPoint->handRelFirst);
 
   nodes++;
   if (posPoint->handRelFirst==0) {
@@ -1827,7 +1823,7 @@ struct makeType Make(struct pos * posPoint, int depth)  {
     mo2 = previous.move;
     if (contract.betterMove(mo1,mo2)) {
       current.move=mo1;
-      current.high=HandStore(firstHand,3);
+      current.high=RelativeHand(firstHand,3);
     } else {
       current.move=mo2;
       current.high=previous.high;
@@ -1849,13 +1845,13 @@ struct makeType Make(struct pos * posPoint, int depth)  {
       posPoint->stack[depth-1].first=current.high;   
       /* Defines who is first in the next move */
 
-    t=HandStore(firstHand,3);
+    t=RelativeHand(firstHand,3);
     posPoint->handRelFirst=0;      /* Hand pointed to by posPoint->first
                                     will lead the next trick */
 
     done=FALSE;
     for (s=3; s>=0; s--) {
-      q=HandStore(firstHand,3-s);
+      q=RelativeHand(firstHand,3-s);
       /* Add the moves to removed ranks */
       r=movePly[depth+s].current;
       w=movePly[depth+s].move[r].rank;
@@ -1899,13 +1895,13 @@ struct makeType Make(struct pos * posPoint, int depth)  {
     mo2=previous.move;
     if (contract.betterMove(mo1,mo2)) {
       current.move=mo1;
-      current.high=HandStore(firstHand,posPoint->handRelFirst);
+      current.high=RelativeHand(firstHand,posPoint->handRelFirst);
     } else {
       current.move=previous.move;
       current.high=previous.high;
     }
     
-    t=HandStore(firstHand,posPoint->handRelFirst);
+    t=RelativeHand(firstHand,posPoint->handRelFirst);
     posPoint->handRelFirst++;               /* Current hand is stepped */
     posPoint->stack[depth-1].first=firstHand;     /* First hand is not changed in
                                             next move */
@@ -1955,13 +1951,13 @@ void Undo(struct pos * posPoint, int depth)  {
         posPoint->secondBest[u].rank=posPoint->winner[u].rank;
         posPoint->secondBest[u].hand=posPoint->winner[u].hand;
         posPoint->winner[u].rank=w;
-        posPoint->winner[u].hand=HandStore(firstHand,3-s);
+        posPoint->winner[u].hand=RelativeHand(firstHand,3-s);
       } else if (w>posPoint->secondBest[u].rank) {
         posPoint->secondBest[u].rank=w;
-        posPoint->secondBest[u].hand=HandStore(firstHand,3-s);
+        posPoint->secondBest[u].hand=RelativeHand(firstHand,3-s);
       }
     }
-    t=HandStore(firstHand,3);
+    t=RelativeHand(firstHand,3);
 
         
     if (nodeTypeStore[posPoint->stack[depth-1].first]==MAXNODE) {
@@ -1969,7 +1965,7 @@ void Undo(struct pos * posPoint, int depth)  {
       posPoint->tricksMAX--;
     }
   } else {
-    t=HandStore(firstHand,posPoint->handRelFirst);
+    t=RelativeHand(firstHand,posPoint->handRelFirst);
     r=movePly[depth].current;
     u=movePly[depth].move[r].suit;
     w=movePly[depth].move[r].rank;
@@ -2963,7 +2959,7 @@ int MoveGen(const struct pos * posPoint, const int depth) {
   m=0;
   r=posPoint->handRelFirst;
   const int first=posPoint->stack[depth].first;
-  const int q=HandStore(first,r);
+  const int q=RelativeHand(first,r);
   
   s=movePly[depth+r].current;             /* Current move of first hand */
   t=movePly[depth+r].move[s].suit;        /* Suit played by first hand */
