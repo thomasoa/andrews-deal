@@ -1,5 +1,6 @@
 <head>
-<!-- $Id: commands.html,v 1.12 2008-06-18 16:28:34 thomaso Exp $ -->
+<!-- $Id: commands.html,v 1.13 2008-06-30 13:56:17 thomaso Exp $ -->
+<link rel="stylesheet" type="text/css" href="commands.css">
 <title>Deal Commands</title>
 <body bgcolor="#EEEEFF">
 <h1>Introduction</h1>
@@ -27,26 +28,26 @@ interested in finding code definitions.</font>
 <table cellpadding=5 width="100%">
 <tr valign="top"><td width="65%">
 <h2>Usage</h2>
-<blockquote><pre>
+<pre class='example'>
 east [ -void <em>string</em>] [ <em>suitname</em> ... ]
 hand {<em>hand string</em>} [ -void <em>string</em>] [ <em>suitname</em> ... ]
 
 south <em>subcommand</em> [ <em>... args ...</em> ]
 hand {<em>hand string</em>} <em>subcommand</em> [ <em>... args ...</em> ]
-</pre></blockquote>
+</pre>
 These are very strange commands - they really have too much stuffed
 into them.  That's a historical anomoly which I'm reluctant to abandon.
 <p>
 With no subcommands, the routine is used for formatting the hand as
 a string. For example, if south is:
-<blockquote><pre>
+<pre class='example'>
 S: AJ5432
 H: KT94
 D: void
 C: K93
-</pre></blockquote>
+</pre>
 Then the results of various commands are:
-<blockquote><pre>
+<pre class='example'>
 south                    =>    {AJ5432 KT94 {} K93}
 south spades             =>    AJ5432
 south hearts clubs       =>    {KT94 K93}
@@ -58,7 +59,7 @@ hand $h                  =>    {AK4 {} A95432 JT98}
 hand $h spades           =>    AK4
 hand $h hearts clubs     =>    {{} JT98}
 hand $h -void -          =>    {AK4 - A95432 JT98}
-</pre></blockquote>
+</pre>
 The -void switch exists precisely for formatting the output.
 <p>
 The various subcommands will be treated in seperate sections.
@@ -76,40 +77,40 @@ The <code>hand</code> version of this command only works with some subcommands.
 </table></td><tr valign=top><td width="65%">
 <h2>Subcommand: <code>shape</code></h2>
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 north shape
 hand {AJTxx Axx JTxx x} shape
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 Returns a list of suit lengths, in standard order.
 <p>
 For example, the second command above would return the list:
-<blockquote><pre>
+<pre class='example'>
 5 3 4 1
-</pre></blockquote>
+</pre>
 <h2>Subcommand: <code>pattern</code></h2>
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 north pattern
 hand {AJ32 A5 JTxx xxx} pattern
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 Returns a sorted list of the suit lengths, starting with the longest.
 For example, the second command above would return the list:
-<blockquote><pre>
+<pre class='example'>
 4 4 3 2
-</pre></blockquote>
+</pre>
 <h2>Subcommand: <code>is</code></h2>
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 south is {<em>handstring</em>}
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 This command pre-places a specific 13 cards. For voids, you can use
 the "<code>-</code>" character:
-<blockquote><pre>
+<pre class='example'>
 south is {AJ32 KT932 - Q876}
-</pre></blockquote>
+</pre>
 Calls to this subcommand must occur before dealing begins, outside the
 "<code><a href="#main">main</a></code>" command.  
 <p>
@@ -117,34 +118,34 @@ This subcommand calls the <a href="#stack_hand"><code>stack_hand</code> command.
 Inside the <code>main</code> code, the deal is already dealt.
 <h2>Subcommand: <code>gets</code></h2>
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 <em>handname</em> gets <em>card</em> [<em>card</em> ...]
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 Puts a specific list of cards in the hand named.  As with the
 "<code>is</code>" subcommand, this must be called before dealing
 starts, outside the "<code><a href="#main">main</a></code>" command.
 The card is specified in two characters, a rank character and a suit
 character:
-<blockquote><pre>
+<pre class='example'>
 AS KH JH 9D
-</pre></blockquote>
+</pre>
 This routine dispatches its data to <a href="#stack_cards">the <code>stack_cards</code> command.</a>
 
 <h2>Subcommand: <code>has</code></h2>
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 <em>handname</em> has <em>card</em> [<em>card</em> ...]
 hand {<em>string</em>} has <em>card</em> [...]
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 This returns a count of the cards listed that occur in the hand named.
-<blockquote><pre>
+<pre class='example'>
 % south
 AJ54 JT54 43 654
 % south has SA HK HJ HT
 3
-</pre></blockquote>
+</pre>
 </td><td width="35%">&nbsp;</td></table>
 <hr>
 <h1>Control commands</h1>
@@ -152,42 +153,42 @@ AJ54 JT54 43 654
 <h2>Commands: <code>accept</code> and <code>reject</code></h2>
 <table width="100%" cellpadding=5><tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 accept [ [ if | unless ] <em>expr expr ...</em>]
 reject [ [ if | unless ] <em>expr expr ...</em>]
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 Without arguments, <code>accept</code> and <code>reject</code> are the
 same as <nobr><code>return 1</code></nobr> and <nobr><code>return
 0</code></nobr>, respectively.  
 <p>
 With arguments it's a little more obscure.
-<blockquote><pre>
+<pre class='example'>
 accept if {$h>4}
-</pre></blockquote>
+</pre>
 This returns 1 if the expression matches.  It is equivalent to:
-<blockquote><pre>
+<pre class='example'>
 if {$h>4} { return 1 }
-</pre></blockquote>
+</pre>
 The code:
-<blockquote><pre>
+<pre class='example'>
 accept if {$h>4} {$s>4}
-</pre></blockquote>
+</pre>
 Is logically equivalent to:
-<blockquote><pre>
+<pre class='example'>
 if {$h>4 || $s>4} { return 1}
-</pre></blockquote>
+</pre>
 That is, the values are accepted if either of the expressions
 evaluates as true.
 <p>
 The <code>unless</code> option does the opposite:
-<blockquote><pre>
+<pre class='example'>
 accept unless {$h>4} {$s>4}
-</pre></blockquote>
+</pre>
 This is equivalent to:
-<blockquote><pre>
+<pre class='example'>
 if {!($h>4) || !($s>4)} { return 1 }
-</pre></blockquote>
+</pre>
 <p>
 The means we return with a true value <em>unless</em> one of the expressions
 is true.  If one of the values is true, we simply go on to the next line.
@@ -213,24 +214,24 @@ reasons are obsolote with Tcl 8.x, but I like the mnemonic enough
 to keep it, and removing it might confuse old users.</font>
 </table><br>
 <table border=2 bgcolor="#DDEEFF" width=100%>
-<tr valign=top><td>
+<tr valign=top><td class='experts'>
 <font size="-1" color="#000066"><b>For Tcl Experts:</b><p>
 There actually is one subtle and occasionally useful distinction
 between <code>accept/reject</code> and the stated "<nobr><code>if {...} { return ... }</code></nobr>"
 version.  In reality:
-<blockquote><pre>
+<pre class='example'>
 accept if {$h>4} {$s>4}
-</pre></blockquote>
+</pre>
 is equivalent to:
-<blockquote><pre>
+<pre class='example'>
 if {$h>4||$s>4} { 
     return 1
 }
 expr 0
-</pre></blockquote>
+</pre>
 This only matters when the command is the last
 command in a procedure.  The two procedures:
-<blockquote><pre>
+<pre class='example'>
 proc A {h s} {
     if {$h>4||$s>4} {
         return 1
@@ -240,7 +241,7 @@ proc A {h s} {
 proc B {h s} {
      accept if {$h>4} {$s>4}
 }
-</pre></blockquote>
+</pre>
 are slightly different.
 A call of <code>A 3 3</code> returns an empty string, while a call
 of <code>B 3 3</code> returns 0. That can be useful, as you can see
@@ -254,11 +255,11 @@ here.</font></td>
 <table cellspacing=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 main {
    <em>block of code</em>
 }
-</pre></blockquote>
+</pre>
 
 <h3>Summary</h3>
 This defines the primary block of code evaluated after <em>each</em>
@@ -282,9 +283,9 @@ found and exit if the limit is reached.
 <table cellspacing=5 width="100%">
 <tr valign=top><td width=65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 whogets <em>cardname</em>
-</pre></blockquote>
+</pre>
 This returns the name of the person holding the card <em>cardname</em>.
 </td><td width="35%">
 <table border=2 bgcolor="#EEFFDD" width="100%">
@@ -302,11 +303,11 @@ This returns the name of the person holding the card <em>cardname</em>.
 <table cellspacing=5 width="100%">
 <tr valign=top><td width=65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 deal_finished {
    <em>block of code</em>
 }
-</pre></blockquote>
+</pre>
 This defines the code called at the completion of generating all deals.
 This is code you would use to dump statistics, for example.
 </td><td width="35%">
@@ -329,11 +330,11 @@ There are some standard interfaces to bridge evaluation functions.
 Any procedure defined entirely based on the values in one hand is considered
 a <em>hand procedure</em>.  These procedures can be called in one of two
 ways:
-<blockquote><pre>
+<pre class='example'>
 Weak2Bid <em>handname</em>
 
 Weak2Bid hand {AKQxxx xxx xxx x}
-</pre></blockquote>
+</pre>
 The <em>handname</em> parameter can be one of
 <code>north</code>, <code>south</code>, <code>east</code>, <code>west</code>.
 <a href="#shapes">Shape procedures</a> and <a href="#holdingp">holding
@@ -344,7 +345,7 @@ options.
 <h3>Shape procedures</h3>
 Any procedure defined on the shape of a hand can be called with one of
 the following methods:
-<blockquote><pre>
+<pre class='example'>
 balanced <em>handname</em>
 
 balanced hand {AJ43 AKxx xxx K5}
@@ -352,7 +353,7 @@ balanced hand {AJ43 AKxx xxx K5}
 balanced eval 4 3 4 2
 
 balanced shape {4 3 4 2}
-</pre></blockquote>
+</pre>
 This follows the <a href="#hand">hand procedure</a> outline with the
 addition of the <code>eval</code> option.
 <p>
@@ -376,13 +377,13 @@ across all suits, and get 5 losers, total.  <p> The interface lets
 you evaluate the entire hand, or only selected suits in a hand, or
 a specific list of holdings.
 
-<blockquote><pre>
+<pre class='example'>
 hcp <em>handname</em> [ <em>suitname</em> ...  ]
 
 hcp hand {AKJxxx K xxx xxx} [ <em>suitname</em> ...  ]
 
 hcp holding AK43 [ ... ]
-</pre></blockquote>
+</pre>
 In the first two cases, if no suits are named, all suits are evaluated, and
 the results are accumulated.  In the case of the <code>holding</code> call,
 the specific holdings passed in are evaluated.
@@ -390,10 +391,10 @@ the specific holdings passed in are evaluated.
 Note, I've been saying "accumulated" rather than added.  In some cases,
 you might have an accumulation method different from addition.  For example,
 you might return the standard opening leads from a holding:
-<blockquote><pre>
+<pre class='example'>
     openingLead holding KQJ7    =>   K
     openingLead south           => {K} {7 2} {4} {J}
-</pre></blockquote>
+</pre>
 Each suit would create a list of proposed leads, and the result would be
 a list of lists of all standard leads from all holdings.  Here, the
 accumulation is to simply make a list.
@@ -405,13 +406,13 @@ accumulation is to simply make a list.
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 balanced <em>handname</em>
 
 balanced hand {<em>text hand</em>}
 
 balanced eval <em>s</em> <em>h</em> <em>d</em> <em>c</em>
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 These are both <a href="#shapes">shape procedures</a>.
 <p>
@@ -444,10 +445,10 @@ as he likes.
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
      <code>spades</code> <em>handname</em>
      <code>spades</code> <code>hand</code> <code>{AKxx Axx AJxx Kx}</code>
-</pre></blockquote>
+</pre>
 These implement the <a href="#hand">hand procedure</a> interface, and
 return the suit lengths for the appropriate suit.
 <td width="65%"><table border=2 bgcolor="#EEFFDD" width="100%">
@@ -472,12 +473,12 @@ left them this way.
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 hcp <em>handname</em>
 hcp <em>handname</em> <em>suitname</em> [<em>suitname</em> ...]
 hcp hand {<em>s h d c</em>}
 hcp hand {<em>s h d c</em>} <em>suitname</em> [<em>suitname</em> ...]
-</pre></blockquote>
+</pre>
 This procedure computes standard high card points - ace is 4, king
 is 3, queen is 2, jack is 1. The procedure implements the 
 <a href="#holdingp">holding procedure</a> interface.
@@ -501,12 +502,12 @@ is 3, queen is 2, jack is 1. The procedure implements the
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 losers <em>handname</em>
 losers <em>handname</em> <em>suitname</em> [<em>suitname</em> ...]
 losers hand {<em>s h d c</em>}
 losers hand {<em>s h d c</em>} <em>suitname</em> [<em>suitname</em> ...]
-</pre></blockquote>
+</pre>
 This implements a <a href="#holdingp">holding procedure</a> which
 computes the number of <em>half losers</em>.  This is for historical reasons -
 the only holding functions allowed in past releases returned integer
@@ -536,11 +537,11 @@ It is probably better to reimplement in <code>Tcl</code> using
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 lho <em>handname</em>
 rho <em>handname</em>
 partner <em>handname</em>
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 These routines accept one hand name and return another. For example,
 "<nobr><code>lho north</code></nobr>" returns "<code>east</code>," and
@@ -565,7 +566,7 @@ returns "<code>west</code>."
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 holding length AJxx           =>     4
 
 holding contains AJ64 A6      =>     1 (true)
@@ -585,7 +586,7 @@ holding index AKJ4 1          =>     K
 holding index AKJ4 3          =>     4
 holding index AKJ4 -2         =>     J
 holding index AKJ4 10         =>     ""
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 <td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
 <tr>
@@ -606,18 +607,18 @@ holding index AKJ4 10         =>     ""
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 source lib/score.tcl
    ...
 score <em>contract</em> <em>vulnerability</em> <em>tricks</em>
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 This routine computes the standard duplicate bridge score for a contract
 from the point of view of declarer, if declaring side takes the given number
 of tricks.
 <p>
 The <em>contract</em> is passed as a list:
-<blockquote><pre>
+<pre class='example'>
 2 spades
 
 2 spades undoubled 
@@ -625,7 +626,7 @@ The <em>contract</em> is passed as a list:
 4 clubs doubled
 
 6 notrump redoubled
-</pre></blockquote>
+</pre>
 The <em>vulnerablity</em> is one of the words <code>vul</code> or
 <code>nonvul</code>.
 <p>
@@ -664,9 +665,9 @@ score {2 spades doubled} vul 7      =>  -200
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 deal::tricks <em>declarer</em> <em>denomination</em>
-</pre></blockquote>
+</pre>
 
 <h3>Summary</h3>
 <p><code>deal::tricks</code> returns the maximum number of tricks makable by <em>declarer</em> in the given <em>denomination</em>. 
@@ -711,9 +712,9 @@ if you need all double-dummy values, you would want to write your code as:</p>
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 tricks [ <em>declarer</em> [ <em>denomination</em> [ <em>goal</em> ] ] ]
-</pre></blockquote>
+</pre>
 
 <h3>Summary</h3>
 <p>Unless you are using the <em>goal</em> parameter, you will probably want to use the <a href="#deal::tricks"><code>deal::tricks</code></a> command, since it has the
@@ -743,10 +744,10 @@ advantage of caching values.</p>
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 dds [-reuse | -noreuse] [-diagram <em>diagram</em>] [-goal <em>goal</em>]  
      [-leader <em>leader</em>] [-trick <em>list of cards</em> [-trick <em>cards</em> ] ...] [ <em>declarer</em> [ <em>denomination</em> ] ]
-</pre></blockquote>
+</pre>
 
 <h3>Summary</h3>
 <p>The <code>dds</code> command gives even more refined access to Bo Haglund's double dummy engine, including the ability to solve problems with fewer than 52 cards.
@@ -757,7 +758,7 @@ dds [-reuse | -noreuse] [-diagram <em>diagram</em>] [-goal <em>goal</em>]
 <p>The <code>-leader</code> flag tells the double-dummy solver who is on lead to the current trick.
 <p>The <code>-trick</code> flag gives a list of cards played to the current trick.
 <p>For example, to solve George Coffin's "Avoidance" end position from his <a target="_top" href="http://www.rpbridge.net/9p01.htm">Great 88</a>, you would write:
-<blockquote><pre>
+<pre class='example'>
 set diagram {
            {A987 - A -} 
            {Q5 987 - -} 
@@ -766,15 +767,15 @@ set diagram {
 }
 set tricks [dds -leader south -diagram $diagram south notrump]
 ...
-</pre></blockquote>
+</pre>
 <p>If you wanted to see how many tricks are made if south plays a particular card, say the two of clubs, you would use the -trick flag:
-<blockquote><pre>
+<pre class='example'>
 set tricks [dds -leader south -diagram $diagram -trick 4S south notrump]
-</pre></blockquote>
+</pre>
 You can also pass full tricks, as in:
-<blockquote><pre>
+<pre class='example'>
 set tricks [dds -leader west -diagram $diagram -trick {4S KS 7S 5S} south notrump]
-</pre></blockquote>
+</pre>
 <p>Note that the -leader option always refers to the leader to the current trick, not the leader of earlier completed tricks passed with -trick. Also, the number of tricks returned is the number of tricks after all completed tricks.
 <p>There are example tests of all the Great 88 in the file <code>tests/great88</code> that is included in this release.
 </td>
@@ -797,7 +798,7 @@ set tricks [dds -leader west -diagram $diagram -trick {4S KS 7S 5S} south notrum
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 source lib/parscore.tcl
    ...
 set result [parscore <em>dealer</em> <em>vul</em>]
@@ -807,7 +808,7 @@ set declarer [lindex $result 1]
 set score [lindex $result 2]
 set tricks [lindex $result 3]
 set auction [lindex $result 4]
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 This computes the double-dummy par result for the current deal.
 <p>
@@ -849,11 +850,11 @@ routines only work on Windows at the moment.
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 source lib/gib.tcl
    ...
 gib::directory <em>path</em>
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 This tells the GIB-related routines where GIB is installed.
 <p>
@@ -881,11 +882,11 @@ even on Windows.</em>
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 source lib/gib.tcl
    ...
 gib::tricks <em>declarer</em> <em>denomination</em>
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 <p>You probably want to use the <a href="#deal::tricks"><code>deal::tricks</code></a> command, even when using GIB's double dummy solver.
 <p><em>Denomination</em> can be a suit name or "<code>notrump</code>."
@@ -924,7 +925,7 @@ relatively easily.
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 defvector <em>vec</em> <em>aceVal</em> [ <em>kingVal</em> ... ]
 
 <em>vec</em> <em>handname</em>
@@ -936,19 +937,19 @@ defvector <em>vec</em> <em>aceVal</em> [ <em>kingVal</em> ... ]
 <em>vec</em> <em>handname</em> <em>suitname</em> [ <em>suitname</em> ... ]
 
 <em>vec</em> <code>hand</code> {<em>text hand</em>} <em>suitname</em> ...
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 This defines a <a href="#holdingp">holding procedure</a> which assigns
 integer values to the various cards in the hand.  For example
-<blockquote><pre>
+<pre class='example'>
 defvector hcp6421 6 4 2 1
-</pre></blockquote>
+</pre>
 Defines a holding procedure which counts the ace as worth 6 points, the
 king as worth 4, the queen as 2, and the jack as 1.
 <p>
 Vectors are limited to being integer-valued.  For more complicated
 holding procedures, use <a href="#holdingProc"><code>holdingProc</code></a>.
-</pre></blockquote>
+</pre>
 <td width="35%">
 <table border=2 bgcolor="#EEFFDD" width="100%">
 <tr>
@@ -969,8 +970,8 @@ old optimization which remain mostly for backwards compatibility.
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
-</pre></blockquote>
+<pre class='example'>
+</pre>
 <p>
 Temporarily, see the <a href="holding.html">seperate documentation</a>.
 <td width="65%"><table border=2 bgcolor="#EEFFDD" width="100%">
@@ -991,7 +992,7 @@ Location: <code>holdings.c</code>, function <code>IDeal_DefHoldingProc</code>
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 shapeclass <em>name</em> {... <em>code</em> ...}
 
 shapecond <em>name</em> {<em>expr</em>}
@@ -1004,12 +1005,12 @@ shapefunc <em>name</em> {... <em>code</em> ...}
 
 <em>name</em> shape {<em>s</em> <em>h</em> <em>d</em> <em>c</em>}
 
-</pre></blockquote>
+</pre>
 A shape class (or equivalently, a shape condition) also has the list
 subcommand:
-<blockquote><pre>
+<pre class='example'>
 <em>name</em> list
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 These commands create new procedures which fit the <a href="#shapes">shape
 function</a> interface.
@@ -1017,18 +1018,18 @@ function</a> interface.
 <code>shapeclass</code> and <code>shapecond</code> define procedures which returns boolean
 values. <code>shapefunc</code> can return any type of data.
 <code>shapecond</code> is actually an alias:
-<blockquote><pre>
+<pre class='example'>
 shapecond <em>name</em> {<em>expr</em>}
-</pre></blockquote>
+</pre>
 is the equivalent of:
-<blockquote><pre>
+<pre class='example'>
 shapeclass <em>name</em> {
   if {<em>expr</em>} {
     return 1
   } else {
     return 0
 }
-</pre></blockquote>
+</pre>
 The <em>code</em> or <em>expr</em> is allowed to use the variables
 <code>s</code>, <code>h</code>, <code>d</code>, or <code>c</code>.
 <p>
@@ -1045,22 +1046,22 @@ Let's say you have a class named "SemiBalanced" already defined,
 which includes 5-card majors.  You want to define a "Balanced"
 class which excludes the 5-card majors.  You can do this with
 the call:
-<blockquote><pre>
+<pre class='example'>
 shapecond Balanced {[SemiBalanced eval $s $h $d $c] && $s<5 && $h<5}
-</pre></blockquote>
+</pre>
 
 On the other hand, if you have a shape - output by the, say, a
 call to [north shape] you can evaluate it as:
 
-<blockquote><pre>
+<pre class='example'>
     SemiBalanced shape [north shape]
-</pre></blockquote>
+</pre>
 
 In fact, this is exactly equivalent to calling 
 
-<blockquote><pre>
+<pre class='example'>
     SemiBalanced north
-</pre></blockquote>
+</pre>
 
 only slightly slower.
 
@@ -1083,7 +1084,7 @@ Location: <code>dist.c</code>, functions <code>tcl_shapeclass_define</code>,
 <table cellpadding=5 width="100%">
 <tr><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 sdev <em>name</em>
 
 <em>name</em> add <em>data</em> [ <em>data</em> ... ]
@@ -1095,7 +1096,7 @@ sdev <em>name</em>
 <em>name</em> sdev
 
 <em>name</em> rms
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 
 The "sdev" command defines a new Tcl procedure with the given name, which behaves as a 
@@ -1123,7 +1124,7 @@ usage.
 <table cellpadding=5 width="100%">
 <tr valign="top"><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
      correlation <em>name</em>
 
      <em>name</em> add <em>xval</em> <em>yval</em> [ <em>xval</em> <em>yval</em> ... ]
@@ -1137,7 +1138,7 @@ usage.
      <em>name</em> sdev [ x | y ]
 
      <em>name</em> rms [ x | y ]
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 The <code>correlation</code> declaration defines a routine much like
 the <code>sdev</code> command, but each datapoint is a pair of values,
@@ -1173,9 +1174,9 @@ usage.
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
    deal -x <em>filename</em>
-</pre></blockquote>
+</pre>
 <p>The '-x' flag tells deal to source the file and then exit.</p>
 <p>This is useful if you want to skip the entire deal loop, and process stuff on your own.  For example, the code in <code>tests/great88</code> does not generate any deals, it just solves 88 5-card double-dummy problems.  Before the -x flag, you had to
 explicitly call 'exit' from such scripts.</p>
@@ -1188,9 +1189,9 @@ explicitly call 'exit' from such scripts.</p>
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
    set deal [full_deal]
-</pre></blockquote>
+</pre>
 <p>This simple utility command returns the deal as a list of hands in the order of north, east, south, and west.  Suitable for psassing into <a href="#ddscmd"><code>dds</code></a> with the <code>-diagram</code> flag, or remembering a deal after the end of the loop.
 </td>
 <td></td>
@@ -1201,23 +1202,23 @@ explicitly call 'exit' from such scripts.</p>
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 seed_deal <em>number</em>
-</pre></blockquote>
+</pre>
 <h3>Command Line: -s</h3>
-<blockquote><pre>
+<pre class='example'>
 $ deal -s <em>number</em> ...
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 <p><code>seed_deal</code> is used to seed the random number generator, to make sure that Deal generates the same sequence of
 random numbers.
 <p>Care has to be taken if you want to make sure that you are generating the same sequence of deals.  For one thing, if you have a <code>main</code> inner loop, you should add the command "finish_deal" to the <code>main</code> section.
-<blockquote><pre>
+<pre class='example'>
 main {
    finish_deal
    ...
 }
-</pre></blockquote>
+</pre>
 <p>That bypasses some optimizations and forces an entire deal to be generated each time through <code>main</code>.
 
 <a name="deal_deck"></a>
@@ -1225,9 +1226,9 @@ main {
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 deal_deck
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 <code>deal_deck</code> is called at every new deal,
 even when all 52 cards are specified (<em>stacked</em>) precisely.
@@ -1240,12 +1241,12 @@ useful to understand its behavior if you are going to write advanced
 procedures like <a href="#deal::input">input formats.</a>
 <p>
 Stacked cards are permanently stacked until the deck is reset.  In this code:
-<blockquote><pre>
+<pre class='example'>
     stack_hand south {AKQ32 AJ53 K54 2}
     deal_deck
     deal_deck
     puts [south spades]
-</pre></blockquote>
+</pre>
 The output is "AKQ32".  Use <a href="#reset_deck"><code>reset_deck</code></a>
 to undo card stackings.
 <p>
@@ -1286,9 +1287,9 @@ deals in other ways, such as <a href="#smartstack">smart stacking.</a>
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 reset_deck
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 This forgets about all stacked cards.  The <em>deck</em>, from <em>Deal</em>'s
 point of view, plus a list of cards which must go to specific hands.
@@ -1315,10 +1316,10 @@ which are not stacked can go anywhere at the next call to
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 stack_hand <em>handname</em> <em>hand</em>
 stack_cards <em>handname</em> <em>suitname</em> <em>holding</em> [...]
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 By default, these two routines just call <a href="#deck_stack_hand">
 deck_stack_hand and deck_stack_cards,</a>
@@ -1327,12 +1328,12 @@ respectively - that is, they forcibly place cards in the deck.
 But these routines are meant to be overridden.  For example, when using
 one of the <em>input formats</em> which reads deals from a file,
 the format will redefine these two procedures to give errors.
-<blockquote><pre>
+<pre class='example'>
 % deal -I "line foo.txt" -e "stack_cards south spades AJ"
 Tcl stack dump of error info:
 No card stacking with input format ::line
 <em>...</em>
-</pre></blockquote>
+</pre>
 A more complicated re-definition occurs in the <a name="#smartstack">
 <code>smartstack</code> input format,</a> which alters its hand
 generation depending on what cards are stacked where.
@@ -1357,10 +1358,10 @@ generation depending on what cards are stacked where.
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 deck_stack_hand <em>handname</em> <em>hand</em>
 deck_stack_cards <em>handname</em> <em>suitname</em> <em>holding</em> [...]
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 These routines are the "underlying" deck-stacking routines.  Any cards
 stacked with these routines remain stacked until the next call to
@@ -1384,26 +1385,26 @@ stacked with these routines remain stacked until the next call to
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 stacked <em>handname</em>
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 Determines what cards are stacked to this hand, returning them as
 a list of holdings:
-<blockquote><pre>
+<pre class='example'>
 south gets AS KH 3H QD JD TC 9C 8C
 puts [stacked south]
-</pre></blockquote>
+</pre>
 writes out the list:
-<blockquote><pre>
+<pre class='example'>
 A K3 QJ T98
-</pre></blockquote>
+</pre>
 This is useful for the <a href="#smartstack">smartstacker</a>, because
 we don't want to force the user to stack cards *after* specifying conditions.
-<blockquote><pre>
+<pre class='example'>
 stack_hand north {AJT KT3 KJ 75432}
 deal::input smartstack south balanced hcp 20 21
-</pre></blockquote>
+</pre>
 The call to <code>stack_hand</code> occurs before <code>smartstack</code>
 is loaded, so <code>stack_hand</code> has not been redefined.  So what
 <code>smartstack</code> does is read the cards already stacked, and
@@ -1428,9 +1429,9 @@ use that for its initial conditions.
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 ::deal::nostacking
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 This procedure redefines the <a href="#stack_hand">stack_hand and
 stack_cards</a> procedures to generate error messages, and
@@ -1458,9 +1459,9 @@ files, and thus are incompatible with stacking.
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 deal_reset_cmds {<em>...code...</em>} [ ... ]
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 This adds a set of commands that are to be called before the next
 deal.  The code is executed at the next call to the
@@ -1475,7 +1476,7 @@ such as cached values and the like, are unset.  See
 It is also used for defining <a href="#deal::input">input formats,</a>
 so that deals can be read from files.  For example, the "line" input format
 has the following routine declared:
-<blockquote><pre>
+<pre class='example'>
 namespace eval line {
     #....
     proc next {} {
@@ -1488,7 +1489,7 @@ namespace eval line {
 	deal_reset_cmds {::line::next}
     }
 }
-</pre></blockquote>
+</pre>
 <p>
 The key is that when <code>line::next</code> is done, it re-registers itself, making
 sure that it is called next time through as well.
@@ -1517,9 +1518,9 @@ counter-intuitive until you think of the process as an "undo" process.
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 deal::metadata <em>name</em> {<em>...code...</em>}
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 Currently, this is just a peculiar way of caching slow evaluation routines.
 At the moment, the only place it is used is in
@@ -1560,9 +1561,9 @@ command is called.
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 deal::input <em>formatName</em> <em>args</em>
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 The <code>deal::input</code> command is used to define an input source
 for deals. It works as follows:
@@ -1596,17 +1597,17 @@ representing the source file.
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 deal::input giblib [<em>filename</em>]
-</pre></blockquote>
+</pre>
 or on the command line:
-<blockquote><pre>
+<pre class='example'>
 % deal -I giblib
-</pre></blockquote>
+</pre>
 or
-<blockquote><pre>
+<pre class='example'>
 % deal -I "giblib <em>filename</em>"
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 Specifies that deals are read from the specified file in the format
 of Matt Ginsberg's library.dat file.  This includes double-dummy tricks
@@ -1638,9 +1639,9 @@ This procedure uses <a href="#deal_reset_cmds">deal_reset_cmds</a>.
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 deal::input line [<em>filename</em>]
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 Specifies that deals are read from the specified file in the format
 written by Deal's "-l" option.
@@ -1648,17 +1649,17 @@ written by Deal's "-l" option.
 If no filename is given, the library reads from standard
 input.  This way, you can create a single data file and then
 run several different queries against it:
-<blockquote><pre>
+<pre class='example'>
 % deal -l 100000 > sample
 % deal -e "deal::input line sample" -i query1
 % deal -e "deal::input line sample" -i query2
-</pre></blockquote>
+</pre>
 [ The <code>-e</code> option just evaluates the code in the next
 argument as Tcl code.  Alternative, you can use the <code>-I</code>
 option, which is shorthand for input formats:
-<blockquote><pre>
+<pre class='example'>
 % deal -I "line sample" -i query1
-</pre></blockquote>
+</pre>
 The <code>-I <em>args</em></code> option is exactly the same as -e "deal::input <em>args</em>"
 
 <td width="35%">
@@ -1678,9 +1679,9 @@ The <code>-I <em>args</em></code> option is exactly the same as -e "deal::input 
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 deal::input line [<em>filename</em>]
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 <p>Specifies that deals are read from the specified file in the format
 written by Deal's <a href="#format:ddline"><code>ddline</code> format.</a>
@@ -1702,13 +1703,13 @@ written by Deal's <a href="#format:ddline"><code>ddline</code> format.</a>
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 deal::input smartstack <em>hand</em> <em>shapeclass</em> [<em>holdproc</em> <em>min</em> <em>max</em>]
-</pre></blockquote>
+</pre>
 or on the command line:
-<blockquote><pre>
+<pre class='example'>
 % deal -I "smartstack <em>shapeclass</em> ..."
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 This is the most complicated Deal input method in the current release.
 It does not read deals from a file - it is, instead, a different path to
@@ -1716,9 +1717,9 @@ generation of deals.  The purpose of this format is to allow fast generations
 of deals where one hand fits a very specific description.  For example,
 if you want to find hands where south has a balanced 27-count, you
 could write:
-<blockquote><pre>
+<pre class='example'>
 deal::input smartstack south balanced hcp 27 27
-</pre></blockquote>
+</pre>
 On my computer, that returns the first deal in 14 seconds, and every deal after
 that takes a tiny fraction of a second.  That's because <code>smartstack</code>
 first builds a large "factory" in memory, but once it is built, the
@@ -1766,13 +1767,13 @@ describing the algorithm:
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 write_deal
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 This is the the name of a procedure which is called when deals are accepted.
 By default, it writes the result in the format:
-<blockquote><pre>
+<pre class='example'>
           S: 98632
           H: A4
           D: AJ754
@@ -1786,7 +1787,7 @@ By default, it writes the result in the format:
           D: K63
           C: Q6
 --------------------------
-</pre></blockquote>
+</pre>
 New output formats are defined by <em>redefining this routine</em>.
 <td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
 <tr>
@@ -1806,9 +1807,9 @@ New output formats are defined by <em>redefining this routine</em>.
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 flush_deal
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 This routine is called at the very end of a run for deal. It does nothing,
 by default, but some output formats may require it if data is cached.
@@ -1831,12 +1832,12 @@ by default, but some output formats may require it if data is cached.
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 source format/par
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 <p>By including this file, you are setting the output format to write the results in PBN format, with results set to the double dummy theoretical par.
-<blockquote><pre>
+<pre class='example'>
 $ deal -i format/par 1
 [Date "2008.05.19"]
 [Board "1"]
@@ -1889,7 +1890,7 @@ west makes 1 tricks in notrump
 Pass   Pass   6N
 [Play "W"]
 *
-</pre></blockquote>
+</pre>
 <td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
 <tr>
 <td ><font size=-1 color="#006600"><b>For Programmers</b><p>
@@ -1909,18 +1910,18 @@ Pass   Pass   6N
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 source format/ddline
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 <p>By including this file, you are redefining the output format to the form "ddline", which writes out the deal on a single line, as with the '-l' flag, but then adds complete double-dummy data to the deal as well.  If you write the output to a file:
-<blockquote><pre>
+<pre class='example'>
 $ deal -i format/ddline 100 > doubledummy.txt
-</pre></blockquote>
+</pre>
 <p>then you can use the <a href="#ddline"><code>ddline</code> input format</a> to read the file back in:
-<blockquote><pre>
+<pre class='example'>
 $ deal -I "ddline doubledummy.txt" -i query.tcl 100
-</pre></blockquote>
+</pre>
 <p>And any call to <code>deal::tricks</code> in query.tcl will use the value stored doubledummy.txt.
 <td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
 <tr>
@@ -1954,7 +1955,7 @@ or output formats, or a host of other nifty features.
 <table cellpadding=5 width="100%">
 <tr valign=top><td width="65%">
 <h3>Usage</h3>
-<blockquote><pre>
+<pre class='example'>
 define_hook <em>hookname</em>
 
 <em>hookname</em> add <em>code</em> [<em>code</em> ...]
@@ -1969,7 +1970,7 @@ define_hook <em>hookname</em>
 
 <em>hookname</em> clear
 
-</pre></blockquote>
+</pre>
 <h3>Summary</h3>
 At definition time, it creates a procedure under the given name.
 <p>

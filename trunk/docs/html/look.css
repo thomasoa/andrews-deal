@@ -37,6 +37,12 @@ span.code {
     white-space: nowrap ;
 }
 
+pre.example {
+  padding: 1em;
+  background: #CCCCCC;
+  white-space: pre;
+}
+
 div.codesample, pre.codesample { 
 	width: 0 ;
 	font-family: Courier, monospace; 
