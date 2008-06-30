@@ -2,7 +2,7 @@ Changes in Deal 3.1.5
 
    * Changes to DDS to clarify code and very slightly improve performance
 
-   * Allow full played tricks to -trick option to 'dds' command
+   * Allow fully played tricks to -trick option to 'dds' command
 
    * Documentation for 'dds'  -trick option
 
