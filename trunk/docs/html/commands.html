@@ -1,5 +1,5 @@
 <head>
-<!-- $Id: commands.html,v 1.14 2008-06-30 15:35:39 thomaso Exp $ -->
+<!-- $Id: commands.html,v 1.15 2008-06-30 15:37:26 thomaso Exp $ -->
 <link rel="stylesheet" type="text/css" href="commands.css">
 <title>Deal Commands</title>
 <body bgcolor="#EEEEFF">
@@ -655,8 +655,7 @@ deal::tricks <em>declarer</em> <em>denomination</em>
 double-dummy solver.</p>
 <p>Bo Haglund's solver has a feature which makes it faster if the next double dummy solver call is in the same denomination as the previous call.  That means that
 if you need all double-dummy values, you would want to write your code as:</p>
-<blockquote>
-<pre>
+<pre class='example'>
    foreach denom {clubs diamonds hearts spades notrump} {
      foreach hand {north east south west} {
        set tricks [deal::tricks $hand $denom]

@@ -3,7 +3,7 @@ pre.example {
   white-space: pre;
 }
 
-div.tcl {
+.tcl {
   color: #000066;
   background: #DDEEFF;
   font-size: smaller;
@@ -12,9 +12,12 @@ div.tcl {
   width: 90%;
 }
 
-div.programmer {
+.programmer {
   color: #006600;
   background: #EEFFDD;
+}
+
+.tcl, .programmer {
   font-size: smaller;
   padding: 1em;
   width: 90%;
