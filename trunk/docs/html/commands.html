@@ -1,5 +1,5 @@
 <head>
-<!-- $Id: commands.html,v 1.13 2008-06-30 13:56:17 thomaso Exp $ -->
+<!-- $Id: commands.html,v 1.14 2008-06-30 15:35:39 thomaso Exp $ -->
 <link rel="stylesheet" type="text/css" href="commands.css">
 <title>Deal Commands</title>
 <body bgcolor="#EEEEFF">
@@ -9,16 +9,17 @@ This is meant to be a comprehensive list of commands in Deal which
 are not native to Tcl.  If you want to learn Tcl, I will be providing
 a set of pointers later.
 <td width="35%">
-<table border=2 bgcolor="#DDEEFF" width="100%"><tr><td>
-<font size=-1 color="#000066">Text in blue is meant for Tcl afficianado
+<div class='tcl'>
+Text in blue is meant for Tcl afficianado
 - reading this text without knowledge of Tcl might confuse more than
-enlighten.</font><br>
-</table>
+enlighten.
+</div>
 <br>
-<table border=2 bgcolor="#EEFFDD" width="100%"><tr><td>
-<font size=-1 color="#006600">Text in green is meant for programmers
-interested in finding code definitions.</font>
-</table></table>
+<div class='programmer'>
+Text in green is meant for programmers
+interested in finding code definitions.
+</div>
+</table>
 <hr>
 
 <a name="north"></a><a name="east"></a><a name="south"></a><a name="west"></a>
@@ -65,16 +66,15 @@ The -void switch exists precisely for formatting the output.
 The various subcommands will be treated in seperate sections.
 
 The <code>hand</code> version of this command only works with some subcommands.
-</td><td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td><font size=-1 color="#006600"><b>For Programmers</b><p>
+</td><td width="35%">
+<div class='programmer'><b>For Programmers</b>
 <dl><dt>Implementation:</dt>
 <dd>C code
 <dt>Location:</dt>
 <dd><code>tcl_deal.c</code>, function <code>tcl_hand_cmd</code>
 </dl>
-</font>
-</table></td><tr valign=top><td width="65%">
+</td>
+<tr valign=top><td width="65%">
 <h2>Subcommand: <code>shape</code></h2>
 <h3>Usage</h3>
 <pre class='example'>
@@ -198,25 +198,22 @@ Virtually all of the examples included in the release contain an
 instance of "accept" or "reject."
 
 <td width="35%">
-<table border=2 bgcolor="#EEFFDD" width=100%>
-<tr valign=top>
-<td>
+<div class='programmer'>
+<b>For Programmers</b>
 <dl>
-<font size="-1" color="#006600"><b>For Programmers:</b><p>
 <dt>Implementation:</dt>
     <dd>C code</dd>
 <dt>Location:</dt>
     <dd>tcl_deal.c, procedure <code>tcl_deal_control</code>.</dd>
 </dl>
-This construct is borrowed from the Perl programming language.
+<p>This construct is borrowed from the Perl programming language.
 Originally, I added it to Deal 2.0 for performance reasons.  Those
 reasons are obsolote with Tcl 8.x, but I like the mnemonic enough
-to keep it, and removing it might confuse old users.</font>
-</table><br>
-<table border=2 bgcolor="#DDEEFF" width=100%>
-<tr valign=top><td class='experts'>
-<font size="-1" color="#000066"><b>For Tcl Experts:</b><p>
-There actually is one subtle and occasionally useful distinction
+to keep it, and removing it might confuse old users.</p>
+</div>
+<div class='tcl'>
+<b>For Tcl Experts</b>
+<p>There actually is one subtle and occasionally useful distinction
 between <code>accept/reject</code> and the stated "<nobr><code>if {...} { return ... }</code></nobr>"
 version.  In reality:
 <pre class='example'>
@@ -243,10 +240,10 @@ proc B {h s} {
 }
 </pre>
 are slightly different.
-A call of <code>A 3 3</code> returns an empty string, while a call
+<p>A call of <code>A 3 3</code> returns an empty string, while a call
 of <code>B 3 3</code> returns 0. That can be useful, as you can see
-here.</font></td>
-</table>
+here.</p>
+</div>
 </table>
 
 <hr>
@@ -268,13 +265,12 @@ deal is generated.  If the code <em>returns</em> true,
 <bold>write_deal</bold>. It will also increment its count of deals
 found and exit if the limit is reached.
 </td><td width="35%">
-<table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td><font size=-1 color="#006600" size=-1><b>For Programmers</b><p>
+<div class='programmer'>
+<b>For Programmers</b>
 <dl><dt>Implementation:</dt><dd>C code</dd>
 <dt>Location:</dt><dd>tcl_deal.c, procedure <code>tcl_deal_control</code>.
 </dl>
-</tr></tr></table>
+</div>
 </table>
 <hr>
 
@@ -288,15 +284,14 @@ whogets <em>cardname</em>
 </pre>
 This returns the name of the person holding the card <em>cardname</em>.
 </td><td width="35%">
-<table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td><font size=-1 color="#006600" size=-1><b>For Programmers</b><p>
+<div class='programmer'>
+<b>For Programmers</b>
 <dl><dt>Implementation:</dt><dd>C code</dd>
 <dt>Location:</dt><dd>tcl_deal.c, procedure <code>tcl_deal_to_whom</code>.
 </dl>
-</td></tr>
+</div>
 </table>
-</table>
+<hr>
 
 <a name="deal_finished"></a>
 <h2>Command: <code>deal_finished</code></h2>
@@ -311,16 +306,15 @@ deal_finished {
 This defines the code called at the completion of generating all deals.
 This is code you would use to dump statistics, for example.
 </td><td width="35%">
-<table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td><font size=-1 color="#006600" size=-1><b>For Programmers</b><p>
+<div class='programmer'>
+<b>For Programmers</b>
 <dl><dt>Implementation:</dt><dd>C code</dd>
 <dt>Location:</dt><dd>tcl_deal.c, procedure <code>tcl_after_set</code>.
-</dl></tr></td></table>
+</dl>
+</div>
 </table>
-
-
 <hr>
+
 <h1>Bridge Evaluators</h1>
 <h2>Common interfaces</h2>
 There are some standard interfaces to bridge evaluation functions.
@@ -421,19 +415,18 @@ without a 5-card major.
 <p>
 <code>semibalanced</code> returns true if the hand has no singletons
  or voids, not six-card majors, and no seven-card minors.
-<td width="65%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%">
+<div class='programmer'>
+<b>For Programmers</b>
 <dl><dt>Implementation:</dt>
 <dd><code>Tcl</code> with <code>shapecond</code>
 <dt>Location:</dt>
-<dd><code>deal.tcl</code>
+<dd><code>lib/features.tcl</code>
 </dl>
-These use to be hard-coded in the C code, but it made more sense
+<p>These use to be hard-coded in the C code, but it made more sense
 to add them to the library code - the user can change the definitions
-as he likes.
-</font>
-</table>
+as he likes.</p>
+</div>
 </table>
 <hr>
 
@@ -451,20 +444,18 @@ as he likes.
 </pre>
 These implement the <a href="#hand">hand procedure</a> interface, and
 return the suit lengths for the appropriate suit.
-<td width="65%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%">
+<div class='programmer'>
+<b>For Programmers</b>
 <dl><dt>Implementation:</dt>
 <dd>
 <dt>Location:</dt>
 <dd><code>tcl_deal.c</code>, function <code>tcl_suit_count</code>
 </dl>
-These could be <em>shape procedures</em> but for speed reasons, I've
-left them this way.
-</font>
+<p>These could be <em>shape procedures</em> but for speed reasons, I've
+left them this way.</p>
+</div>
 </table>
-</table>
-</center>
 <hr>
 
 <h1>Holding Evaluators</h1>
@@ -482,9 +473,8 @@ hcp hand {<em>s h d c</em>} <em>suitname</em> [<em>suitname</em> ...]
 This procedure computes standard high card points - ace is 4, king
 is 3, queen is 2, jack is 1. The procedure implements the 
 <a href="#holdingp">holding procedure</a> interface.
-<td width="65%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'>
+<b>For Programmers</b>
 <dl>
 <dt>Implementation:
 <dd>C code
@@ -492,11 +482,10 @@ is 3, queen is 2, jack is 1. The procedure implements the
 <dd>Built with additive.c, <code>tcl_create_additive</code>
       and deal.c, <code>count_hcp</code>
 </dl>
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
+
 <a name="losers"></a>
 <h2>Command: <code>losers</code></h2>
 <table cellpadding=5 width="100%">
@@ -512,9 +501,9 @@ This implements a <a href="#holdingp">holding procedure</a> which
 computes the number of <em>half losers</em>.  This is for historical reasons -
 the only holding functions allowed in past releases returned integer
 values, but I wanted to have some refinements over raw losing trick count.
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%">
+<div class='programmer'>
+<b>For Programmers</b>
 <dl><dt>Implementation:</dt>
 <dd>C code
 <dt>Location:</dt>
@@ -523,10 +512,8 @@ values, but I wanted to have some refinements over raw losing trick count.
 </dl>
 It is probably better to reimplement in <code>Tcl</code> using
 <a href="#holdingProc"><code>holdingProc</code></a>.
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
 
 <h1>Bridge Logic and Utilities</h1>
@@ -547,18 +534,15 @@ These routines accept one hand name and return another. For example,
 "<nobr><code>lho north</code></nobr>" returns "<code>east</code>," and
 "<nobr><code>partner east</code></nobr>"
 returns "<code>west</code>."
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'>
+<b>For Programmers</b>
 <dl><dt>Implementation:</dt>
 <dd>C code
 <dt>Location:</dt>
 <dd><code>tcl_deal.c</code>, function <code>tcl_other_hand</code>
 </dl>
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
 
 <a name="holding"></a>
@@ -588,18 +572,15 @@ holding index AKJ4 -2         =>     J
 holding index AKJ4 10         =>     ""
 </pre>
 <h3>Summary</h3>
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'>
+<b>For Programmers</b>
 <dl><dt>Implementation:</dt>
 <dd>C code
 <dt>Location:</dt>
 <dd><code>holdings.c</code>, function <code>IDeal_HoldingCmd</code>
 </dl>
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
 
 <a name="score"></a>
@@ -632,8 +613,7 @@ The <em>vulnerablity</em> is one of the words <code>vul</code> or
 <p>
 The <em>tricks</em> is the number of tricks taken by declarer.
 <h3>Examples</h3>
-<blockquote>
-<pre>
+<pre class='exaample'>
 score {2 spades} nonvul 8           =>  110
 score {2 spades doubled} nonvul 8   =>  470
 score {2 spades redoubled} nonvul 8 =>  640
@@ -642,20 +622,16 @@ score {2 spades} nonvul 7           =>  -50
 score {2 spades doubled} nonvul 7   =>  -100
 score {2 spades doubled} vul 7      =>  -200
 </pre>
-</blockquote>
 
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'>
+<b>For Programmers</b>
 <dl><dt>Implementation:</dt>
 <dd>Tcl
 <dt>Location:</dt>
 <dd><code>score.tcl</code>
 </dl>
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
 <a name="dds"></a>
 <h1>Double Dummy Solver</h1>
@@ -691,16 +667,14 @@ if you need all double-dummy values, you would want to write your code as:</p>
 
 
 
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'>
+<b>For Programmers</b>
 <dl><dt>Implementation:</dt>
 <dd>Tcl</dd>
 <dt>Location:</dt>
-<dd><code>deal.tcl</code>
+<dd><code>lib/features.tcl</code>
 </dl>
-</font>
-</table>
+</div>
 </table>
 </center>
 <hr>
@@ -725,18 +699,15 @@ advantage of caching values.</p>
 <p><em>denomination</em> must be a suit name or "notrump."  The default value is "notrump."
 <p><em>goal</em> must be an integer value, either -1 for "best play" or a value from 1 to 13 equal to the goal number of tricks for declarer. Default is -1.</p>
 
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'>
+<b>For Programmers</b>
 <dl><dt>Implementation:</dt>
 <dd>C, C++</dd>
 <dt>Location:</dt>
 <dd><code>dds.cpp, tcl_dds.c</code>
 </dl>
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
 
 <a name="ddscmd"></a>
@@ -779,18 +750,14 @@ set tricks [dds -leader west -diagram $diagram -trick {4S KS 7S 5S} south notrum
 <p>Note that the -leader option always refers to the leader to the current trick, not the leader of earlier completed tricks passed with -trick. Also, the number of tricks returned is the number of tricks after all completed tricks.
 <p>There are example tests of all the Great 88 in the file <code>tests/great88</code> that is included in this release.
 </td>
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'><b>For Programmers</b>
 <dl><dt>Implementation:</dt>
 <dd>C, C++</dd>
 <dt>Location:</dt>
 <dd><code>dds.cpp, tcl_dds.c</code>
 </dl>
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
 
 <a name="parscore"></a>
@@ -821,18 +788,14 @@ into a PBN file.
 Dealer is relevant on a few occasions.  If both south and west can make
 1NT, for example, and no 2-level contracts make, then "par" is 1NT by
 whomever gets a chance to bid it first.
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'><b>For Programmers</b>
 <dl><dt>Implementation:</dt>
 <dd>Tcl
 <dt>Location:</dt>
 <dd><code>parscore.tcl</code>
 </dl>
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
 
 
@@ -863,18 +826,14 @@ directory, <nobr><code>C:/Program Files/GIB</code>.</nobr>
 <p>
 <em>Note: your path should include forward slashes '<code>/</code>',
 even on Windows.</em> 
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'><b>For Programmers</b>
 <dl><dt>Implementation:</dt>
 <dd>Tcl</dd>
 <dt>Location:</dt>
 <dd><code>gib.tcl</code>
 </dl>
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
 
 <a name="gib::tricks"></a>
@@ -898,27 +857,23 @@ in this deal, in the given denomination by the given declarer.
 If GIB is installed anywhere unusual, you will need to call
 <a href="#gib::directory"><code>gib::directory</code></a> before
 <code>deal::tricks</code> is called.
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'><b>For Programmers</b>
 <dl><dt>Implementation:</dt>
 <dd>Tcl</dd>
 <dt>Location:</dt>
 <dd><code>gib.tcl</code>
 </dl>
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
 
 <h1>Bridge Command Builders</h1>
 
-A number of common types of bridge functions can easily be implemented to
+<p>A number of common types of bridge functions can easily be implemented to
 run quickly via lookup tables, including 
 <a href="#holdingp">holding</a> and <a href="#shape">shape</a> procedures.
 Deal lets the user take advantage of these two sorts of lookup procedures
-relatively easily.
+relatively easily</p>
 
 <a name="defvector"></a>
 <h2>Command: <code>defvector</code></h2>
@@ -951,18 +906,17 @@ Vectors are limited to being integer-valued.  For more complicated
 holding procedures, use <a href="#holdingProc"><code>holdingProc</code></a>.
 </pre>
 <td width="35%">
-<table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
-Implementation: C<br>
-Location: <code>vector.c</code>
-Vectors are slighly faster than their equivalent
+<div class='programmer'><b>For Programmers</b>
+<dl><dt>Implementation:</dt>
+<dd>C</dd>
+<dt>Location:</dt>
+<dd><code>vector.c</code></dd>
+</dl>
+<p>Vectors are slighly faster than their equivalent
 <a href="#holdingProc"><code>holdingProc</code></a>.  They are an
 old optimization which remain mostly for backwards compatibility.
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
 
 <a name="holdingProc"></a>
@@ -974,15 +928,13 @@ old optimization which remain mostly for backwards compatibility.
 </pre>
 <p>
 Temporarily, see the <a href="holding.html">seperate documentation</a>.
-<td width="65%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><br>
-Implementation: C<br>
-Location: <code>holdings.c</code>, function <code>IDeal_DefHoldingProc</code>
-</font>
+<td width="35%"><div class='programmer'><b>For Programmers</b>
+<dl>
+<dt>Implementation: <dd>C
+<dt>Location: <dd><code>holdings.c</code>, function <code>IDeal_DefHoldingProc</code>
+</dl>
+</div>
 </table>
-</table>
-</center>
 <hr>
 
 <a name="shapeclass"></a>
@@ -1066,13 +1018,13 @@ In fact, this is exactly equivalent to calling
 only slightly slower.
 
 <td width="35%">
-<table border=2 bgcolor="#EEFFDD" width="100%">
-<tr valign>
-<td colspan=2><font size="-1" color="#006600"><b>For Programmers</b><br>
-Implementation: C<br>
-Location: <code>dist.c</code>, functions <code>tcl_shapeclass_define</code>,
+<div class='programmer'>
+<b>For Programmers</b>
+<dl><dt>Implementation: <dd>C
+<dt>Location: <dd><code>dist.c</code>, functions <code>tcl_shapeclass_define</code>,
 <code>tcl_shapecond_define</code>, and <code>tcl_shapefunc_define</code>
-</table>
+</dl>
+</div>
 </table>
 </center>
 <hr>
@@ -1107,18 +1059,18 @@ data points.
 <p>
 
 </td><td width="35%">
-<table width="100%" border=2 bgcolor="#EEFFDD">
-<td><font color="#006600" size=-1><b>For Programmers</b><br>
+<div class='programmer'><b>For Programmers</b><br>
 <dl><dt>Implementation:</dt><dd>C code</dd>
 <dt>Location:</dt><dd>stat.c, function <code>tcl_sdev_define</code>.
 </dl>
-This was implemented in C for efficiency reasons - most real number
+<p>This was implemented in C for efficiency reasons - most real number
 computations really need to be done in C if they are going to be done
 frequently, and here, the "add" command is called quite often in normal
-usage.
-</table>
+usage.</p>
+</div>
 </table>
 <hr>
+
 <a name="correlation"></a>
 <h2>Command: <code>correlation</code></h2>
 <table cellpadding=5 width="100%">
@@ -1155,16 +1107,15 @@ If there is only one pair entered, it will throw an error on
 <code>sdev</code>.
 <p>
 </td><td width="35%">
-<table width="100%" border=2 bgcolor="#EEFFDD">
-<td><font color="#006600" size=-1><b>For Programmers</b><br>
+<div class='programmer'><b>For Programmers</b>
 <dl><dt>Implementation:</dt><dd>C code</dd>
 <dt>Location:</dt><dd>stat.c, function <code>tcl_correlation_define</code>.
 </dl>
-This was implemented in C for efficiency reasons - most real number
+<p>This was implemented in C for efficiency reasons - most real number
 computations really need to be done in C if they are going to be done
 frequently, and here, the "add" command is called quite often in normal
-usage.
-</table>
+usage.</p>
+</div>
 </table>
 
 <h1>Utility Procedures </h1>
@@ -1268,18 +1219,14 @@ is called, it just deals that hand from the file.  This is a crude
 way of allowing Deal to transparently read deals from a file (or generate
 deals in other ways, such as <a href="#smartstack">smart stacking.</a>
 </ul>
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'><b>For Programmers</b>
 <dl><dt>Implementation:</dt>
 <dd>C
 <dt>Location:</dt>
 <dd><code>tcl_deal.c</code>, function <code>tcl_deal_deck</code>
 </dl>
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
 
 <a name="reset_deck"></a>
@@ -1296,18 +1243,14 @@ point of view, plus a list of cards which must go to specific hands.
 The cards which are assigned to specific hands are "stacked."  The cards
 which are not stacked can go anywhere at the next call to
 <a href="#deal_deck">deal_deck</a>.
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'><b>For Programmers</b>
 <dl><dt>Implementation:</dt>
 <dd>C
 <dt>Location:</dt>
 <dd><code>tcl_deal.c</code>, function <code>tcl_reset_deck</code>
 </dl>
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
 
 <a name="stack_hand"></a>
@@ -1338,18 +1281,16 @@ A more complicated re-definition occurs in the <a name="#smartstack">
 <code>smartstack</code> input format,</a> which alters its hand
 generation depending on what cards are stacked where.
 
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'><b>For Programmers</b>
 <dl>
+<dt>Implementation:</dt>
+<dd>C</dd>
 <dt>Location:</dt>
 <dd><code>hand.c</code>, function <code>tcl_stack_hand</code> and
 <code>tcl_stack_cards</code>
 </dl>
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
 
 <a name="deck_stack_hand"></a>
@@ -1366,18 +1307,16 @@ deck_stack_cards <em>handname</em> <em>suitname</em> <em>holding</em> [...]
 These routines are the "underlying" deck-stacking routines.  Any cards
 stacked with these routines remain stacked until the next call to
 <a href="#reset_deck"><code>reset_deck</code></a>
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'><b>For Programmers</b>
 <dl>
+<dt>Implementation:</dt>
+<dd>C</dd>
 <dt>Location:</dt>
 <dd><code>hand.c</code>, function <code>tcl_stack_hand</code> and
 <code>tcl_stack_cards
 </dl>
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
 
 <a name="stacked"></a>
@@ -1410,18 +1349,14 @@ is loaded, so <code>stack_hand</code> has not been redefined.  So what
 <code>smartstack</code> does is read the cards already stacked, and
 use that for its initial conditions.
 <p>
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'><b>For Programmers</b>
 <dl><dt>Implementation:</dt>
-<dd>
+<dd>C</dd>
 <dt>Location:</dt>
 <dd><code>tcl_deal.c</code>, function <code>tcl_stacked_cards</code>
 </dl>
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
 
 <a name="deal::nostacking"></a>
@@ -1439,18 +1374,15 @@ generates an error if any cards are currently stacked.
 <p>
 This is used in all of the input formats which read complete deals from
 files, and thus are incompatible with stacking.
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'>
+<b>For Programmers</b>
 <dl><dt>Implementation:</dt>
-<dd>
+<dd>Tcl code</dd>
 <dt>Location:</dt>
-<dd><code>deal.tcl</code>, function <code>deal::nostacking</code>
+<dd><code>lib/features.tcl</code>, function <code>deal::nostacking</code>
 </dl>
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
 
 
@@ -1499,16 +1431,13 @@ called only once, at the next request for a deal - think of it as
 registering a one-time trigger.  Multiple triggers can be registered -
 they are called in the reverse order that they are added, which can seem
 counter-intuitive until you think of the process as an "undo" process.
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'><b>For Programmers</b>
 <dl><dt>Implementation:</dt>
-<dd>
+<dd>C</dd>
 <dt>Location:</dt>
 <dd><code>tcl_deal.c</code>, function <code>add_reset_cmds</code>
 </dl>
-</font>
-</table>
+</div>
 </table>
 </center>
 <hr>
@@ -1535,26 +1464,23 @@ is, when the next deal is being analyzed, all the cached values are pitched.
 This isn't really necessary or efficient in most cases, but with
 evaluations which take some time, <em>e.g.</em> GIB calls, it
 improves things.
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td colspan=2><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'><b>For Programmers</b>
 <dl><dt>Implementation:</dt>
 <dd><code>Tcl</code>
 <dt>Location:</dt>
-<dd><code>deal.tcl</code>
+<dd><code>lib/features.tcl</code>
 </dl>
-In later releases, metadata read from input streams (say, the fields
+<p>In later releases, metadata read from input streams (say, the fields
 from a PBN file) will also be stored here.
 <p>
 This procedure uses
 <a href="#deal_reset_cmds"><code>deal_reset_cmds</code></a>.
 The metadata is cleared each time the <code>deal_deck</code>
 command is called.
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
+
 <h1>Input formats</h1>
 <a name="deal::input"></a>
 <h2>Command: <code>deal::input</code></h2>
@@ -1580,17 +1506,13 @@ representing the source file.
 </ol>
 </td>
 <td width="35%">
-<table border=2 bgcolor="#EEFFDD" width="100%">
-<tr valign=top>
-<td>
-<dl>
-<font size="-1" color="#006600"><b>For Programmers:</b><p>
+<div class='programmer'><b>For Programmers</b>
 <dt>Implementation:</dt>
     <dd>Tcl code</dd>
 <dt>Location:</dt>
-    <dd>deal.tcl</dd></dt>
+    <dd>lib/features.tcl</dd></dt>
 </dl>
-</table></table>
+</div></table>
 <hr>
 <a name="giblib"></a><a name="library.dat"></a>
 <h2>Input Format: <code>giblib</code></h2>
@@ -1609,10 +1531,10 @@ or
 % deal -I "giblib <em>filename</em>"
 </pre>
 <h3>Summary</h3>
-Specifies that deals are read from the specified file in the format
+<p>Specifies that deals are read from the specified file in the format
 of Matt Ginsberg's library.dat file.  This includes double-dummy tricks
 data, so that later calls to <a href="#deal::tricks"><code>deal::tricks</code></a>
-will not entail calls to the GIB binaries.
+will not entail calls to the GIB binaries.</p>
 <p>
 If no filename is given, the library tries to read from a file called
 "library.dat" in the current directory.
@@ -1621,19 +1543,17 @@ The <code>-I</code> command-line flag is a quick alias for
 <code>deal::input</code>, passing the next argument as
 Tcl arguments to the <code>deal::input</code> command.
 <td width="35%">
-<table border=2 bgcolor="#EEFFDD" width="100%">
-<tr valign="top"><td>
-<dl>
-<font size="-1" color="#006600"><b>For Programmers:</b><p>
+<div class='programmer'><b>For Programmers</b>
 <dt>Implementation:</dt>
     <dd>Tcl code</dd>
 <dt>Location:</dt>
     <dd>input/giblib.tcl</dd></dt>
 This procedure uses <a href="#deal_reset_cmds">deal_reset_cmds</a>.
 </dl>
-</table>
+</div>
 </table>
 <hr>
+
 <a name="line"></a>
 <h2>Input Format: <code>line</code></h2>
 <table cellpadding=5 width="100%">
@@ -1643,7 +1563,7 @@ This procedure uses <a href="#deal_reset_cmds">deal_reset_cmds</a>.
 deal::input line [<em>filename</em>]
 </pre>
 <h3>Summary</h3>
-Specifies that deals are read from the specified file in the format
+<p>Specifies that deals are read from the specified file in the format
 written by Deal's "-l" option.
 <p>
 If no filename is given, the library reads from standard
@@ -1660,19 +1580,16 @@ option, which is shorthand for input formats:
 <pre class='example'>
 % deal -I "line sample" -i query1
 </pre>
-The <code>-I <em>args</em></code> option is exactly the same as -e "deal::input <em>args</em>"
+The <code>-I <em>args</em></code> option is exactly the same as -e "deal::input <em>args</em>".]
 
 <td width="35%">
-<table border=2 bgcolor="#EEFFDD" width="100%">
-<tr valign="top"><td>
-<dl>
-<font size="-1" color="#006600"><b>For Programmers:</b><p>
+<div class='programmer'><b>For Programmers</b>
 <dt>Implementation:</dt>
     <dd>Tcl code</dd>
 <dt>Location:</dt>
     <dd>input/line.tcl</dd></dt>
 </dl>
-</table>
+</div>
 </table>
 <a name="ddline"></a>
 <h2>Input Format: <code>ddline</code></h2>
@@ -1687,16 +1604,13 @@ deal::input line [<em>filename</em>]
 written by Deal's <a href="#format:ddline"><code>ddline</code> format.</a>
 <p>The ddline format include doubled-dummy tricks data, so when using <code>ddline</code> for input, calls to <a href="deal::tricks">deal::tricks</a> return the data read from the file.
 <td width="35%">
-<table border=2 bgcolor="#EEFFDD" width="100%">
-<tr valign="top"><td>
-<dl>
-<font size="-1" color="#006600"><b>For Programmers:</b><p>
+<div class='programmer'><b>For Programmers</b>
 <dt>Implementation:</dt>
     <dd>Tcl code</dd>
 <dt>Location:</dt>
     <dd>input/line.tcl</dd></dt>
 </dl>
-</table>
+</div>
 </table>
 <a name="smartstack"></a>
 <h2>Input: <code>smartstack</code></h2>
@@ -1743,10 +1657,8 @@ The <code>smartstack</code> routine only works on one hand - after it
 places cards in that hand, it generates the rest using the usual
 algorithm.
 <td width="35%">
-<table border=2 bgcolor="#EEFFDD" width="100%">
-<tr valign="top"><td>
+<div class='programmer'><b>For Programmers</b>
 <dl>
-<font size="-1" color="#006600"><b>For Programmers:</b><p>
 <dt>Implementation:</dt>
     <dd>Tcl code</dd>
 <dt>Location:</dt>
@@ -1758,7 +1670,7 @@ describing the algorithm:
 <a href="http://www.cirl.uoregon.edu/pipermail/developers/2001-February/000342.html">some corrections.</a>
 
 </dl>
-</table>
+</div>
 </table>
 <hr>
 <h1>Formatting</h1>
@@ -1789,18 +1701,14 @@ By default, it writes the result in the format:
 --------------------------
 </pre>
 New output formats are defined by <em>redefining this routine</em>.
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'><b>For Programmers</b>
 <dl><dt>Implementation:</dt>
 <dd>Tcl
 <dt>Location:</dt>
 <dd><code>format/default</code>
 </dl>
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
 <a name="flush_deal"></a>
 <h2>Command: <code>flush_deal</code></h2>
@@ -1813,18 +1721,15 @@ flush_deal
 <h3>Summary</h3>
 This routine is called at the very end of a run for deal. It does nothing,
 by default, but some output formats may require it if data is cached.
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td ><font size=-1 color="#006600"><b>For Programmers</b><p>
-<dl><dt>Implementation:</dt>
-<dd>
+<td width="35%"><div class='programmer'><b>For Programmers</b>
+<dl>
+<dt>Implementation:</dt>
+<dd>Tcl code</dd>
 <dt>Location:</dt>
-<dd><code>YYYYY</code>, function <code>ZZZZ</code>
+<dd><code>format/default</code>, function <code>flush_deal</code>
 </dl>
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
 
 <a name="format:par"></a>
@@ -1891,18 +1796,14 @@ Pass   Pass   6N
 [Play "W"]
 *
 </pre>
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td ><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'><b>For Programmers</b>
 <dl><dt>Implementation:</dt>
-<dd>Tcl</dd.
+<dd>Tcl</dd>
 <dt>Location:</dt>
 <dd><code>format/par</code></dd>
 </dl>
-</font>
+</div>
 </table>
-</table>
-</center>
 <hr>
 
 <a name="format:ddline"></a>
@@ -1923,16 +1824,13 @@ $ deal -i format/ddline 100 > doubledummy.txt
 $ deal -I "ddline doubledummy.txt" -i query.tcl 100
 </pre>
 <p>And any call to <code>deal::tricks</code> in query.tcl will use the value stored doubledummy.txt.
-<td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
-<tr>
-<td ><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td width="35%"><div class='programmer'><b>For Programmers</b>
 <dl><dt>Implementation:</dt>
 <dd>Tcl</dd.
 <dt>Location:</dt>
 <dd><code>format/ddline</code></dd>
 </dl>
-</font>
-</table>
+</div>
 </table>
 </center>
 <hr>
@@ -1992,7 +1890,7 @@ The "<code>clear</code>" subcommand deleted all the code from the hook.
 The "<code>commands</code>" subcommand lists all the code in the hook.
 <td width="35%"><table border=2 bgcolor="#EEFFDD" width="100%">
 <tr>
-<td ><font size=-1 color="#006600"><b>For Programmers</b><p>
+<td ><font size=-1 color="#006600"><b>For Programmers</b>
 <dl><dt>Implementation:</dt>
 <dd>INCOMPLETE
 <dt>Location:</dt>
