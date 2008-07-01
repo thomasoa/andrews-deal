@@ -24,3 +24,39 @@ pre.example {
   border: 2px ridge;
   margin: 0 0 1em 0;
 }
+
+#indexbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 230px;
+  height: 100%;
+  overflow: auto;
+}
+
+.index {
+  font-size: smaller;
+  padding: 10px;
+  margin: 0px;
+  background: #CCCCDD;
+}
+
+.index ul {
+  margin-left: 1em;
+  padding-left: 1em;
+}
+
+#commandsbox {
+   position: absolute;
+   top: 0;
+   left: 250px;
+}
+
+.commands {
+   padding: 10px;
+   background: #EEEEFF;
+}
+
+span.nobr {
+  white-space: pre;
+}
