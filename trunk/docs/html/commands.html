@@ -2,13 +2,17 @@
      "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-<!-- $Id: commands.html,v 1.17 2008-07-01 14:24:45 thomaso Exp $ -->
+<!-- $Id: commands.html,v 1.18 2008-07-03 13:39:11 thomaso Exp $ -->
 <title>Index of Deal Commands</title>
 <link rel="stylesheet" type="text/css" href="commands.css">
 </head>
 <body>
 <div id="indexbox" class='index'>
-<?php include ("commands-index.htmlf"); ?>
+<?php 
+  $indexURL = "";
+  $indexAttributes = "";
+  include ("commands-index.htmlf"); 
+?>
 </div>
 <div id="commandsbox" class='commands'>
 <?php include ("commands-body.htmlf"); ?>
