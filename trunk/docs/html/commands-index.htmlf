@@ -78,6 +78,14 @@
 "exitflag"=>"-x <em>flag</em>"
 );
 
+if (!isset($indexURL)) {
+  $indexURL = '';
+}
+
+if (!isset($indexAttributes)) {
+  $indexAttributes = '';
+}
+
 foreach ($indexTable as $name => $label) {
    echo "<li><a href='$indexURL#$name' $indexAttributes>$label</a>";
 }
