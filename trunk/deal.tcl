@@ -3,7 +3,7 @@
 #
 # Copyright (C) 1996-2001, Thomas Andrews
 #
-# $Id: deal.tcl,v 1.14 2008-06-10 20:48:21 thomaso Exp $
+# $Id: deal.tcl,v 1.15 2008-07-15 16:35:04 thomaso Exp $
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,3 +31,7 @@ if {[string first "Windows" $tcl_platform(os)]>=0} {
 catch { deal_init_tcl }
 
 source lib/features.tcl
+
+set deal::unicode 1
+
+source format/default
