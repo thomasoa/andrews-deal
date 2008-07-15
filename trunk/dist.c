@@ -762,6 +762,7 @@ int Dist_Init(interp)
   Tcl_IncrRefCount(shapeParams=Tcl_NewStringObj("s h d c",7));
 
   Tcl_CreateObjCommand(interp,"shapefunc",tcl_shapefunc_define,NULL,NULL);
+  Tcl_CreateObjCommand(interp,"shapeproc",tcl_shapefunc_define,NULL,NULL);
   Tcl_CreateObjCommand(interp,"shapeclass",tcl_shapeclass_define,NULL,NULL);
   Tcl_CreateObjCommand(interp,"shapecond",tcl_shapeexpr_define,(ClientData)1,NULL);
   Tcl_CreateObjCommand(interp,"shapeexpr",tcl_shapeexpr_define,(ClientData)0,NULL);
