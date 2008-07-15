@@ -2993,17 +2993,18 @@ int MoveGen(const struct pos * posPoint, const int depth) {
     }
 
     if (m!=1) {
-      for (k=0; k<=m-1; k++) 
+      for (k=0; k<=m-1; k++)  {
         movePly[depth].move[k].weight=WeightAlloc(posPoint,
 						  &movePly[depth].move[k], depth, ris,q,first);
+      }
     }
 
     movePly[depth].last=m-1;
     if (m!=1)
       InsertSort(m, depth);
-    if (depth!=iniDepth)
+    if (depth!=iniDepth) {
       return m;
-    else {
+    } else {
       m=AdjustMoveList();
       return m;
     }
@@ -3036,15 +3037,18 @@ int MoveGen(const struct pos * posPoint, const int depth) {
 
     }
 
-    for (k=0; k<=m-1; k++) 
+    for (k=0; k<=m-1; k++) {
         movePly[depth].move[k].weight=WeightAlloc(posPoint,
 						  &movePly[depth].move[k], depth, ris,q,first);
+    }
   
     movePly[depth].last=m-1;
     InsertSort(m, depth);
     if (r==0) {
-      for (n=0; n<=3; n++)
+      for (n=0; n<=3; n++) {
         scount[n]=0;
+      }
+
       for (k=0; k<=m-1; k++) {
         if (scount[movePly[depth].move[k].suit]==2) 
           continue;
@@ -3056,21 +3060,25 @@ int MoveGen(const struct pos * posPoint, const int depth) {
       InsertSort(m, depth);
     }
     else {
-      for (n=0; n<=3; n++)
+
+      for (n=0; n<=3; n++) {
         scount[n]=0;
+      }
+
       for (k=0; k<=m-1; k++) {
-        if (scount[movePly[depth].move[k].suit]==1) 
+        if (scount[movePly[depth].move[k].suit]==1)  {
           continue;
-        else {
+        } else {
           movePly[depth].move[k].weight+=500;
           scount[movePly[depth].move[k].suit]++;
         }
       }
       InsertSort(m, depth);
     }
-    if (depth!=iniDepth)
+
+    if (depth!=iniDepth) {
      return m;
-    else {
+    } else {
       m=AdjustMoveList();
       return m;
     }  
