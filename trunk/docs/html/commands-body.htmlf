@@ -1000,18 +1000,17 @@ shapecond Balanced {[SemiBalanced eval $s $h $d $c] && $s<5 && $h<5}
 
 On the other hand, if you have a shape - output by the, say, a
 call to [north shape] you can evaluate it as:
-
 <pre class='example'>
     SemiBalanced shape [north shape]
 </pre>
-
 In fact, this is exactly equivalent to calling 
-
 <pre class='example'>
     SemiBalanced north
 </pre>
-
 only slightly slower.
+<p>Since these routines cache results in memory and use lookup
+tables, you should not use any external state or global variables
+inside them.
 
 <td style="width: 35%">
 <div class='programmer'>
