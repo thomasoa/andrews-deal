@@ -3,7 +3,7 @@
 #
 # Copyright (C) 1996-2001, Thomas Andrews
 #
-# $Id: deal.tcl,v 1.15 2008-07-15 16:35:04 thomaso Exp $
+# $Id: deal.tcl,v 1.16 2008-07-15 21:25:04 thomaso Exp $
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,6 +32,9 @@ catch { deal_init_tcl }
 
 source lib/features.tcl
 
+# If set to non-zero, and your terminal supports UTF-8, deal's default output format will write 
+#the deal with unicode suit symbols.
 set deal::unicode 1
 
+# Edit this line to make your default format any format
 source format/default
