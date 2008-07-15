@@ -20,16 +20,18 @@
 #include "stringbox.h"
 #include <string.h>
 
+typedef Tcl_UniChar Char;
+
 typedef struct string_box_base {
   int rows, columns;
-  char *start;
+  Char *start;
   int refcount;
 } *StringBoxBase;
 
 typedef struct string_box {
   StringBoxBase parent;
   int rows,columns;
-  char **strings;
+  Char **strings;
 } *StringBox;
 
 static void clearStringBox(box)
@@ -49,12 +51,12 @@ static int writeStringBox(interp,box,row,column,string)
      StringBox box;
      int row;
      int column;
-     char *string;
+     Char *string;
 {
   int rowcount=box->rows, columncount=box->columns;
-  char *boxstring;
+  Char *boxstring;
   int startcolumn=column;
-  char c;
+  Char c;
   if (row<0 || row>=rowcount || column>=columncount || column<0) {
     if (interp != (Tcl_Interp *)NULL) {
       char s[20];
@@ -81,12 +83,13 @@ static int writeStringBox(interp,box,row,column,string)
   return TCL_OK;
 }
 
-static char *formatStringBox(box)
+static Char *formatStringBox(box,lengthPtr)
      StringBox box;
+     int *lengthPtr;
 {
   int row=0,col=0;
-  char *result=Tcl_Alloc(box->rows*(box->columns+1)+1);
-  char *rindex=result;
+  Char *result=(Char*)Tcl_Alloc(sizeof(Char)*(box->rows*(box->columns+1)+1));
+  Char *rindex=result;
   for (row=0; row<box->rows; row++) {
     for (col=0; col<box->columns; col++) {
       *(rindex++)=box->strings[row][col];
@@ -94,16 +97,18 @@ static char *formatStringBox(box)
     *(rindex++)='\n';
   }
   *(--rindex)=0;
+  *lengthPtr = rindex - result;
   return result;
 }
 
-static char *compactStringBox(box)
+static Char *compactStringBox(box,lengthPtr)
      StringBox box;
+     int *lengthPtr;
 {
   int row,col;
-  char *result=Tcl_Alloc((box->rows)*(box->columns+1)+1);
-  char *rindex=result;
-  char c,*lastnonspace;
+  Char *result=(Char *)Tcl_Alloc(sizeof(Char)*((box->rows)*(box->columns+1)+1));
+  Char *rindex=result;
+  Char c,*lastnonspace;
   for (row=0; row<box->rows; row++) {
     lastnonspace=rindex;
     for (col=0; col<box->columns; col++) {
@@ -116,6 +121,7 @@ static char *compactStringBox(box)
     *(rindex++)='\n';
   }
   *(--rindex)=0;
+  *lengthPtr = rindex-result;
   return result;
 }
 
@@ -133,13 +139,13 @@ static StringBox newStringBox(rows,columns)
   parent=(StringBoxBase)Tcl_Alloc(sizeof(struct string_box_base));
   parent->rows=rows;
   parent->columns=columns;
-  parent->start=Tcl_Alloc(rows*columns*sizeof(char));
+  parent->start=(Char *)Tcl_Alloc(rows*columns*sizeof(Char));
   parent->refcount=1;
 
   result=(StringBox)Tcl_Alloc(sizeof(struct string_box));
   result->rows=rows;
   result->columns=columns;
-  result->strings=(char **)Tcl_Alloc(rows*sizeof(char **));
+  result->strings=(Char **)Tcl_Alloc(rows*sizeof(Char **));
 
   for (i=0; i<rows; i++) {
     result->strings[i]=parent->start+i*columns;
@@ -177,7 +183,7 @@ static StringBox subStringBox(interp,parentbox,rowloc,columnloc,rows,columns)
   
   result->rows=rows;
   result->columns=columns;
-  result->strings=(char **)Tcl_Alloc(rows*sizeof(char **));
+  result->strings=(Char **)Tcl_Alloc(rows*sizeof(Char **));
   
   for (i=0; i<rows; i++) {
     result->strings[i]=parentbox->strings[rowloc+i]+columnloc;
@@ -221,7 +227,11 @@ static int tcl_string_box(TCLOBJ_PARAMS)
   StringBox box=(StringBox)cd;
   int len;
   if (objc==1) {
-    Tcl_SetResult(interp,formatStringBox(box),TCL_DYNAMIC);
+    int length;
+    Char *result = formatStringBox(box,&length);
+    Tcl_Obj *unicode = Tcl_NewUnicodeObj(result,length);
+    Tcl_SetObjResult(interp,unicode);
+    Tcl_Free((char *)result);
     return TCL_OK;
   }
 
@@ -248,7 +258,7 @@ static int tcl_string_box(TCLOBJ_PARAMS)
       return TCL_ERROR;
     }
 
-    return writeStringBox(interp,box,row,col,Tcl_GetString(objv[4]));
+    return writeStringBox(interp,box,row,col,Tcl_GetUnicode(objv[4]));
 
   }
   
@@ -287,7 +297,7 @@ static int tcl_string_box(TCLOBJ_PARAMS)
       Tcl_AppendResult(interp, "wrong # args: should be \"", 
 		       Tcl_GetString(objv[0]),
 		       " subbox name rowloc columnloc [ rows columns ]\"",
-		       (char *)NULL);
+		       (Char *)NULL);
       return TCL_ERROR;
     }
     
@@ -342,7 +352,11 @@ static int tcl_string_box(TCLOBJ_PARAMS)
   }
 
   if (*command=='c' && strcmp(command,"compact")==0) {
-    Tcl_SetResult(interp,compactStringBox(box),TCL_DYNAMIC); 
+    int length;
+    Char *result = compactStringBox(box,&length);
+    Tcl_Obj *unicode = Tcl_NewUnicodeObj(result,length);
+    Tcl_SetObjResult(interp,unicode);
+    Tcl_Free((char *)result);
     return TCL_OK;
   }
 
@@ -361,7 +375,7 @@ int tcl_create_string_box(TCLOBJ_PARAMS)
   if (objc!=4) {
     Tcl_AppendResult(interp, "wrong # args: should be \"", 
 		     Tcl_GetString(objv[0]),
-		     " name rows columns\"",(char *)NULL);
+		     " name rows columns\"",(Char *)NULL);
     return TCL_ERROR;
   }
     
