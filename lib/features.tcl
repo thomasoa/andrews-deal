@@ -3,7 +3,7 @@
 #
 # Copyright (C) 1996-2001, Thomas Andrews
 #
-# $Id: features.tcl,v 1.1 2008-06-10 20:12:13 thomaso Exp $
+# $Id: features.tcl,v 1.2 2008-07-15 16:35:04 thomaso Exp $
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -93,7 +93,6 @@ if {[string equal [info commands dds_reset] "dds_reset"]} {
 shapecond balanced {($h<5)&&($s<5)&&($s*$s+$h*$h+$d*$d+$c*$c)<=47}
 shapecond semibalanced {$h<=5&&$s<=5&&$d<=6&&$c<=6&&$c>=2&&$d>=2&&$h>=2&&$s>=2}
 shapecond AnyShape {1}
-source format/default
 
 #
 #  The three routines, joinclass, negateclass, intersectclass, used to be
