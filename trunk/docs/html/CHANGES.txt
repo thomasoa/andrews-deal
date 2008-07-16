@@ -1,5 +1,7 @@
 Changes in Deal 3.1.5
 
+   * Changed "stringbox" procedures to allow Unicode characters
+
    * Changes to DDS to clarify code and very slightly improve performance (fixing a
      'bug' that I had created which required holding_t type to be unsigned int rather
      that unsigned short
@@ -9,6 +11,7 @@ Changes in Deal 3.1.5
    * Documentation for 'dds'  -trick option
 
    * Reorganization of commands documentation file to create a non-framed version
+
 
 Changes in Deal 3.1.4
 
