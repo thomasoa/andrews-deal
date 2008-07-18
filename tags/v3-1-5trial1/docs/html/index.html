@@ -1,0 +1,100 @@
+<html>
+<head>
+<!-- $Id: index.html,v 1.9 2008-07-01 14:24:45 thomaso Exp $ -->
+<title>
+    Deal <?php echo $shorterVersion; ?> Home Page
+</title>
+
+<link rev="made" href="mailto:thomaso@centerline.com (Thomas Andrews)">
+<link rel="stylesheet" type="text/css" href="look.css">
+
+</head>
+
+<body background="graphics/idealbg.jpg" bgcolor="#EEEEFF">
+
+<TABLE width=100%>
+<TR valign="middle">
+<td><center>
+<h2>Deal <?php echo $shorterVersion;?></h2>
+<h3> A bridge hand generator</h3> <h4> by Thomas Andrews</h4>
+<h4>Latest version: <?php echo $version; ?></h4>
+</center>
+Features:
+<DL>
+<LI>Easy to use for quick, simple dealing
+<LI>Customizable output formats
+<LI>Infinitely extensible via TCL
+<LI>Easily portable to most platforms
+<LI>Free (GNU public license)
+</DL> </td>
+<td align=center valign="center"><img valign="middle" SRC="graphics/falling_small.jpg" WIDTH=225 HEIGHT=216 ALT="Deal <?php echo $shorterVersion;?>"></td>
+</table>
+<hr width="50%">
+<div class="toplevel">
+<?php
+  if ($output == "site") {
+?><div style='float:right; margin: 1em;'>
+<script type="text/javascript"><!--
+google_ad_client = "pub-1155581695939561";
+google_ad_width = 120;
+google_ad_height = 600;
+google_ad_format = "120x600_as";
+google_ad_type = "text";
+google_ad_channel ="";
+google_color_border = "336699";
+google_color_bg = "FFFFFF";
+google_color_link = "0000FF";
+google_color_url = "008000";
+google_color_text = "000000";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+<?php } ?>
+</div>
+<H2>Information found on these pages:</H2>
+<UL>
+    <LI> <a href="downloading.html">Downloading and Building Instructions</a> 
+    <LI> <span class="alert">New!</span> <a href="dds.html">Built-in double-dummy solver</a>
+    <LI> <span class="alert">New!</span> <a href="http://dealreleasenews.blogspot.com/">Release announcement blog</a>.  Just subscribe to the feed if you want to received news about new releases.
+    <LI> <a href="quickdos.html">An Introductory Tutorial for Windows</a>
+    <LI> <a href="quickstart.html">An Introductory Tutorial for Unix</a>
+    <LI> <a href="advanced.html">An Advanced User's Guide</a>
+    <LI> <a href="commands.html">An indexed list of all Deal <?php echo $shorterVersion;?> Commands</a>
+    <LI> <a href="examples.html">Example Scripts</a>
+    <LI> <A href="ext-ref.html">External Resources</a>
+    <LI> <a href="history.html">History</a>
+</UL>
+
+<H2>Things you can do with <strong>Deal</strong>:</H2>
+<UL>
+    <LI> <strong>Dealing</strong>: Generate random deals for your club.
+    <LI> <strong>Bidding practice</strong>:  Practice general bidding,
+	or specific situations
+    <LI> <strong>Settle arguments</strong>: Was bidding game wise over
+        that limit raise?  Was that spade nine really the best lead?
+    <LI> <strong>Statistical experiments</strong>: How often does a bid
+        occur?  How often does this slam make?
+    <LI> <strong>"Problem solver" contests</strong>: Solve magazine
+        problems, and learn where even the experts go wrong
+    <LI> <strong>Interface with other programs</strong>: Deal <?php echo $shorterVersion; ?> comes
+        with the ability to call the GIB double dummy solver.
+</UL>
+
+<h2>What is Tcl?</h2>
+
+<em>Tcl</em>, pronounced "tickle," stands for "Tool command language."
+If you are a Windows user, think of it as the Unix equivalent to
+Visual Basic.  But, unlike Visual Basic, Tcl works on almost all
+operating systems, not just those made by Bill Gates.
+<p>
+Tcl is used in a variety of different software, from testing tools
+to web software (AOL Server, Vignette) and, of most interest to bridge
+players, <a href="http://www.floater.org/">Floater,</a> the free online bridge program.
+<p>
+The people in charge of Tcl are <a href="http://www.scriptics.com/">
+Scriptics.</a>  But don't let their web site fool you - the basic software is free.
+
+<p>
+</div>
+<?php include("sig.htmlf");?>

@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+     "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<!-- $Id: dds.html,v 1.7 2008-07-01 14:29:31 thomaso Exp $ -->
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<LINK REL="SHORTCUT ICON" HREF="/icon/bridge.ico">
+<link rev="made" href="mailto:deal&#64;thomasoandrews.com (Thomas Andrews)">
+<link rel="stylesheet" type="text/css" href="look.css">
+
+<title>Double Dummy Solver</title>
+</head>
+
+<body>
+<div class="back"><a href="index.html"><em>Back to Deal Top
+Page</em></a></div>
+<div class="toplevel">
+<h1>Double Dummy Solver</h1>
+<p>Deal now has a built-in double dummy solver, as provided by <a href="http://web.telia.com/~u07502278/">Bo Haglund.</a>
+<p>The commands for accessing the double dummy solver is <a href="commands.html#dds">documented here.</a>
+<p>Deal currently contains the code for DDS 1.1.8.
+<p>While DDS is fairly fast most of the time, on some deals, it can take a long time.  In particular, when there are lots
+of voids, can take several minutes to analyze the board.
+<p>For example, in this deal:
+<pre>
+          S: ---
+          H: QT97
+          D: AJ432
+          C: K865
+ S: K865           S: QT97
+ H: ---            H: AJ432
+ D: QT97           D: K865
+ C: AJ432          C: ---
+          S: AJ432
+          H: K865
+          D: ---
+          C: QT97
+</pre>
+<p>DDS takes more than 20 minutes to analyze South declaring Notrump.
+<?php include("sig.htmlf"); ?>
+</div>
+</body>
+</html>
