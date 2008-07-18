@@ -353,40 +353,6 @@ struct ContractInfo {
     }
   }
 
-#if 0
-  inline int nextSuit(int suit) const {
-    if (isTrump(suit)) {
-      return firstNonTrumpSuit(suit);
-    } else {
-      return nextNonTrumpSuit(suit);
-    }
-  }
-
-  inline int firstSuit() const {
-    if (trumpContract) {
-      return trump;
-    } else {
-      return 0;
-    }
-  }
-
-  inline int firstNonTrumpSuit(int suit) const {
-    if (trump==0) {
-      return 1;
-    } else {
-      return 0;
-    }
-  }
-
-  inline int nextNonTrumpSuit(int suit) const {
-    suit++;
-      if (isTrump(suit)) {
-	suit++;
-      }
-      return suit;
-  }
-#endif
-
 };
 
 struct GLOBALS {

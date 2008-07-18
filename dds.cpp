@@ -114,7 +114,6 @@ extern "C" inline holding_t distinctUnplayedCards(holding_t origHolding, holding
           }
        }
      }
-     //cout << "Got result " << result << " for holding " << origHolding << " and played cards " << played << endl;
    }
    return  result;
 }
@@ -153,6 +152,7 @@ public:
 
   int k, n, cardCount, found, totalTricks, tricks, last, checkRes;
   int g, upperbound, lowerbound, first, i, j, forb, ind, flag, noMoves;
+  int hand, suit;
   int mcurr;
   int noStartMoves;
   int handRelFirst;
@@ -196,10 +196,10 @@ public:
   }
 
   cardCount=0;
-  for (i=0; i<=3; i++) {
-    for (j=0; j<=3; j++) {
-      game.diagram.cards[i][j]=dl.remaining.cards[i][j];
-      cardCount+=CountOnes(game.diagram.cards[i][j]);
+  for (hand=0; hand<=3; hand++) {
+    for (suit=0; suit<=3; suit++) {
+      game.diagram.cards[hand][suit]=dl.remaining.cards[hand][suit];
+      cardCount+=CountOnes(game.diagram.cards[hand][suit]);
     }
   }
 
