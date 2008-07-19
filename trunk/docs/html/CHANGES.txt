@@ -2,11 +2,11 @@ Changes in Deal 3.1.5
 
    * Changed "stringbox" procedures to allow Unicode characters
 
-   * Changes to DDS to clarify code and very slightly improve performance (fixing a
+   * Small changes to DDS to clarify code and very slightly improve performance (fixing a
      'bug' that I had created which required holding_t type to be unsigned int rather
      that unsigned short
 
-   * Allow fully played tricks to -trick option to 'dds' command
+   * Allow fully played tricks to be passed with the -trick option to 'dds' command
 
    * Documentation for 'dds'  -trick option
 
