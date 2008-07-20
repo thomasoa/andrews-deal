@@ -477,6 +477,44 @@ int count_losers(holding,dummy)
 }
 
 
+
+
+/*
+ * Contributed by Rex Livingston
+ */
+int count_nltc(holding,dummy)
+     int holding;
+     void * dummy;  /* For additive function implementation */
+{ /* Really counts half-losers */
+  int base=counttable[holding&8191];
+  int losers=0;
+
+  if (base==0) { return 0; }
+
+  if (!HoldingHas(holding,ACE)) {
+    losers +=3;
+  }
+
+  if (base>=2) {
+    if (!HoldingHas(holding,KING)) {
+      losers +=2;
+    }
+  }
+
+  if (base>=3) {
+    if (!HoldingHas(holding,QUEEN)) {
+      losers++;
+    } else {
+      if (losers==4) {
+	if(!HoldingHas(holding,JACK) && !HoldingHas(holding,TEN)) {
+	  losers++;
+	}
+      }
+    }
+  }
+  return losers;
+}
+
       
 int put_card(hand,card) int hand,card;
 {
