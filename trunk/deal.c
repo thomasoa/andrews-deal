@@ -482,7 +482,7 @@ int count_losers(holding,dummy)
 /*
  * Contributed by Rex Livingston
  */
-int count_nltc(holding,dummy)
+int count_new_ltc(holding,dummy)
      int holding;
      void * dummy;  /* For additive function implementation */
 { /* Really counts half-losers */
