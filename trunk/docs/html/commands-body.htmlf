@@ -485,6 +485,34 @@ is 3, queen is 2, jack is 1. The procedure implements the
 </table>
 <hr>
 
+<a name="new_ltc"></a>
+<h2>Command: <code>new_ltc</code></h2>
+<table cellpadding=5 style="width: 100%">
+<tr valign=top><td style="width: 65%">
+<h3>Usage</h3>
+<pre class='example'>
+new_ltc <em>handname</em>
+new_ltc <em>handname</em> <em>suitname</em> [<em>suitname</em> ...]
+new_ltc hand {<em>s h d c</em>}
+new_ltc hand {<em>s h d c</em>} <em>suitname</em> [<em>suitname</em> ...]
+</pre>
+<p>Rex Livingston provided this implementation of the <a href="http://en.wikipedia.org/wiki/Losing_trick_count#New_Losing_Trick_Count_.28NLTC.29">New  Losing Trick Count</a>, from a 2003 Bridge World article.</p>
+<p>It looks to me much like a 3-2-1 count with some adjustments, and it seems odd to me that a stiff singleton would count as 1.5 losers.  Somehow, doesn't match the intuitive meaning of "loser" to me.
+<td style="width: 35%">
+<div class='programmer'>
+<b>For Programmers</b>
+<dl><dt>Implementation:</dt>
+<dd>C code
+<dt>Location:</dt>
+<dd>Built with additive.c, <code>tcl_create_additive</code>
+      and deal.c, <code>count_new_ltc</code>
+</dl>
+It is probably better to reimplement in <code>Tcl</code> using
+<a href="#holdingProc"><code>holdingProc</code></a>.
+</div>
+</table>
+<hr>
+
 <a name="losers"></a>
 <h2>Command: <code>losers</code></h2>
 <table cellpadding=5 style="width: 100%">
@@ -507,7 +535,7 @@ values, but I wanted to have some refinements over raw losing trick count.
 <dd>C code
 <dt>Location:</dt>
 <dd>Built with additive.c, <code>tcl_create_additive</code>
-      and deal.c, <code>count_hcp</code>
+      and deal.c, <code>count_losers</code>
 </dl>
 It is probably better to reimplement in <code>Tcl</code> using
 <a href="#holdingProc"><code>holdingProc</code></a>.
