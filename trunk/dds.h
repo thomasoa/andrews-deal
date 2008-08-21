@@ -56,154 +56,6 @@ using namespace std;
 #define Min(x, y) (((x) <= (y)) ? (x) : (y))
 
 
-struct gameInfo  {          /* All info of a particular deal */
-  int vulnerable;
-  int declarer;
-  int contract;
-  int leadHand;
-  int leadSuit;
-  int leadRank;
-  int first;
-  int noOfCards;
-  struct diagram diagram;
-    /* 1st index is hand id, 2nd index is suit id */
-};
-
-struct moveType {
-  unsigned char suit;
-  unsigned char rank;
-  holding_t sequence;          /* Whether or not this move is
-                                        the first in a sequence */
-  short int weight;                     /* Weight used at sorting */
-
-  inline moveType() {
-    suit=0;
-    rank=0;
-    sequence=0;
-    weight=0;
-  }
-};
-
-struct movePlyType {
-  struct moveType move[14];             
-  int current;
-  int last;
-};
-
-struct highCardType {
-  int rank;
-  int hand;
-};
-
-struct makeType {
-  holding_t winRanks[4];
-};
-
-struct posStackItem {
-  int first;                 /* Hand that leads the trick for each ply*/
-  int high;                  /* Hand that is presently winning the trick */
-  struct moveType move;      /* Presently winning move */              
-  holding_t winRanks[4];  /* Cards that win by rank, index by suit */
-};
-
-struct pos {
-  struct posStackItem stack[50];
-  struct diagram diagram;   /* 1st index is hand, 2nd index is
-                                        suit id */
-  int orderSet[4];
-  int winOrderSet[4];
-  int winMask[4];
-  int leastWin[4];
-  holding_t removedRanks[4];    /* Ranks removed from board,
-                                        index is suit */
-  unsigned char length[4][4];
-  char ubound;
-  char lbound;
-  char bestMoveSuit;
-  char bestMoveRank;
-  int handRelFirst;              /* The current hand, relative first hand */
-  int tricksMAX;                 /* Aggregated tricks won by MAX */
-  struct highCardType winner[4]; /* Winning rank of the trick,
-                                    index is suit id. */
-  struct highCardType secondBest[4]; /* Second best rank, index is suit id. */
-
-  inline void removeBitRank(int suit,holding_t bitRank) {
-    removedRanks[suit] |= bitRank;
-  }
-
-  inline void removeRank(int suit,int rank) {
-    removeBitRank(suit,BitRank(rank));
-  }
-
-  inline void restoreBitRank(int suit, holding_t bitRank) {
-    removedRanks[suit] &= (~bitRank);
-  }
-
-  inline void restoreRank(int suit,int rank) {
-    restoreBitRank(suit,BitRank(rank));
-  }
-
-  inline int isRemovedBitRank(int suit, holding_t bitRank) const {
-    return (removedRanks[suit] & bitRank);
-  }
-
-  inline int isRemoved(int suit, int rank) const {
-    return isRemovedBitRank(suit,BitRank(rank));
-  }
-
-  inline int hasCardBitRank(int hand, int suit, holding_t bitRank) const {
-    return (diagram.cards[hand][suit] & bitRank);
-  }
-
-  inline int hasCard(int hand,int suit, int rank) const {
-    return hasCardBitRank(hand,suit,BitRank(rank));
-  }
-
-  inline void getSuitLengths(LONGLONG &lengths,int relHand = 0) const {
-    int hand, suit;
-    lengths = 0;
-    for (suit=0; suit<=2; suit++) {
-      for (hand=0; hand<=3; hand++) {
-	lengths = lengths << 4;
-        lengths |= length[(relHand+hand)%4][suit];
-      }
-    }
-  }
-
-};
-
-struct posSearchType {
-  struct winCardType * posSearchPoint; 
-  LONGLONG suitLengths;
-  struct posSearchType * left;
-  struct posSearchType * right;
-};
-
-
-struct nodeCardsType {
-  char ubound;	/* ubound and
-			lbound for the N-S side */
-  char lbound;
-  char bestMoveSuit;
-  char bestMoveRank;
-  char leastWin[4];
-};
-
-struct winCardType {
-  int orderSet;
-  int winMask;
-  struct nodeCardsType * first;
-  struct winCardType * prevWin;
-  struct winCardType * nextWin;
-  struct winCardType * next;
-}; 
-
-
-struct evalType {
-  int tricks;
-  unsigned short int winRanks[4];
-};
-
 struct relRanksType {
   int aggrRanks;
   int winMask;
@@ -280,6 +132,182 @@ class RelativeRanksFinder {
 
 };
 
+extern const RelativeRanksFinder &rel;
+
+struct gameInfo  {          /* All info of a particular deal */
+  int vulnerable;
+  int declarer;
+  int contract;
+  int leadHand;
+  int leadSuit;
+  int leadRank;
+  int first;
+  int noOfCards;
+  struct diagram diagram;
+    /* 1st index is hand id, 2nd index is suit id */
+};
+
+struct moveType {
+  unsigned char suit;
+  unsigned char rank;
+  holding_t sequence;          /* Whether or not this move is
+                                        the first in a sequence */
+  short int weight;                     /* Weight used at sorting */
+
+  inline moveType() {
+    suit=0;
+    rank=0;
+    sequence=0;
+    weight=0;
+  }
+};
+
+struct movePlyType {
+  struct moveType move[14];             
+  int current;
+  int last;
+};
+
+struct highCardType {
+  int rank;
+  int hand;
+};
+
+struct makeType {
+  holding_t winRanks[4];
+};
+
+struct posStackItem {
+  int first;                 /* Hand that leads the trick for each ply*/
+  int high;                  /* Hand that is presently winning the trick */
+  struct moveType move;      /* Presently winning move */              
+  holding_t winRanks[4];  /* Cards that win by rank, index by suit */
+};
+
+struct pos {
+  struct posStackItem stack[50];
+  struct diagram diagram;   /* 1st index is hand, 2nd index is
+                                        suit id */
+  int orderSet[4];
+  int winOrderSet[4];
+  int winMask[4];
+  int leastWin[4];
+  holding_t removedRanks[4];    /* Ranks removed from board,
+                                        index is suit */
+  unsigned char length[4][4];
+  holding_t aggregate[4];
+  char ubound;
+  char lbound;
+  char bestMoveSuit;
+  char bestMoveRank;
+  int handRelFirst;              /* The current hand, relative first hand */
+  int tricksMAX;                 /* Aggregated tricks won by MAX */
+  struct highCardType winner[4]; /* Winning rank of the trick,
+                                    index is suit id. */
+  struct highCardType secondBest[4]; /* Second best rank, index is suit id. */
+
+  inline void removeBitRank(int suit,holding_t bitRank) {
+    removedRanks[suit] |= bitRank;
+  }
+
+  inline void removeRank(int suit,int rank) {
+    removeBitRank(suit,BitRank(rank));
+  }
+
+  inline void restoreBitRank(int suit, holding_t bitRank) {
+    removedRanks[suit] &= (~bitRank);
+  }
+
+  inline void restoreRank(int suit,int rank) {
+    restoreBitRank(suit,BitRank(rank));
+  }
+
+  inline int isRemovedBitRank(int suit, holding_t bitRank) const {
+    return (removedRanks[suit] & bitRank);
+  }
+
+  inline int isRemoved(int suit, int rank) const {
+    return isRemovedBitRank(suit,BitRank(rank));
+  }
+
+  inline int hasCardBitRank(int hand, int suit, holding_t bitRank) const {
+    return (diagram.cards[hand][suit] & bitRank);
+  }
+
+  inline int hasCard(int hand,int suit, int rank) const {
+    return hasCardBitRank(hand,suit,BitRank(rank));
+  }
+
+  inline void getSuitLengths(LONGLONG &lengths,int relHand = 0) const {
+    int hand, suit;
+    lengths = 0;
+    for (suit=0; suit<=2; suit++) {
+      for (hand=0; hand<=3; hand++) {
+	lengths = lengths << 4;
+        lengths |= length[(relHand+hand)%4][suit];
+      }
+    }
+  }
+
+  inline void computeOrderSet() {
+    for (int suit=0; suit<4; suit++) {
+      holding_t aggr = 0;
+      for (int hand=0; hand<4; hand++) {
+        aggr |= diagram.cards[hand][suit];
+      }
+      aggregate[suit] = aggr;
+      orderSet[suit] = rel(suit,aggr).aggrRanks;
+    }
+  }
+
+  inline void computeWinData(int suit, holding_t winners) {
+    holding_t aggr = 0;
+    holding_t w = smallestRankInSuit(winners);
+    int hand, wm;
+    for (hand=0; hand<4; hand++) {
+      aggr |= (diagram.cards[hand][suit] & (-w));
+    }
+
+    winMask[suit] = rel(suit,aggr).winMask;
+    winOrderSet[suit] = rel(suit,aggr).aggrRanks;
+
+    wm = smallestBitInInteger(winMask[suit]);
+    leastWin[suit] = InvWinMask(wm);
+
+  }
+};
+
+struct posSearchType {
+  struct winCardType * posSearchPoint; 
+  LONGLONG suitLengths;
+  struct posSearchType * left;
+  struct posSearchType * right;
+};
+
+
+struct nodeCardsType {
+  char ubound;	/* ubound and
+			lbound for the N-S side */
+  char lbound;
+  char bestMoveSuit;
+  char bestMoveRank;
+  char leastWin[4];
+};
+
+struct winCardType {
+  int orderSet;
+  int winMask;
+  struct nodeCardsType * first;
+  struct winCardType * prevWin;
+  struct winCardType * nextWin;
+  struct winCardType * next;
+}; 
+
+
+struct evalType {
+  int tricks;
+  unsigned short int winRanks[4];
+};
 
 struct ttStoreType {
   struct nodeCardsType * cardsP;
@@ -376,7 +404,7 @@ extern struct gameInfo * gameStore;
 extern struct ttStoreType * ttStore;
 extern struct nodeCardsType * nodeCards;
 extern struct winCardType * winCards;
-extern struct pos position, iniPosition, lookAheadPos;
+extern struct pos lookAheadPos;
 /* extern struct moveType move[13]; */
 extern struct movePlyType movePly[50];
 extern struct posSearchType * posSearch;
@@ -386,7 +414,6 @@ extern struct moveType forbiddenMoves[14];  /* Initial depth moves that will be
 extern struct moveType initialMoves[4];
 extern struct moveType highMove;
 extern struct moveType * bestMove;
-extern const RelativeRanksFinder &rel;
 extern struct winCardType **pw;
 extern struct nodeCardsType **pn;
 extern struct posSearchType **pl;
@@ -442,7 +469,7 @@ extern FILE * fp2, *fp7, *fp11;
   /* Pointers to logs */
 
 void InitStart(void);
-void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst);
+void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst,struct pos &position);
 void InitSearch(struct pos * posPoint, int depth,
   struct moveType startMoves[], int first, int mtd);
 int ABsearch(struct pos * posPoint, int target, int depth);

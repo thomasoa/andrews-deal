@@ -38,7 +38,7 @@ int no[50];
 int iniDepth;
 int handToPlay;
 int payOff, val;
-struct pos iniPosition, position;
+
 struct pos lookAheadPos; /* Is initialized for starting
    alpha-beta search */
 struct moveType forbiddenMoves[14];
@@ -84,13 +84,6 @@ int threshold=CANCELCHECK;
 #pragma managed(push, off)
 #endif
 
-template<class INT> inline INT smallestBitInInteger(INT value) {
-  return value & (-value);
-}
-
-inline holding_t smallestRankInSuit(holding_t h) {
-  return smallestBitInInteger<holding_t>(h);
-}
 
 extern "C" inline holding_t distinctUnplayedCards(holding_t origHolding, holding_t played,holding_t *sequence) {
    holding_t bitRank;
@@ -159,6 +152,7 @@ public:
   int latestTrickSuit[4];
   int latestTrickRank[4];
   int maxHand=0, maxSuit=0, maxRank;
+  struct pos iniPosition;
   struct movePlyType temp;
   struct moveType mv;
   /*FILE *fp;*/
@@ -426,9 +420,9 @@ public:
     nodeCards=pn[0];
     posSearch=pl[0];
     wcount=0; ncount=0; lcount=0;
-    InitGame(0, FALSE, first, handRelFirst);
+    InitGame(0, FALSE, first, handRelFirst,iniPosition);
   } else {
-    InitGame(0, TRUE, first, handRelFirst);
+    InitGame(0, TRUE, first, handRelFirst,iniPosition);
   }
 
   unplayedFinder.initialize(game.diagram);
@@ -912,7 +906,7 @@ void InitStart(void) {
 }
 
 
-void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst) {
+void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst, struct pos &iniPosition) {
 
   int k, temp1, temp2,m;
   /*int points[4], tricks;
@@ -1385,13 +1379,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
   }
   
   if (posPoint->handRelFirst==0) {  
-    for (ss=0; ss<=3; ss++) {
-      aggr[ss]=0;
-      for (hh=0; hh<=3; hh++) {
-        aggr[ss] |= posPoint->diagram.cards[hh][ss];
-      }
-      posPoint->orderSet[ss]=rel(ss,aggr[ss]).aggrRanks;
-    }
+    posPoint->computeOrderSet();
     tricks=depth>>2;
     posPoint->getSuitLengths(suitLengths);
             
@@ -1407,7 +1395,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
       
       if ((cardsP!=NULL)&&(depth!=iniDepth)) {
         if (scoreFlag==1) {
-          WinAdapt(posPoint, depth, cardsP, aggr); 
+          WinAdapt(posPoint, depth, cardsP, posPoint->aggregate); 
                     
           if (cardsP->bestMoveRank!=0) {
             bestMove[depth].suit=cardsP->bestMoveSuit;
@@ -1443,7 +1431,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
 #endif 
           return TRUE;
         } else {
-          WinAdapt(posPoint, depth, cardsP, aggr);
+          WinAdapt(posPoint, depth, cardsP, posPoint->aggregate);
           if (cardsP->bestMoveRank!=0) {
             bestMove[depth].suit=cardsP->bestMoveSuit;
             bestMove[depth].rank=cardsP->bestMoveRank;
@@ -1523,14 +1511,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
             makeData=Make(posPoint, depth);
             depth--;
 
-            for (ss=0; ss<=3; ss++) {
-              aggr[ss]=0;
-              for (hh=0; hh<=3; hh++) {
-                aggr[ss] |= posPoint->diagram.cards[hh][ss];
-              }
-              /* New algo */
-              posPoint->orderSet[ss]=rel(ss,aggr[ss]).aggrRanks;
-            }
+            posPoint->computeOrderSet();
             tricks=depth/4;
             hfirst=posPoint->stack[depth].first;
             posPoint->getSuitLengths(suitLengths);
@@ -1547,7 +1528,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
 
               if (tempP!=NULL) {
                 if ((nodeTypeStore[hand]==MAXNODE)&&(scoreFlag==1)) {
-                  WinAdapt(posPoint, depth+1, tempP, aggr);
+                  WinAdapt(posPoint, depth+1, tempP, posPoint->aggregate);
                   if (tempP->bestMoveRank!=0) {
                     bestMove[depth+1].suit=tempP->bestMoveSuit;
                     bestMove[depth+1].rank=tempP->bestMoveRank;
@@ -1558,7 +1539,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
                   Undo(posPoint, depth+1);
                   return TRUE;
                 } else if ((nodeTypeStore[hand]==MINNODE)&&(scoreFlag==0)) {
-                  WinAdapt(posPoint, depth+1, tempP, aggr);
+                  WinAdapt(posPoint, depth+1, tempP, posPoint->aggregate);
                   if (tempP->bestMoveRank!=0) {
                     bestMove[depth+1].suit=tempP->bestMoveSuit;
                     bestMove[depth+1].rank=tempP->bestMoveRank;
@@ -3703,45 +3684,6 @@ int AdjustMoveList(void) {
 }
 
 
-inline int InvBitMapRank(holding_t bitMap) {
-
-  switch (bitMap) {
-    case 0x1000: return 14;
-    case 0x0800: return 13;
-    case 0x0400: return 12;
-    case 0x0200: return 11;
-    case 0x0100: return 10;
-    case 0x0080: return 9;
-    case 0x0040: return 8;
-    case 0x0020: return 7;
-    case 0x0010: return 6;
-    case 0x0008: return 5;
-    case 0x0004: return 4;
-    case 0x0002: return 3;
-    case 0x0001: return 2;
-    default: return 0;
-  }
-}
-
-int InvWinMask(int mask) {
-
-  switch (mask) {
-    case 0x01000000: return 1;
-    case 0x00400000: return 2;
-    case 0x00100000: return 3;
-    case 0x00040000: return 4;
-    case 0x00010000: return 5;
-    case 0x00004000: return 6;
-    case 0x00001000: return 7;
-    case 0x00000400: return 8;
-    case 0x00000100: return 9;
-    case 0x00000040: return 10;
-    case 0x00000010: return 11;
-    case 0x00000004: return 12;
-    case 0x00000001: return 13;
-    default: return 0;
-  }
-}
           
 
 int listNo;
@@ -4101,10 +4043,8 @@ struct posSearchType * SearchLenAndInsert(struct posSearchType
 
 void BuildSOP(struct pos * posPoint, int tricks, int firstHand, int target,
   const int depth, int scoreFlag, int score) {
-  int ss, hh, res, wm;
-  unsigned short int w;
-  holding_t temp[4][4];
-  holding_t aggr[4];
+  int ss, res;
+  holding_t w;
   struct nodeCardsType * cardsP;
   struct posSearchType * np;
 
@@ -4114,28 +4054,8 @@ void BuildSOP(struct pos * posPoint, int tricks, int firstHand, int target,
       posPoint->winMask[ss]=0;
       posPoint->winOrderSet[ss]=0;
       posPoint->leastWin[ss]=0;
-      for (hh=0; hh<=3; hh++)
-        temp[hh][ss]=0;
-    }
-    else {
-      
-      //cerr << "BuildSOP " << Holding(w) << endl;
-      w=smallestRankInSuit(w);       /* Only lowest win */
-      for (hh=0; hh<=3; hh++) {
-        temp[hh][ss]=posPoint->diagram.cards[hh][ss] & (-w);
-      }
-
-      aggr[ss]=0;
-      for (hh=0; hh<=3; hh++) {
-        aggr[ss]=aggr[ss] | temp[hh][ss];
-      }
-
-      posPoint->winMask[ss]=rel(ss,aggr[ss]).winMask;
-      posPoint->winOrderSet[ss]=rel(ss,aggr[ss]).aggrRanks;
-      wm=posPoint->winMask[ss];
-      //cerr << "BuildSOP 2 " << Holding(wm) << endl;
-      wm=smallestBitInInteger(wm);
-      posPoint->leastWin[ss]=InvWinMask(wm);
+    } else {
+      posPoint->computeWinData(ss,w);
     }
   }
 
