@@ -2,8 +2,8 @@
      "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-<!-- $Id: dds.html,v 1.8 2008-08-19 04:45:32 thomaso Exp $ -->
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<!-- $Id: dds.html,v 1.9 2008-08-29 15:19:29 thomaso Exp $ -->
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <LINK REL="SHORTCUT ICON" HREF="/icon/bridge.ico">
 <link rev="made" href="mailto:deal&#64;thomasoandrews.com (Thomas Andrews)">
 <link rel="stylesheet" type="text/css" href="look.css">
@@ -21,22 +21,27 @@ Page</em></a></div>
 <p>Deal currently contains the code for DDS 1.1.8.
 <p>While DDS is fairly fast most of the time, on some deals, it can take a long time.  In particular, when there are lots
 of voids, it can take several minutes to analyze the board.
-<p>For example, in this deal:
+<p>For example, in this symmetric deal:
 <pre>
           S: ---
-          H: QT97
-          D: AJ432
-          C: K865
- S: K865           S: QT97
- H: ---            H: AJ432
- D: QT97           D: K865
- C: AJ432          C: ---
-          S: AJ432
-          H: K865
+          H: Q853
+          D: AJ962
+          C: KT74
+ S: KT74           S: Q853
+ H: ---            H: AJ962
+ D: Q853           D: KT74
+ C: AJ962          C: ---
+          S: AJ962
+          H: KT74
           D: ---
-          C: QT97
+          C: Q853
 </pre>
-<p>DDS takes more than 20 minutes to analyze South declaring Notrump.
+<p>DDS takes more than 90 minutes to analyze South declaring Notrump on my iMac (2 gig memory, 2.33 GHz Intel Core 2 Duo.)
+<p>As a general rule, hands with voids in every suit are hard to analyze, because on every play, one of the players can discard,
+and can choose any card.  That essentially squares the complexity of analysis, because the leader can choose any of his cards, and theperson void in the suit led can pitch any of his cards.  
+<p>In this example, we also have nobody holding "touching cards," so all 13
+cards are different.  (If South holds, say K-Q-J-9-8, then the hand only really has two choices to play in the suit, since, double-dummy, playing the king and playing the queen or jack are the same thing.)
+<p>Finally, the 5-4-4-0 distribution in each suit here makes almost all the spot cards important, so DDS can not skip some analysis that it often can.
 <?php include("sig.htmlf"); ?>
 </div>
 </body>
