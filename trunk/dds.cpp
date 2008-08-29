@@ -39,8 +39,7 @@ int iniDepth;
 int handToPlay;
 int payOff, val;
 
-struct pos lookAheadPos; /* Is initialized for starting
-   alpha-beta search */
+struct pos lookAheadPos; /* Is initialized for starting  alpha-beta search */
 struct moveType forbiddenMoves[14];
 struct moveType initialMoves[4];
 struct moveType cd;
@@ -3787,17 +3786,19 @@ struct nodeCardsType * FindSOP(struct pos * posPoint,
         else {
           if (np->next!=NULL) {
             np=np->next;
-          }
-          else {
+          } else {
             np=np->prevWin;
             s--;
-            if (np==NULL)
+            if (np==NULL) {
               return NULL;
+            }
             while (np->next==NULL) {
               np=np->prevWin;
               s--;
-              if (np==NULL)  /* Previous node is header node? */
+              if (np==NULL)  {
+                /* Previous node is header node? */
                 return NULL;
+              }
             }
             np=np->next;
           }
@@ -3811,17 +3812,19 @@ struct nodeCardsType * FindSOP(struct pos * posPoint,
     else {
       if (np->next!=NULL) {
         np=np->next;
-      }
-      else {
+      } else {
         np=np->prevWin;
         s--;
-        if (np==NULL)
+        if (np==NULL) {
           return NULL;
+        }
         while (np->next==NULL) {
           np=np->prevWin;
           s--;
-          if (np==NULL)  /* Previous node is header node? */
+          if (np==NULL)  {
+            /* Previous node is header node? */
             return NULL;
+          }
         }
         np=np->next;
       }
@@ -3893,10 +3896,11 @@ struct nodeCardsType * BuildPath(struct pos * posPoint,
           nprev=np;
           break;
         }
-        if (np->next!=NULL)
+        if (np->next!=NULL) {
           np=np->next;
-        else
+	} else {
           break;
+        }
       }
       if (found) {
         suit++;
@@ -3906,9 +3910,9 @@ struct nodeCardsType * BuildPath(struct pos * posPoint,
           if (np->prevWin!=NULL) {
             pnp=np->prevWin;
             fnp=pnp->nextWin;
-          }
-          else 
+          } else {
             fnp=nodep->posSearchPoint;
+          }
 
           temp.orderSet=np->orderSet;
           temp.winMask=np->winMask;
