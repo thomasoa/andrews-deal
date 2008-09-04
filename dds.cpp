@@ -4005,9 +4005,9 @@ struct posSearchType * SearchLenAndInsert(struct posSearchType
       return np;
     }  
     else if (key < np->suitLengths) {
-      if (np->left!=NULL)
+      if (np->left!=NULL) {
         np=np->left;
-      else if (insertNode) {
+      } else if (insertNode) {
         p=&posSearch[lenSetSize];
         AddLenSet();/*lenSetSize++;*/
         np->left=p;
@@ -4016,16 +4016,14 @@ struct posSearchType * SearchLenAndInsert(struct posSearchType
         p->left=NULL; p->right=NULL;
         *result=TRUE;
         return p;
-      }
-      else {
+      } else {
         *result=FALSE;
         return NULL;
       }        
-    }  
-    else {      /* key > suitLengths */
-      if (np->right!=NULL)
+    } else {      /* key > suitLengths */
+      if (np->right!=NULL) {
         np=np->right;
-      else if (insertNode) {
+      } else if (insertNode) {
         p=&posSearch[lenSetSize];
         AddLenSet();/*lenSetSize++;*/
         np->right=p;
@@ -4034,8 +4032,7 @@ struct posSearchType * SearchLenAndInsert(struct posSearchType
         p->left=NULL; p->right=NULL;
         *result=TRUE;
         return p;
-      }
-      else {
+      } else {
         *result=FALSE;
         return NULL;
       }        
