@@ -23,7 +23,7 @@
  *
  *    north,east,south,west,hand - rather complicated; see below
  * 
- *    hcp, controls, losers, new_ltc
+ *    hcp, controls, losers
  *
  *    spades,hearts,diamonds,clubs - returns suit counts
  *
@@ -535,7 +535,6 @@ int HandCmd_Init(Tcl_Interp *interp)
   tcl_create_additive(interp,"controls", count_controls, NULL, NULL);
   tcl_create_additive(interp,"hcp", count_hcp, NULL, NULL);
   tcl_create_additive(interp,"losers", count_losers, NULL, NULL);
-  tcl_create_additive(interp,"new_ltc", count_new_ltc, NULL, NULL);
 
   Tcl_CreateObjCommand(interp,"lho",tcl_other_hand,(ClientData)1,NULL);
   Tcl_CreateObjCommand(interp,"partner",tcl_other_hand,(ClientData)2,NULL);

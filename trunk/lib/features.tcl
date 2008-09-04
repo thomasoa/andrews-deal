@@ -3,7 +3,7 @@
 #
 # Copyright (C) 1996-2001, Thomas Andrews
 #
-# $Id: features.tcl,v 1.2 2008-07-15 16:35:04 thomaso Exp $
+# $Id: features.tcl,v 1.3 2008-09-04 19:02:38 thomaso Exp $
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -154,3 +154,30 @@ proc full_deal {} {
   return [list [north] [east] [south] [west]]
 }
 
+
+#
+# This is based on a contribution from Rex Livingston, who supplied
+# me with a C version of this routine.
+# It implements the New Losing Trick Count, which can be seen described on
+# Wikipedia at: 
+#
+#   http://en.wikipedia.org/wiki/Losing_trick_count#New_Losing_Trick_Count
+#
+# This is much like a 321-count in many ways.
+# As with the 'losers' function, it actually returns integer values, so
+# it returns 'half losers.'
+#
+holdingProc newLTC {A K Q J T length} {
+
+  if {$length==0} { return 0 }
+
+  set halflosers 0
+  if {!$A} { incr halflosers 3 }
+  if {$length>1 && !$K} { incr halflosers 2}
+  if {$length>2} {
+    if {!$Q} {
+      incr halflosers 1
+    }
+  }
+  return $halflosers
+}
