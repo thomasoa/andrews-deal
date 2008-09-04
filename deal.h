@@ -87,7 +87,6 @@ int DDS_Init PROTO((Tcl_Interp *));
 int count_controls PROTO((int /* holding */, void */* dummy */));
 int count_hcp PROTO((int /* holding */, void */* dummy */));
 int count_losers PROTO((int /* holding */, void * /* dummy */));
-int count_new_ltc PROTO((int /* holding */, void * /* dummy */));
 
 int put_card PROTO((int, int));
 int put_hand PROTO((int, char *));

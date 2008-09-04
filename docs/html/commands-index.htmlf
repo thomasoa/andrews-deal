@@ -47,7 +47,7 @@
 "line"=>"line <em>input</em>",
 "losers"=>"losers",
 "main"=>"main",
-"new_ltc"=>"new_ltc",
+"newLTC"=>"newLTC",
 "north"=>"north",
 "format:par"=>"par <em>output format</em>",
 "parscore"=>"parscore",
