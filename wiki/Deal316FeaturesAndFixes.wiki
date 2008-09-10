@@ -1,5 +1,5 @@
 #labels Featured
-#Features and fixes planned for Deal 3.1.6
+#Summary Features and fixes planned for Deal 3.1.6
 
 = Deal 3.1.6 Plans =
 
