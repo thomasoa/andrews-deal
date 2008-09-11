@@ -1,5 +1,5 @@
 #summary Features and fixes planned for Deal 3.1.6
-#labels Featured
+#labels Phase-Requirements
 
 = Deal 3.1.6 Plans =
 
