@@ -65,6 +65,8 @@ struct adaptWinRanksType {
   holding_t winRanks[14];
 };
 
+extern int * highestRank;
+extern struct adaptWinRanksType * adaptWins;
 
 class RelativeRanksFinder {
  protected:
@@ -182,6 +184,15 @@ struct makeType {
   holding_t winRanks[4];
 };
 
+struct nodeCardsType {
+  char ubound;	/* ubound and
+			lbound for the N-S side */
+  char lbound;
+  char bestMoveSuit;
+  char bestMoveRank;
+  char leastWin[4];
+};
+
 struct posStackItem {
   int first;                 /* Hand that leads the trick for each ply*/
   int high;                  /* Hand that is presently winning the trick */
@@ -280,6 +291,15 @@ struct pos {
     leastWin[suit] = InvWinMask(wm);
 
   }
+
+  inline void winAdapt(const int depth, const struct nodeCardsType *cp, unsigned short const int aggr[]) {
+    int ss;
+    for (ss=0; ss<=3; ss++) {
+      stack[depth].winRanks[ss] = adaptWins[aggr[ss]].winRanks[(int)cp->leastWin[ss]];
+    }
+    
+  }
+
 };
 
 struct posSearchType {
@@ -289,15 +309,6 @@ struct posSearchType {
   struct posSearchType * right;
 };
 
-
-struct nodeCardsType {
-  char ubound;	/* ubound and
-			lbound for the N-S side */
-  char lbound;
-  char bestMoveSuit;
-  char bestMoveRank;
-  char leastWin[4];
-};
 
 struct winCardType {
   int orderSet;
@@ -423,8 +434,6 @@ extern struct winCardType **pw;
 extern struct nodeCardsType **pn;
 extern struct posSearchType **pl;
 
-extern int * highestRank;
-extern struct adaptWinRanksType * adaptWins;
 
 extern holding_t iniRemovedRanks[4];
 extern holding_t relRankInSuit[4][4];
@@ -508,8 +517,6 @@ struct posSearchType * SearchLenAndInsert(struct posSearchType
 	* rootp, LONGLONG key, int insertNode, int *result);  
 void Undo(struct pos * posPoint, int depth);
 int CheckDeal(struct moveType * cardp);
-void WinAdapt(struct pos * posPoint, int depth, const struct nodeCardsType * cp,
-   holding_t aggr[]);
 inline int InvBitMapRank(holding_t bitMap);
 int InvWinMask(int mask);
 void ReceiveTTstore(struct pos *posPoint, struct nodeCardsType * cardsP, int target, int depth);
