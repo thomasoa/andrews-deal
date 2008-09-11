@@ -65,6 +65,9 @@ int wcount, ncount, lcount;
 int clearTTflag=FALSE, windex=-1;
 int ttCollect=FALSE;
 int suppressTTlog=FALSE;
+int * highestRank;
+struct adaptWinRanksType * adaptWins;
+
 unsigned char cardRank[15], cardSuit[5], cardHand[4];
 LONGLONG suitLengths=0;
 struct posSearchType *rootnp[14][4];
@@ -801,7 +804,7 @@ extern "C" void DDSInitStart(void) {
 }
 
 void InitStart(void) {
-  int k;
+  int k,r,i,j;
 
   if (_initialized)
       return;
@@ -889,11 +892,47 @@ void InitStart(void) {
 
   ttStore = (struct ttStoreType *)calloc(SEARCHSIZE, sizeof(struct ttStoreType));
   /*ttStore = new ttStoreType[SEARCHSIZE];*/
-  if (ttStore==NULL)
+  if (ttStore==NULL) {
     exit(1);
+  }
 
-  /* rel = (struct relRanksType *)calloc(16384, sizeof(struct relRanksType)); */
-  /*rel = new relRanksType[16384];*/
+  highestRank = (int *) calloc(8192,sizeof(int));
+  if (highestRank==NULL) {
+    exit(1);
+  }
+  highestRank[0] = 0;
+  for (r=2; r<=14; r++) {
+    holding_t h = BitRank(r);
+    for (k=h; k<2*h; k++) {
+      highestRank[k] = r;
+    }
+  }
+
+  adaptWins = (struct adaptWinRanksType *)calloc(8192,
+        sizeof(struct adaptWinRanksType));
+
+  for (i=0; i<8192; i++) {
+    for (j=0; j<14; j++) {
+      int res=0;
+      if (j==0)
+        adaptWins[i].winRanks[j]=0;
+      else {
+        k=1;
+        for (r=14; r>=2; r--) {
+          if ((i & BitRank(r))!=0) {
+            if (k <= j) {
+              res|=BitRank(r);
+              k++;
+            }
+            else
+              break;
+          }
+        }
+        adaptWins[i].winRanks[j]=res;
+      }
+    }
+  }
+
  
   /*fp2=fopen("dyn.txt", "w");
   fclose(fp2);*/
@@ -963,7 +1002,7 @@ void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst, struct 
 
 void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], int first, int mtd)  {
 
-  int s, d, h, max, hmax=0, handRelFirst;
+  int s, d, h, handRelFirst;
   int k, noOfStartMoves;       /* Number of start moves in the 1st trick */
   int hand[3], suit[3], rank[3];
   struct moveType move;
@@ -1036,24 +1075,72 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
     k--;
   }
 
-  for (s=0; s<=3; s++)
+  for (s=0; s<=3; s++) {
     posPoint->removedRanks[s]=0;
+  }
 
-  for (s=0; s<=3; s++)       /* Suit */
-    for (h=0; h<=3; h++)     /* Hand */
+  for (s=0; s<=3; s++) {      /* Suit */
+    for (h=0; h<=3; h++) {    /* Hand */
       posPoint->removedRanks[s] |= posPoint->diagram.cards[h][s];
+    }
+  }
 
-  for (s=0; s<=3; s++)
+  for (s=0; s<=3; s++) {
     posPoint->removedRanks[s] = 8191 & ~(posPoint->removedRanks[s]);
+  }
 
-  for (s=0; s<=3; s++)       /* Suit */
-    for (h=0; h<=3; h++)     /* Hand */
+  for (s=0; s<=3; s++) {      /* Suit */
+    for (h=0; h<=3; h++) {    /* Hand */
       posPoint->removedRanks[s] &= (~startMovesBitMap[h][s]);
+    }
+  }
         
-  for (s=0; s<=3; s++)
+  for (s=0; s<=3; s++) {
     iniRemovedRanks[s]=posPoint->removedRanks[s];
+  }
 
   /* Initialize winning rank */
+  holding_t aggHand[4][4];
+  int maxHand = -1;
+
+  for (s=0; s<=3; s++) {
+    holding_t maxAgg = 0;
+    for (h=0; h<=3; h++) {
+      aggHand[h][s]=startMovesBitMap[h][s] | game.diagram.cards[h][s];
+      if (aggHand[h][s]>maxAgg) {
+        maxAgg=aggHand[h][s];
+        maxHand=h;
+      }
+    }
+    if (maxAgg!=0) {
+      posPoint->winner[s].hand=maxHand;
+      k=highestRank[aggHand[maxHand][s]];
+      posPoint->winner[s].rank=k;
+
+      maxAgg=0;
+      for (h=0; h<=3; h++) {
+        aggHand[h][s]&=(~BitRank(k));
+        if (aggHand[h][s]>maxAgg) {
+          maxAgg=aggHand[h][s];
+          maxHand=h;
+        }
+      }
+      if (maxAgg>0) {
+        posPoint->secondBest[s].hand=maxHand;
+        posPoint->secondBest[s].rank=highestRank[aggHand[maxHand][s]];
+      } else {
+        posPoint->secondBest[s].hand=-1;
+        posPoint->secondBest[s].rank=0;
+      }
+    } else {
+      posPoint->winner[s].hand=-1;
+      posPoint->winner[s].rank=0;
+      posPoint->secondBest[s].hand=-1;
+      posPoint->secondBest[s].rank=0;
+    }
+  }
+
+/*
   for (s=0; s<=3; s++) {
     posPoint->winner[s].rank=0;
     posPoint->winner[s].hand=0;
@@ -1066,6 +1153,7 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
         posPoint->winner[s].rank=movePly[depth+k].move[0].rank;
     }
   }
+
 
   for (s=0; s<=3; s++) {
     k=posPoint->winner[s].rank;
@@ -1084,7 +1172,6 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
     posPoint->winner[s].hand=hmax;
   }
 
-  /* Initialize second best rank */
   for (s=0; s<=3; s++) {
     posPoint->secondBest[s].rank=0;
     posPoint->secondBest[s].hand=0;
@@ -1116,6 +1203,7 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
     posPoint->secondBest[s].rank=max;
     posPoint->secondBest[s].hand=hmax;
   }
+  */
 
   for (s=0; s<=3; s++) {
     for (h=0; h<=3; h++) {
@@ -1331,18 +1419,15 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
                  posPoint->diagram.cards[lho(hand)][ss])) {
         /* Own side has highest card in suit */
       if (!contract.trumpContract || ((ss==contract.trump) ||
-                                      (posPoint->diagram.cards[lho(hand)][contract.trump]==0)
-                                      || (posPoint->diagram.cards[lho(hand)][ss]!=0))) { 
-        for (rr=14; rr>=2; rr--) {
-          if ((ranks & BitRank(rr))!=0) {
-            found=TRUE;
-            qtricks=1;
-            break;
-          }
+                     (posPoint->diagram.cards[lho(hand)][contract.trump]==0)
+                     || (posPoint->diagram.cards[lho(hand)][ss]!=0))) { 
+        rr=highestRank[ranks];
+        if (rr!=0) {
+          found=TRUE;
+          qtricks=1;
+        } else {
+          found=FALSE;
         }
-        if (!found) {
-          rr=0;
-        }    
       }
     } else if (contract.notTrumpWithTrump(ss) &&
       (((posPoint->diagram.cards[hand][ss]==0)
@@ -1605,7 +1690,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
                 posPoint->stack[depth-1].winRanks[ss] | makeData.winRanks[ss];
             }
             
-            moveExists=DismissX(posPoint, depth);
+            moveExists=NextMove(posPoint, depth);
           }
         } else {                          /* A minnode */
           value=TRUE;
@@ -1640,7 +1725,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
                 posPoint->stack[depth-1].winRanks[ss] | makeData.winRanks[ss];
             }
             
-            moveExists=DismissX(posPoint, depth);
+            moveExists=NextMove(posPoint, depth);
           }
         }
   }
@@ -2037,7 +2122,59 @@ struct evalType Evaluate(const struct pos * posPoint)  {
   return eval;
 }
 
+void UpdateWinner(struct pos * posPoint, int suit) {
+  int k, h, hmax=0;
+  unsigned short int sb, sbmax;
 
+  posPoint->winner[suit]=posPoint->secondBest[suit];
+
+  sbmax=0;
+  for (h=0; h<=3; h++) {
+    sb=posPoint->diagram.cards[h][suit] & (~BitRank(posPoint->winner[suit].rank));
+    if (sb>sbmax) {
+      hmax=h;
+      sbmax=sb;
+    }
+  }
+  k=highestRank[sbmax];
+  if (k!=0) {
+    posPoint->secondBest[suit].hand=hmax;
+    posPoint->secondBest[suit].rank=k;
+  }
+  else {
+    posPoint->secondBest[suit].hand=-1;
+    posPoint->secondBest[suit].rank=0;
+  }
+
+  return;
+}
+
+void UpdateSecondBest(struct pos * posPoint, int suit) {
+  int k, h, hmax=0;
+  unsigned short int sb, sbmax;
+
+  sbmax=0;
+  for (h=0; h<=3; h++) {
+    sb=posPoint->diagram.cards[h][suit] & (~BitRank(posPoint->winner[suit].rank));
+    if (sb>sbmax) {
+      hmax=h;
+      sbmax=sb;
+    }
+  }
+  k=highestRank[sbmax];
+  if (k!=0) {
+    posPoint->secondBest[suit].hand=hmax;
+    posPoint->secondBest[suit].rank=k;
+  }
+  else {
+    posPoint->secondBest[suit].hand=-1;
+    posPoint->secondBest[suit].rank=0;
+  }
+
+  return;
+}
+
+/*
 
 void UpdateWinner(struct pos * posPoint, int suit) {
   int k;
@@ -2101,6 +2238,7 @@ void UpdateSecondBest(struct pos * posPoint, int suit) {
   }
   return;
 }
+*/
 
 
 int QuickTricks(struct pos * posPoint, const int hand, 
@@ -2629,15 +2767,14 @@ int QuickTricks(struct pos * posPoint, const int hand,
                posPoint->diagram.cards[rho(hand)][contract.trump]) <
               posPoint->diagram.cards[partner(hand)][contract.trump]) {
             lowestQtricks=1; 
-            for (rr=14; rr>=2; rr--) {
-              if ((posPoint->diagram.cards[partner(hand)][contract.trump] &
-                BitRank(rr))!=0) {
-                posPoint->stack[depth].winRanks[contract.trump] |= BitRank(rr);
-                break;
+
+            rr=highestRank[posPoint->diagram.cards[partner(hand)][contract.trump]];
+
+            if (rr!=0) {
+              posPoint->stack[depth].winRanks[contract.trump]|=BitRank(rr);
+              if (1>=cutoff) {
+                return 1;
               }
-            }
-            if (1>=cutoff) {
-              return 1;
             }
           }
           continue;
@@ -3027,7 +3164,7 @@ int MoveGen(const struct pos * posPoint, const int depth) {
       }
 
       for (k=0; k<=m-1; k++) {
-        if (scount[movePly[depth].move[k].suit]==2) 
+        if (scount[movePly[depth].move[k].suit]==1 /* 2 */) 
           continue;
         else {
           movePly[depth].move[k].weight+=500;
@@ -4217,7 +4354,7 @@ void WinAdapt(struct pos * posPoint, const int depth, const struct nodeCardsType
 }
 
 
-int DismissX(struct pos *posPoint, const int depth) {
+int NextMove(struct pos *posPoint, const int depth) {
   int mcurrent;
   holding_t lw;
   struct moveType currMove;
@@ -4242,13 +4379,26 @@ int DismissX(struct pos *posPoint, const int depth) {
             return TRUE;
       }
       return FALSE;
-    }        
+    } else {
+      while (movePly[depth].current<=movePly[depth].last-1) {
+        movePly[depth].current++;
+        mcurrent=movePly[depth].current;
+        suit=movePly[depth].move[mcurrent].suit;
+        if ((currMove.suit==suit) ||
+          (BitRank(movePly[depth].move[mcurrent].rank) >=
+            lowestWin[depth][suit]))
+          return TRUE;
+      }
+      return FALSE;
+    }
+/*
     else if (movePly[depth].current<=movePly[depth].last-1) {
       movePly[depth].current++;
         return TRUE;
     }
     else
       return FALSE;
+*/
   }
   else {
     while (movePly[depth].current<=movePly[depth].last-1) { 

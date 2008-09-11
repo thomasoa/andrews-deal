@@ -61,6 +61,11 @@ struct relRanksType {
   int winMask;
 };
 
+struct adaptWinRanksType {
+  holding_t winRanks[14];
+};
+
+
 class RelativeRanksFinder {
  protected:
   struct {
@@ -418,6 +423,9 @@ extern struct winCardType **pw;
 extern struct nodeCardsType **pn;
 extern struct posSearchType **pl;
 
+extern int * highestRank;
+extern struct adaptWinRanksType * adaptWins;
+
 extern holding_t iniRemovedRanks[4];
 extern holding_t relRankInSuit[4][4];
 extern int sum;
@@ -505,7 +513,7 @@ void WinAdapt(struct pos * posPoint, int depth, const struct nodeCardsType * cp,
 inline int InvBitMapRank(holding_t bitMap);
 int InvWinMask(int mask);
 void ReceiveTTstore(struct pos *posPoint, struct nodeCardsType * cardsP, int target, int depth);
-int DismissX(struct pos *posPoint, int depth); 
+int NextMove(struct pos *posPoint, int depth); 
 int DumpInput(int errCode, struct deal dl, int target, int solutions, int mode); 
 void Wipe(void);
 void AddNodeSet(void);
