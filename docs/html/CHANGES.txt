@@ -1,3 +1,12 @@
+Changes in Deal 3.1.6
+
+   * Added newLTC function
+
+   * Merged in changes with DDS 1.1.9 (about 5% performance increase in
+     double dummy solving in tests of average deals)
+
+   * Moderate changes in documentation
+
 Changes in Deal 3.1.5
 
    * Changed "stringbox" procedures to allow Unicode characters
