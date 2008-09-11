@@ -1890,6 +1890,9 @@ struct makeType Make(struct pos * posPoint, int depth)  {
   } else {  /* Second or third hand in trick */
     mo1=movePly[depth].move[r];
     mo2=previous.move;
+    r=movePly[depth].current;
+    u=movePly[depth].move[r].suit;
+    w=movePly[depth].move[r].rank;
     if (contract.betterMove(mo1,mo2)) {
       current.move=mo1;
       current.high=RelativeHand(firstHand,posPoint->handRelFirst);
@@ -3164,14 +3167,16 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
           (posPoint->diagram.cards[rho(q)][contract.trump]!=0))))
           suitBonus=-12/*15*/;
 
-      if (suitCountLH!=0)
+      if (suitCountLH!=0) {
         countLH=(suitCountLH<<2);
-      else
+      } else {
         countLH=depth+4;
-      if (suitCountRH!=0)
+      }
+      if (suitCountRH!=0) {
         countRH=(suitCountRH<<2);
-      else
+      } else {
         countRH=depth+4;
+      }
 
       suitWeightDelta=suitBonus-((countLH+countRH)<<1);
 
@@ -3243,12 +3248,14 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
             ||((posPoint->winner[suit].hand==rho(first))&&(suitCountRH==1)))
           weight=suitWeightDelta+40-(mp->rank);
         else if (posPoint->winner[suit].hand==first) {
-          if (posPoint->secondBest[suit].hand==partner(first))
+          if (posPoint->secondBest[suit].hand==partner(first)&&
+              (posPoint->secondBest[suit].rank!=0)) {
             weight=suitWeightDelta+50-(mp->rank);
-          else if (posPoint->winner[suit].rank==mp->rank) 
+          } else if (posPoint->winner[suit].rank==mp->rank) {
             weight=suitWeightDelta+31;
-          else
+          } else {
             weight=suitWeightDelta+19-(mp->rank);
+          }
         }
         else if (posPoint->winner[suit].hand==partner(first)) {
           /* If partner has winning card */
@@ -3270,20 +3277,23 @@ int WeightAlloc(const struct pos * posPoint, struct moveType * mp, const int dep
         if (((posPoint->winner[suit].hand==lho(first))&&(suitCountLH==1))
             ||((posPoint->winner[suit].hand==rho(first))&&(suitCountRH==1)))
           weight=suitWeightDelta+20-(mp->rank);
-        else if (posPoint->winner[suit].hand==first) {
-          if (posPoint->secondBest[suit].hand==partner(first))
+        else if (posPoint->winner[suit].hand==first&&
+                    (posPoint->secondBest[suit].rank!=0)) {
+          if (posPoint->secondBest[suit].hand==partner(first)) {
             weight=suitWeightDelta+35-(mp->rank);
-          else if (posPoint->winner[suit].rank==mp->rank) 
+          } else if (posPoint->winner[suit].rank==mp->rank)  {
             weight=suitWeightDelta+16;
-          else
+          } else {
             weight=suitWeightDelta+4-(mp->rank);
+          }
         }
         else if (posPoint->winner[suit].hand==partner(first)) {
           /* If partner has winning card */
-          if (posPoint->secondBest[suit].hand==first)
+          if (posPoint->secondBest[suit].hand==first) {
             weight=suitWeightDelta+35-(mp->rank);
-          else 
+          } else {
             weight=suitWeightDelta+20-(mp->rank);  
+          }
         } 
         else if ((mp->sequence)&&
           (mp->rank==posPoint->secondBest[suit].rank)) 
