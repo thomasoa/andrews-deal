@@ -163,7 +163,7 @@ $(BINDIR): $(BINKIT) sitedoc documentation
 	rm -rf $(BINDIR)
 	mkdir $(BINDIR)
 	/bin/ls -1d $(BINKIT) | xargs tar cf - | (cd $(BINDIR) ; tar xf -)
-	find $(BINDIR) -name CVS -print | xargs /bin/rm -rf
+	find $(BINDIR) -name .svn -print | xargs /bin/rm -rf
 
 $(SRCDIR): $(SOURCEKIT) docs/html docs/graphics documentation
 	mv Make.dep Make.dep.saved
@@ -174,7 +174,7 @@ $(SRCDIR): $(SOURCEKIT) docs/html docs/graphics documentation
 	mv Make.dep.saved Make.dep
 
 $(SRCZIP): $(SRCDIR)
-	zip -r $(SRCZIP) $(SRCDIR) -x \*~ -x *CVS/\*
+	zip -r $(SRCZIP) $(SRCDIR) -x \*~ -x *CVS/\* *.svn/\*
 
 $(EXEZIP): $(SRCDIR)
 	rm -f $(EXEZIP) $(SRCDIR)/deal
@@ -182,7 +182,7 @@ $(EXEZIP): $(SRCDIR)
 	test -f tcl85.dll
 	cp deal.exe $(SRCDIR)
 	cp tcl85.dll $(SRCDIR)
-	zip -r $(EXEZIP) $(SRCDIR)/ex $(SRCDIR)/input $(SRCDIR)/format $(SRCDIR)/docs $(SRCDIR)/CHANGES $(SRCDIR)/LICENSE $(SRCDIR)/GPL $(SRCDIR)/lib $(SRCDIR)/deal.tcl $(SRCDIR)/deal.exe $(SRCDIR)/tcl85.dll $(SRCDIR)/tests $(SRCDIR)/html -x \*~ -x *CVS/\*
+	zip -r $(EXEZIP) $(SRCDIR)/ex $(SRCDIR)/input $(SRCDIR)/format $(SRCDIR)/docs $(SRCDIR)/CHANGES $(SRCDIR)/LICENSE $(SRCDIR)/GPL $(SRCDIR)/lib $(SRCDIR)/deal.tcl $(SRCDIR)/deal.exe $(SRCDIR)/tcl85.dll $(SRCDIR)/tests $(SRCDIR)/html -x \*~ -x *CVS/\* *.svn/\*
 
 $(DMG): $(BINDIR) deal
 	cp deal $(BINDIR)/deal
@@ -193,7 +193,7 @@ $(DMG): $(BINDIR) deal
 
 $(DOCZIP): $(SRCDIR)
 	rm -f $(DOCZIP)
-	zip -r $(DOCZIP) $(SRCDIR)/CHANGES $(SRCDIR)/LICENSE $(SRCDIR)/GPL $(SRCDIR)/docs -x \*~ -x *CVS/\*
+	zip -r $(DOCZIP) $(SRCDIR)/CHANGES $(SRCDIR)/LICENSE $(SRCDIR)/GPL $(SRCDIR)/docs -x \*~ -x *CVS/\* *.svn/\*
 
 gzip: $(SRCTAR).gz
 
