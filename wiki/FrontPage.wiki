@@ -7,7 +7,7 @@ This Google Code project is new.  Most of the documentation and downloads can be
 
 = Pages =
 
-  * [Deal316FeaturesAndFixes Version 3.1.6 Release] - plans for next release
+  * [Deal316FeaturesAndFixes Version 3.1.6 Release Notes]
   * [LongTermGoals Long Term Goals] - long term plans and wish lists for Deal
 
 = Links =
