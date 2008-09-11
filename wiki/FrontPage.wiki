@@ -7,5 +7,11 @@ This Google Code project is new.  Most of the documentation and downloads can be
 
 = Pages =
 
-  * [Deal316FeaturesAndFixes Version 3.1.6 plans] - plans for next release
+  * [Deal316FeaturesAndFixes Version 3.1.6 Release] - plans for next release
   * [LongTermGoals Long Term Goals] - long term plans and wish lists for Deal
+
+= Links =
+
+  * [http://bridge.thomasoandrews.com/deal/ Deal Home Page]
+  * [http://web.telia.com/~u07502278/ Bo Haglund's Home Page] - home of DDS, the double-dummy solver used in Deal.
+  * [http://dealreleasenews.blogspot.com/ Deal Release News Blog] - subscribe to the RSS feed to get updates about new releases.
