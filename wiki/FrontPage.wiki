@@ -1,0 +1,11 @@
+#summary Welcome to the Deal Wiki
+#labels Featured
+
+= Introduction =
+
+This Google Code project is new.  Most of the documentation and downloads can be found at the [http://bridge.thomasoandrews.com/deal/ Deal web site.]
+
+= Pages =
+
+  * [WikiSyntax Deal316FeaturesAndFixes] - plans for next release
+  * [WikiSyntax LongTermGoals] - long term plans and wish lists for Deal
