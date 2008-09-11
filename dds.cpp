@@ -1414,7 +1414,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
       
       if ((cardsP!=NULL)&&(depth!=iniDepth)) {
         if (scoreFlag==1) {
-          WinAdapt(posPoint, depth, cardsP, posPoint->aggregate); 
+          posPoint->winAdapt(depth, cardsP, posPoint->aggregate); 
                     
           if (cardsP->bestMoveRank!=0) {
             bestMove[depth].suit=cardsP->bestMoveSuit;
@@ -1450,7 +1450,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
 #endif 
           return TRUE;
         } else {
-          WinAdapt(posPoint, depth, cardsP, posPoint->aggregate);
+          posPoint->winAdapt(depth, cardsP, posPoint->aggregate);
           if (cardsP->bestMoveRank!=0) {
             bestMove[depth].suit=cardsP->bestMoveSuit;
             bestMove[depth].rank=cardsP->bestMoveRank;
@@ -1547,7 +1547,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
 
               if (tempP!=NULL) {
                 if ((nodeTypeStore[hand]==MAXNODE)&&(scoreFlag==1)) {
-                  WinAdapt(posPoint, depth+1, tempP, posPoint->aggregate);
+                  posPoint->winAdapt(depth+1, tempP, posPoint->aggregate);
                   if (tempP->bestMoveRank!=0) {
                     bestMove[depth+1].suit=tempP->bestMoveSuit;
                     bestMove[depth+1].rank=tempP->bestMoveRank;
@@ -1558,7 +1558,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
                   Undo(posPoint, depth+1);
                   return TRUE;
                 } else if ((nodeTypeStore[hand]==MINNODE)&&(scoreFlag==0)) {
-                  WinAdapt(posPoint, depth+1, tempP, posPoint->aggregate);
+                  posPoint->winAdapt(depth+1, tempP, posPoint->aggregate);
                   if (tempP->bestMoveRank!=0) {
                     bestMove[depth+1].suit=tempP->bestMoveSuit;
                     bestMove[depth+1].rank=tempP->bestMoveRank;
@@ -4264,9 +4264,11 @@ int CheckDeal(struct moveType * cardp) {
 
 
 /* New algo */
-
+/*
 void WinAdapt(struct pos * posPoint, const int depth, const struct nodeCardsType * cp,
    holding_t aggr[]) {
+   posPoint->winAdapt(depth,cp,aggr);
+   return;
    int ss, rr, k;
 
    for (ss=0; ss<=3; ss++) {
@@ -4287,7 +4289,7 @@ void WinAdapt(struct pos * posPoint, const int depth, const struct nodeCardsType
    } 
    return;
 }
-
+*/
 
 int NextMove(struct pos *posPoint, const int depth) {
   int mcurrent;
