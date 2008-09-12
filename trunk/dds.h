@@ -1,4 +1,6 @@
 /* POrtability-macros header prefix */
+#ifndef __DDS_H__
+#define __DDS_H__
 #ifdef __cplusplus
 #include <iostream>
 using namespace std;
@@ -520,3 +522,4 @@ void Wipe(void);
 void AddNodeSet(void);
 void AddLenSet(void);
 void AddWinSet(void);
+#endif
