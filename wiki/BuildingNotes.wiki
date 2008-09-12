@@ -1,0 +1,8 @@
+#summary Building from the Google Code
+#labels Phase-Deploy
+
+= Building from the Google Code =
+
+My primary build computers are Macintoshes, so the Makefile is somewhat Mac-centric.  You will have to figure out how to change the Makefile yourself for Linux builds.
+
+Before using make, you will also need to create an empty 'Make.dep' file.
