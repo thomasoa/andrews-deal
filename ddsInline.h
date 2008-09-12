@@ -79,5 +79,16 @@ inline int InvWinMask(int mask) {
   }
 }
 
+extern "C" unsigned short int counttable[];
+inline unsigned short int CountOnes(unsigned short int b) {
+  return counttable[b];
+  /*
+  unsigned short int numb;
+
+  for (numb=0; b!=0; numb++, b&=(b-1));
+  return numb;
+  */
+}
+
 
 #endif
