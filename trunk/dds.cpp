@@ -64,12 +64,8 @@ int clearTTflag=FALSE, windex=-1;
 int ttCollect=FALSE;
 int suppressTTlog=FALSE;
 
-int highestRank[8192];
-struct adaptWinRanksType adaptWins[8192];
-
-inline int getHighestRank(holding_t holding) {
-  return highestRank[holding];
-}
+/*int highestRank[8192];
+  struct adaptWinRanksType adaptWins[8192];*/
 
 unsigned char cardRank[15], cardSuit[5], cardHand[4];
 LONGLONG suitLengths=0;
@@ -807,7 +803,7 @@ extern "C" void DDSInitStart(void) {
 }
 
 void InitStart(void) {
-  int k,r,j;
+  int k;
 
   if (_initialized)
       return;
@@ -900,20 +896,7 @@ void InitStart(void) {
     exit(1);
   }
 
-  highestRank[0] = 0;
-  for (j=0; j<14; j++) { adaptWins[0].winRanks[0] = 0; }
-
-  for (r=2; r<=14; r++) {
-    holding_t highestBitRank = BitRank(r);
-    for (k=highestBitRank; k<2*highestBitRank; k++) {
-      highestRank[k] = r;
-      holding_t rest = k & (~highestBitRank);
-      adaptWins[k].winRanks[0] = 0;
-      for (j=1; j<14; j++) {
-        adaptWins[k].winRanks[j] = highestBitRank | adaptWins[rest].winRanks[j-1];
-      }
-    }
-  }
+  initializeDDSLookup();
 
   return;
 }
