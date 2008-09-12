@@ -288,7 +288,7 @@ struct pos {
 
   }
 
-  inline void winAdapt(const int depth, const struct nodeCardsType *cp, unsigned short const int aggr[]) {
+  inline void winAdapt(const int depth, const struct nodeCardsType *cp, const holding_t aggr[]) {
     int ss;
     for (ss=0; ss<=3; ss++) {
       stack[depth].winRanks[ss] = getTopCards(aggr[ss],(int)cp->leastWin[ss]);
