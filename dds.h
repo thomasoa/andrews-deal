@@ -6,6 +6,7 @@ using namespace std;
 
 #include "ddsInterface.h"
 #include "ddsInline.h"
+#include "ddsLookup.h"
 #include "Holding.h"
 
 #define LONGLONG long long
@@ -60,13 +61,6 @@ struct relRanksType {
   int aggrRanks;
   int winMask;
 };
-
-struct adaptWinRanksType {
-  holding_t winRanks[14];
-};
-
-extern int highestRank[8192];
-extern struct adaptWinRanksType adaptWins[8192];
 
 class RelativeRanksFinder {
  protected:
@@ -295,7 +289,7 @@ struct pos {
   inline void winAdapt(const int depth, const struct nodeCardsType *cp, unsigned short const int aggr[]) {
     int ss;
     for (ss=0; ss<=3; ss++) {
-      stack[depth].winRanks[ss] = adaptWins[aggr[ss]].winRanks[(int)cp->leastWin[ss]];
+      stack[depth].winRanks[ss] = getTopCards(aggr[ss],(int)cp->leastWin[ss]);
     }
     
   }
