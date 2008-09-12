@@ -65,6 +65,7 @@ int wcount, ncount, lcount;
 int clearTTflag=FALSE, windex=-1;
 int ttCollect=FALSE;
 int suppressTTlog=FALSE;
+
 int * highestRank;
 struct adaptWinRanksType * adaptWins;
 
@@ -804,7 +805,7 @@ extern "C" void DDSInitStart(void) {
 }
 
 void InitStart(void) {
-  int k,r,i,j;
+  int k,r,j;
 
   if (_initialized)
       return;
@@ -820,8 +821,9 @@ void InitStart(void) {
 
   bestMove = (struct moveType *)calloc(50, sizeof(struct moveType));
   /*bestMove = new moveType [50];*/
-  if (bestMove==NULL)
+  if (bestMove==NULL) {
     exit(1);
+  }
 
   cardRank[2]='2'; cardRank[3]='3'; cardRank[4]='4'; cardRank[5]='5';
   cardRank[6]='6'; cardRank[7]='7'; cardRank[8]='8'; cardRank[9]='9';
@@ -897,48 +899,28 @@ void InitStart(void) {
   }
 
   highestRank = (int *) calloc(8192,sizeof(int));
-  if (highestRank==NULL) {
-    exit(1);
-  }
-  highestRank[0] = 0;
-  for (r=2; r<=14; r++) {
-    holding_t h = BitRank(r);
-    for (k=h; k<2*h; k++) {
-      highestRank[k] = r;
-    }
-  }
-
   adaptWins = (struct adaptWinRanksType *)calloc(8192,
         sizeof(struct adaptWinRanksType));
 
-  for (i=0; i<8192; i++) {
-    for (j=0; j<14; j++) {
-      int res=0;
-      if (j==0)
-        adaptWins[i].winRanks[j]=0;
-      else {
-        k=1;
-        for (r=14; r>=2; r--) {
-          if ((i & BitRank(r))!=0) {
-            if (k <= j) {
-              res|=BitRank(r);
-              k++;
-            }
-            else
-              break;
-          }
-        }
-        adaptWins[i].winRanks[j]=res;
+
+  if (highestRank==NULL || adaptWins==NULL) {
+    exit(1);
+  }
+
+  highestRank[0] = 0;
+  for (j=0; j<14; j++) { adaptWins[0].winRanks[0] = 0; }
+
+  for (r=2; r<=14; r++) {
+    holding_t highestBitRank = BitRank(r);
+    for (k=highestBitRank; k<2*highestBitRank; k++) {
+      highestRank[k] = r;
+      holding_t rest = k & (~highestBitRank);
+      adaptWins[k].winRanks[0] = 0;
+      for (j=1; j<14; j++) {
+        adaptWins[k].winRanks[j] = highestBitRank | adaptWins[rest].winRanks[j-1];
       }
     }
   }
-
- 
-  /*fp2=fopen("dyn.txt", "w");
-  fclose(fp2);*/
-  /*fp2=fopen("dyn.txt", "a");
-  fprintf(fp2, "maxIndex=%ld\n", maxIndex);
-  fclose(fp2);*/
 
   return;
 }
