@@ -1,4 +1,6 @@
 #include "ddsInline.h"
+#ifndef __DDS_LOOKUP_H__
+#define __DDS_LOOKUP_H__
 /*
  * This header defines some inline functions which do global lookups for DDS
  * These functions are:
@@ -58,3 +60,4 @@ inline void initializeDDSLookup() {
   }
 }
 
+#endif
