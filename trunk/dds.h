@@ -65,8 +65,8 @@ struct adaptWinRanksType {
   holding_t winRanks[14];
 };
 
-extern int * highestRank;
-extern struct adaptWinRanksType * adaptWins;
+extern int highestRank[8192];
+extern struct adaptWinRanksType adaptWins[8192];
 
 class RelativeRanksFinder {
  protected:

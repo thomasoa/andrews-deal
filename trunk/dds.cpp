@@ -19,8 +19,6 @@
 
 #include "dds.h"
 
-extern "C" unsigned short int counttable[];
-
 const int ContractInfo::nextSuitArray[4][4] = {
     { 1, 2, 3, 4},
     { 2, 0, 3, 4},
@@ -66,8 +64,12 @@ int clearTTflag=FALSE, windex=-1;
 int ttCollect=FALSE;
 int suppressTTlog=FALSE;
 
-int * highestRank;
-struct adaptWinRanksType * adaptWins;
+int highestRank[8192];
+struct adaptWinRanksType adaptWins[8192];
+
+inline int getHighestRank(holding_t holding) {
+  return highestRank[holding];
+}
 
 unsigned char cardRank[15], cardSuit[5], cardHand[4];
 LONGLONG suitLengths=0;
@@ -898,15 +900,6 @@ void InitStart(void) {
     exit(1);
   }
 
-  highestRank = (int *) calloc(8192,sizeof(int));
-  adaptWins = (struct adaptWinRanksType *)calloc(8192,
-        sizeof(struct adaptWinRanksType));
-
-
-  if (highestRank==NULL || adaptWins==NULL) {
-    exit(1);
-  }
-
   highestRank[0] = 0;
   for (j=0; j<14; j++) { adaptWins[0].winRanks[0] = 0; }
 
@@ -1096,7 +1089,7 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
     }
     if (maxAgg!=0) {
       posPoint->winner[s].hand=maxHand;
-      k=highestRank[aggHand[maxHand][s]];
+      k=getHighestRank(aggHand[maxHand][s]);
       posPoint->winner[s].rank=k;
 
       maxAgg=0;
@@ -1109,7 +1102,7 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
       }
       if (maxAgg>0) {
         posPoint->secondBest[s].hand=maxHand;
-        posPoint->secondBest[s].rank=highestRank[aggHand[maxHand][s]];
+        posPoint->secondBest[s].rank=getHighestRank(aggHand[maxHand][s]);
       } else {
         posPoint->secondBest[s].hand=-1;
         posPoint->secondBest[s].rank=0;
@@ -1163,16 +1156,6 @@ void InitSearch(struct pos * posPoint, int depth, struct moveType startMoves[], 
   recInd=0;
 
   return;
-}
-
-inline unsigned short int CountOnes(unsigned short int b) {
-  return counttable[b];
-  /*
-  unsigned short int numb;
-
-  for (numb=0; b!=0; numb++, b&=(b-1));
-  return numb;
-  */
 }
 
 int mexists, ready, hfirst;
@@ -1338,7 +1321,7 @@ int ABsearch(struct pos * posPoint, int target, int depth) {
       if (!contract.trumpContract || ((ss==contract.trump) ||
                      (posPoint->diagram.cards[lho(hand)][contract.trump]==0)
                      || (posPoint->diagram.cards[lho(hand)][ss]!=0))) { 
-        rr=highestRank[ranks];
+        rr=getHighestRank(ranks);
         if (rr!=0) {
           found=TRUE;
           qtricks=1;
@@ -2056,7 +2039,7 @@ void UpdateWinner(struct pos * posPoint, int suit) {
       sbmax=sb;
     }
   }
-  k=highestRank[sbmax];
+  k=getHighestRank(sbmax);
   if (k!=0) {
     posPoint->secondBest[suit].hand=hmax;
     posPoint->secondBest[suit].rank=k;
@@ -2081,7 +2064,7 @@ void UpdateSecondBest(struct pos * posPoint, int suit) {
       sbmax=sb;
     }
   }
-  k=highestRank[sbmax];
+  k=getHighestRank(sbmax);
   if (k!=0) {
     posPoint->secondBest[suit].hand=hmax;
     posPoint->secondBest[suit].rank=k;
@@ -2688,7 +2671,7 @@ int QuickTricks(struct pos * posPoint, const int hand,
               posPoint->diagram.cards[partner(hand)][contract.trump]) {
             lowestQtricks=1; 
 
-            rr=highestRank[posPoint->diagram.cards[partner(hand)][contract.trump]];
+            rr=getHighestRank(posPoint->diagram.cards[partner(hand)][contract.trump]);
 
             if (rr!=0) {
               posPoint->stack[depth].winRanks[contract.trump]|=BitRank(rr);
