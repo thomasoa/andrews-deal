@@ -26,7 +26,7 @@ extern "C" unsigned short int counttable[];
 
 extern int highestRankLookup[8192];
 
-extern struct topCardsType topCardsLookup[8192];
+extern holding_t topCardsLookup[14][8192];
 
 inline unsigned short int CountOnes(holding_t holding) {
   return counttable[holding];
@@ -37,24 +37,24 @@ inline int getHighestRank(holding_t holding) {
 }
 
 inline holding_t getTopCards(holding_t holding, int count) {
-  return topCardsLookup[holding].topCards[count];
+  return topCardsLookup[count][holding];
 }
 
 inline void initializeDDSLookup() {
   int n,rank;
   holding_t holding;
   highestRankLookup[0] = 0;
-  for (n=0; n<14; n++) { topCardsLookup[0].topCards[n] = 0; }
+  for (n=0; n<14; n++) { topCardsLookup[n][0] = 0; }
 
   for (rank=2; rank<=14; rank++) {
     holding_t highestBitRank = BitRank(rank);
     for (holding=highestBitRank; holding<2*highestBitRank; holding++) {
       highestRankLookup[holding] = rank;
       holding_t rest = holding & (~highestBitRank);
-      topCardsLookup[holding].topCards[0] = 0;
+      topCardsLookup[0][holding] = 0;
       for (n=1; n<14; n++) {
-        topCardsLookup[holding].topCards[n] = 
-	  highestBitRank | topCardsLookup[rest].topCards[n-1];
+        topCardsLookup[n][holding] = 
+	  highestBitRank | topCardsLookup[n-1][rest];
       }
     }
   }
