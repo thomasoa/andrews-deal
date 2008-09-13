@@ -1,1 +1,4 @@
 Tagged Release Trees
+
+Instead of including releases in the 'tags' directory, I decided
+to give releases their own top-level directory for easier browsing.
