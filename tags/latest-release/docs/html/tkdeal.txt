@@ -1,0 +1,144 @@
+global hf
+
+set hf(debug) 0
+
+set hf(lwidgets) "ssymbol hsymbol dsymbol csymbol"
+set hf(rwidgets) "spades hearts diamonds clubs"
+set hf(allwidgets) "$hf(lwidgets) $hf(rwidgets)"
+
+set deal_count 0
+set current_deal -1
+
+proc handframe {name args} {
+
+	frame $name -class hand -borderwidth 2 -relief raised
+
+	rename $name ${name}_frame
+
+	frame $name.left -height 100
+	frame $name.right -height 100
+
+	label $name.ssymbol -width 10 -anchor e -text "Spades:"
+	label $name.hsymbol -width 10 -anchor e -text "Hearts:"
+	label $name.dsymbol -width 10 -anchor e -text "Diamonds:"
+	label $name.csymbol -width 10 -anchor e -text "Clubs:"
+
+	pack $name.ssymbol $name.hsymbol $name.dsymbol $name.csymbol \
+		-side top -in $name.left -fill both
+
+	label $name.spades -width 13 -anchor w
+	label $name.hearts -width 13 -anchor w
+	label $name.diamonds -width 13 -anchor w
+	label $name.clubs -width 13 -anchor w
+
+	pack $name.spades $name.hearts $name.diamonds $name.clubs \
+		-side top -in $name.right -fill both
+
+	pack $name.left $name.right -side left -in $name -fill both
+
+	proc $name {args} "eval \"handframe_process $name \$args\""
+}
+
+proc handframe_process {name args} {
+    set cnt [llength $args]
+
+    switch [lindex $args 0] {
+    configure {
+	    eval "handframe_configure $name [lrange $args 1 end]"
+    } hand { 
+	    if {$cnt != 5} { error "Wrong number of arguments"}
+	    $name.spades configure -text [lindex $args 1]
+	    $name.hearts configure -text [lindex $args 2]
+	    $name.diamonds configure -text [lindex $args 3]
+	    $name.clubs configure -text [lindex $args 4]
+    } destroy {
+	destroy $name.ssymbol $name.hsymbol $name.dsymbol $name.csymbol
+	destroy $name.left $name.right
+	pack $name.spades $name.hearts $name.diamonds $name.clubs
+    } default {
+	error "Unknown args $args"
+    }
+}
+}
+
+proc handframe_configure {name args} {
+    global hf
+
+    foreach window $hf(allwidgets) {
+	eval "$name.$window configure $args"
+    }
+}
+
+wm maxsize . 2000 2000
+
+frame .buttons
+pack .buttons -side top -fill x
+
+button .prev -command { get_prev_deal } -text "Prev Deal"
+	pack .prev -side left -in .buttons -padx 3p
+button .next -command { get_next_deal } -text "Next Deal"
+	pack .next -side left -in .buttons -padx 3p
+
+button .quit -command { destroy .} -text "Quit"
+	pack .quit -side right -in .buttons -padx 3p
+set deal_count 0
+set current_deal -1
+
+handframe .north
+pack .north -side top -pady 10p
+frame .ew
+
+	pack .ew -side top -after .north -pady 10p
+	handframe .west
+	handframe .east
+	pack .west -side left -in .ew -padx 10p
+	pack .east -side right -in .ew -padx 10p
+
+handframe .south 
+pack .south -side top -after .ew -pady 10p
+
+proc post_deal {deal} {
+	set list [split $deal " |"]
+	set length [llength $list]
+	while {0<=[set ind [lsearch -exact $list ""]]} {
+		set list [lreplace $list $ind $ind ---]
+	}
+	eval ".north hand [lrange $list 0 3]"
+	eval ".south hand [lrange $list 8 11]"
+	eval ".west hand [lrange $list 12 15]"
+	eval ".east hand [lrange $list 4 7]"
+}
+
+proc activate_deal {dealno} {
+	global deal_count
+	global deal current_deal
+	post_deal $deal($dealno)
+	set current_deal $dealno
+	.next configure -state normal
+	.prev configure -state normal
+	if {$dealno==0} { .prev configure -state disabled }
+	if {$dealno+1==$deal_count} { .next configure -state disabled}
+}
+
+proc get_next_deal {} {
+	global current_deal deal_count
+
+	if {$current_deal+1>=$deal_count} {beep; return}
+	activate_deal [expr $current_deal+1]
+}
+
+proc get_prev_deal {} {
+	global current_deal deal_count
+	if {$current_deal<=0} {beep; return}
+	activate_deal [expr $current_deal-1]
+}
+
+set deal_count 0
+while {0<=[gets stdin deal($deal_count)]} {
+	incr deal_count
+}
+
+activate_deal 0
+
+bind . n get_next_deal
+bind . p get_prev_deal
