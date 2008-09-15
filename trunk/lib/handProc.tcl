@@ -1,7 +1,7 @@
 #
 # Copyright (C) 1996-2001, Thomas Andrews
 #
-# $Id: handProc.tcl,v 1.2 2008-05-22 00:56:08 thomaso Exp $
+# $Id$
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

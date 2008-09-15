@@ -16,9 +16,11 @@
  * Your application must call initializeDDSLookup() to use these lookup tables
  */
 
+/*
 struct topCardsType {
   holding_t topCards[14];
 };
+*/
 
 /* In dds code, counttable is local, but since I've already got a counttable in
    Deal, I reference that table instead */
