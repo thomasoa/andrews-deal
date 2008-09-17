@@ -17,6 +17,11 @@
  */
 #ifndef __TCL_INCL__
 #include <tcl.h>
+
+#ifndef CONST84
+#define CONST84
+#endif
+
 #ifdef __STDC__
 #define  TCL_PARAMS ClientData cd,Tcl_Interp *interp,int argc, CONST84 char *argv[]
 #define TCLOBJ_PARAMS ClientData cd,Tcl_Interp *interp,int objc,Tcl_Obj * CONST objv[]
