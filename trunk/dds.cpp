@@ -1,21 +1,23 @@
-
-/* DDS 1.1.8   A bridge double dummy solver.                                            */
-/* Copyright (C) 2006-2008 by Bo Haglund                                      */
-/* Cleanups and porting to Linux and MacOSX (C) 2006 by Alex Martelli         */
-/*                                                                                              */
-/* This program is free software; you can redistribute it and/or              */
-/* modify it under the terms of the GNU General Public License                */
-/* as published by the Free software Foundation; either version 2             */
-/* of the License, or (at your option) any later version.                     */ 
-/*                                                                                              */
-/* This program is distributed in the hope that it will be useful,            */
-/* but WITHOUT ANY WARRANTY; without even the implied warranty of             */
-/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              */
-/* GNU General Public License for more details.                               */
-/*                                                                                              */
-/* You should have received a copy of the GNU General Public License          */
-/* along with this program; if not, write to the Free Software                */
-/* Foundation, Inc, 51 Franklin Street, 5th Floor, Boston MA 02110-1301, USA. */
+/*
+ * DDS 1.1.9   A bridge double dummy solver.
+ * Copyright (C) 2006-2008 by Bo Haglund
+ * Cleanups and porting to Linux and MacOSX (C) 2006 by Alex Martelli
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free software Foundation; either version 2
+ * of the License, or (at your option) any later version. 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more 
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc, 51 Franklin Street, 5th Floor, Boston MA 02110-1301, USA.
+ *
+ */
 
 #include "dds.h"
 
