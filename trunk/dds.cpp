@@ -1,4 +1,5 @@
 /*
+ *
  * DDS 1.1.9   A bridge double dummy solver.
  * Copyright (C) 2006-2008 by Bo Haglund
  * Cleanups and porting to Linux and MacOSX (C) 2006 by Alex Martelli
