@@ -10,6 +10,7 @@
 TCL_DIR=/usr
 
 include Make.mac-osx
+#include Make.ubuntu
 
 CC=gcc
 
