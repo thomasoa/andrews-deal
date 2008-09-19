@@ -9,31 +9,10 @@
 
 TCL_DIR=/usr
 
+include Make.ubuntu
+
 CC=gcc
-MAC_ARCH = 
-MAC_ARCH_UNIVERSAL = -arch i386 -arch ppc
-#DEBUG_FLAGS=-g -ansi -Wall -O2 $(MAC_ARCH)
-#CPPFLAGS = -fno-rtti -g -O2 $(MAC_ARCH)
-DEBUG_FLAGS=-fast -ansi -Wall $(MAC_ARCH)
-CPPFLAGS = -fno-rtti -fast -Winline -Wall $(MAC_ARCH)
 
-# Change TCL_INCL to point to the directory containing Tcl's
-# include files
-TCL_INCL=/usr/local
-
-# Change TCL_LIB to point to the directory where you have a copy
-# of libtcl.
-# 
-TCL_LIB=$(TCL_DIR)/lib
-
-######
-LDFLAGS=  -L$(TCL_LIB) -ltcl -lm
-
-
-
-
-#
-ADVISOR=
 
 # Since strdup is not implemented on some Ultrix systems
 # (and is not required by ANSI C) you might want to
