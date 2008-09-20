@@ -1,3 +1,7 @@
+Changes in Deal 3.1.7
+
+   * Added code to allow for easier build against Tcl 8.3.
+
 Changes in Deal 3.1.6
 
    * Added newLTC function
