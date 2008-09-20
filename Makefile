@@ -9,8 +9,8 @@
 
 TCL_DIR=/usr
 
-include Make.mac-osx
-#include Make.ubuntu
+#include Make.mac-osx
+include Make.ubuntu
 
 CC=gcc
 
@@ -84,8 +84,8 @@ makecounttable: makecounttable.c
 	$(CC) $(CFLAGS) makecounttable.c -o makecounttable $(LDFLAGS)
 
 KITNAME=deal
-DEAL_VERSION=316
-OLD_VERSION=315
+DEAL_VERSION=317
+OLD_VERSION=316
 RELEASE=$(KITNAME)$(DEAL_VERSION)
 SRCDIR=$(RELEASE)
 BINDIR=$(RELEASE)-bin
