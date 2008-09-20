@@ -816,9 +816,9 @@ void InitStart(void) {
   winSetSizeLimit=WINIT;
   lenSetSizeLimit=LINIT;
 
-  maxmem=(5000001*sizeof(struct nodeCardsType)+
-                   15000001*sizeof(struct winCardType)+
-                   200001*sizeof(struct posSearchType));
+  maxmem=(6000001*sizeof(struct nodeCardsType)+
+                   18000001*sizeof(struct winCardType)+
+                   240001*sizeof(struct posSearchType));
 
   bestMove = (struct moveType *)calloc(50, sizeof(struct moveType));
   /*bestMove = new moveType [50];*/
