@@ -22,6 +22,8 @@ $ sudo apt-get install g++
 
 Edit the Makefile so the it include Make.ubuntu file.
 
+Create an empty file, Make.dep.
+
 If you installed another version of Tcl (say, 8.3) change the line in Make.ubuntu to read:
 {{{
 TCL_VERSION=8.3
