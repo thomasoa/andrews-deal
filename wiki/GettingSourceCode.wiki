@@ -15,12 +15,12 @@ Assuming you know how to use subversion, you can get various versions of the sou
 
 If you want an older version, you can checkout out the [http://code.google.com/p/andrews-deal/source/browse/releases/ list of available versions] and then checkout the version you would like.  For example, to check out version 3.1.5, you could check out:
 {{{
-    http://andrews-deal.googlecode.com/svn/releases/v3-1-5
+    http://andrews-deal.googlecode.com/svn/releases/3.1.5
 }}}
 
 == The Latest Code ==
 
-The very latest code, not released, can be gotten by checking out the trunk:
+The very latest code, including unreleased changes, can be gotten by checking out the trunk:
 
 {{{
     http://andrews-deal.googlecode.com/svn/trunk
