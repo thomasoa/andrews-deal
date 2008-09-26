@@ -10,10 +10,11 @@
 <title>
     Deal <?php echo $shorterVersion; ?> - Downloading
 </title>
+<script src='<?php echo $bridgeFantasia;?>deal/version.js'></script>
 
 </head>
 
-<body>
+<body onload='noteOldVersion("<?php echo $version;?>")'>
 <div class="back"><A href="index.html">Back to <em>Deal Top Page</em></A></div>
 <TABLE class="toplevel">
 <TR valign="middle"><td align="center"><img
@@ -32,6 +33,7 @@ style="width:225px;height:216px"
 <div class="toplevel">
 <hr>
 
+<div id='versionWarning'></div>
 <h3><a name="downloading">Downloading Deal <?php echo $version;?></a></h3>
 <?php
   if ($output == "release") {
