@@ -73,3 +73,10 @@ div.toplevel,table.toplevel {
 span.reference {
    font-style: italic ;
 }
+
+div#versionWarning {
+  font-weight: bold;
+  color: red;
+  display: none;
+}
+

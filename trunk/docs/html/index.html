@@ -8,9 +8,11 @@
 <link rev="made" href="mailto:thomaso@centerline.com (Thomas Andrews)">
 <link rel="stylesheet" type="text/css" href="look.css">
 
+<script src="<?php echo $bridgeFantasia;?>deal/version.js"></script>
+
 </head>
 
-<body background="graphics/idealbg.jpg" bgcolor="#EEEEFF">
+<body background="graphics/idealbg.jpg" bgcolor="#EEEEFF" onload="noteOldVersion('<?php echo $version;?>')">
 
 <TABLE width=100%>
 <TR valign="middle">
@@ -52,6 +54,7 @@ google_color_text = "000000";
 </script>
 <?php } ?>
 </div>
+<div id='versionWarning'></div>
 <H2>Information found on these pages:</H2>
 <UL>
     <LI> <a href="downloading.html">Downloading and Building Instructions</a> 

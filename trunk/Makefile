@@ -122,7 +122,7 @@ documentation:
 	mkdir $(DOCDEST)
 	cp -r docs/graphics $(DOCDEST)/graphics
 	cp -r docs/html/*.css docs/html/ex $(DOCDEST)
-	cd docs/html; for file in *.html; do \
+	cd docs/html; for file in *.html *.js; do \
 		php process.php $(DOCTYPE) $$file > ../../$(DOCDEST)/$$file ; done
 
 sitedoc:
