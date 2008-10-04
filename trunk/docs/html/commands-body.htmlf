@@ -1145,9 +1145,10 @@ usage.</p>
 <tr valign=top><td style="width: 65%">
 <h3>Usage</h3>
 <pre class='example'>
-   deal -x <em>filename</em>
+   deal -x <em>filename</em> <arg> <arg> ...
 </pre>
 <p>The '-x' flag tells deal to source the file and then exit.</p>
+<p>Before doing so, Deal puts remaining arguments into the variables <code>argc</code> and <code>argv</code>, and sets <code>argv0</code> to the filename of the script.
 <p>This is useful if you want to skip the entire deal loop, and process stuff on your own.  For example, the code in <code>tests/great88</code> does not generate any deals, it just solves 88 5-card double-dummy problems.  Before the -x flag, you had to
 explicitly call 'exit' from such scripts.</p>
 </td>
