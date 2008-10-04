@@ -564,7 +564,10 @@ int old_main(argc,argv)
       break;
     case 'x':
       sprintf(tcl_command_string,"source %s",optarg);
-      executeScript(interp, optarg,argc-optind,argv+optind, tcl_command_string);
+      result = executeScript(interp, optarg,argc-optind,argv+optind, tcl_command_string);
+      if (result==TCL_ERROR) {
+	tcl_error(interp);
+      }
       exit(0);
     case 'i':
       sprintf(tcl_command_string,"source %s",optarg);
