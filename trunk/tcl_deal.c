@@ -463,6 +463,23 @@ DEAL31_API int *Deal_Init(Tcl_Interp *interp)
   return TCL_OK;
 }
 
+static int executeScript(Tcl_Interp *interp, 
+                         const char *argv0,
+                         int argc,
+                         char *argv[],
+                         const char *command) {
+  int i, result;
+  Tcl_SetVar(interp,"argv0",argv0,TCL_GLOBAL_ONLY);
+  Tcl_SetVar2Ex(interp,"argc",NULL,Tcl_NewIntObj(argc),TCL_GLOBAL_ONLY);
+  Tcl_Obj *list = Tcl_NewListObj(0,NULL);
+  for (i=0;i<argc;i++) {
+    Tcl_ListObjAppendElement(interp,list,Tcl_NewStringObj(argv[i],strlen(argv[i])));
+  }
+  Tcl_SetVar2Ex(interp,"argv",NULL,list, TCL_GLOBAL_ONLY);
+  result=Tcl_VarEval(interp,command,NULL);
+  return result;
+}
+
 int old_main(argc,argv)
      int argc;
      char *argv[];
@@ -546,14 +563,14 @@ int old_main(argc,argv)
 
       break;
     case 'x':
+      sprintf(tcl_command_string,"source %s",optarg);
+      executeScript(interp, optarg,argc-optind,argv+optind, tcl_command_string);
+      exit(0);
     case 'i':
       sprintf(tcl_command_string,"source %s",optarg);
       result=Tcl_VarEval(interp,tcl_command_string,NULL);
       if (result==TCL_ERROR) {
 	tcl_error(interp);
-      }
-      if (opt=='x') {
-        exit(0);
       }
       break;
 	  
