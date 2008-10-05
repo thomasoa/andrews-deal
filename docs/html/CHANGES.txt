@@ -1,5 +1,6 @@
 Changes in Deal 3.1.7
 
+   * Added code to pass argument values (argc, argv, argv0) when using the '-x' flag
    * Added code to allow for easier build against Tcl 8.3.
 
 Changes in Deal 3.1.6
