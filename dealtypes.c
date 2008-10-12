@@ -16,10 +16,11 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
- /*
- * This file defines new types, to avoid the constant relookup
+/*
+ * This file defines new Tcl types, to avoid the constant relookup
  * of certain common words and strings (coverting AKJ2 to its
- * holding representation, for example.)
+ * binary representation, for example, or suit or hand names to their
+ * internal numeric values.)
  *
  * int getSuitNumFromObj(Tcl_Interp *interp, Tcl_Obj *suit)
  * int getHandNumFromObj(Tcl_Interp *interp, Tcl_Obj *hand)
@@ -30,6 +31,12 @@
  *
  * The underlying objects are *converted* to these new types,
  * which keeps them from being looked up, again and again.
+ *
+ * See 
+ *
+ *    http://www.tcl.tk/man/tcl8.6/TclLib/ObjectType.htm
+ * 
+ * for more information about object types in Tcl.
  */
 
 #include "dealtypes.h"
@@ -60,25 +67,6 @@ dupDealRepProc(Tcl_Obj *source, Tcl_Obj *dup)
 {
   dup->internalRep.longValue=source->internalRep.longValue;
 }
-
-/*
-static void
-updateStringDealRep(Tcl_Obj *dealObj, char *names[],int nameCount)
-{
-  int index=dealObj->internalRep.longValue;
-  char *name,*dup;
-  int length;
-  if (index>=nameCount || index<0) {
-    return;
-  }
-  name=names[index];
-  length=strlen(name);
-  dup=Tcl_Alloc(strlen(name)+1);
-  strcpy(dup,name);
-  dealObj->bytes=dup;
-  dealObj->length=length;
-}
- */
 
 extern char cards[];
 extern char suits[];
@@ -114,24 +102,24 @@ void initializeCardType() {
 }
 
 static int validHoldingNum(int num) {
-    int spots;
+   int spots;
 
-    if (num<0) { return 0; }
-	spots=(num>>13);
-	if (spots<0||spots>13) { return 0; }
+   if (num<0) { return 0; }
+   spots=(num>>13);
+   if (spots<0||spots>13) { return 0; }
 
-	if (spots>0) {
-		/* Make sure spots are right */
-		int codedspots=(1<<spots)-1;
-		if ((codedspots&num)!=codedspots) { return 0; }
-	}
-	return 1; /* true */
+   if (spots>0) {
+        /* Make sure spots are right */
+        int codedspots=(1<<spots)-1;
+        if ((codedspots&num)!=codedspots) { return 0; }
+    }
+    return 1; /* true */
 }
 
 Tcl_Obj *Tcl_NewHoldingObj(int holding) {
   Tcl_Obj *result;
   if (!validHoldingNum(holding)) {
-	return (Tcl_Obj *)0;
+    return (Tcl_Obj *)0;
   }
 
   result=Tcl_NewObj();

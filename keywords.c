@@ -26,7 +26,8 @@
  *
  * is called, the internal representation of the argument, "north", is
  * converted to a Keyword Tcl type.  Every further time the code
- * is called, no further lookup is required.  This is a Tcl hack.
+ * is called, no further lookup is required.  This is a Tcl hack for
+ * performance purposes.
  *
  * This is similar to the Tcl_GetIndexFromObj() routines, only there,
  * the keywords are local, not global.  Also, the Tcl_GetIndexFromObj
@@ -75,9 +76,6 @@ int Keyword_setId(const char *keyword,int id,int flags) {
   char *dupKey;
 
   if (id==KEYWORD_INVALID_ID) { return KEYWORD_INVALID_ID; }
-#if DEAL_MEMORY	   
-  fprintf(stderr,"Allocating memory to copy keyword %s\n",keyword);
-#endif
   dupKey=Tcl_Alloc(strlen(keyword)+1);
   strcpy(dupKey,keyword);
 
