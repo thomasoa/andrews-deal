@@ -51,7 +51,6 @@ namespace eval line {
 	catch { set length [gets $handle line] }
 	reset_deck
 	if {$length<=0} { 
-	    puts stderr "done with line"
 	    catch { finalize  }
 	    # Return "return" code, indicating we're done - no more dealing.
 	    return -code return
