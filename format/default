@@ -31,6 +31,7 @@ namespace eval formatter {
     variable suitletters [list S: H: D: C:]
     variable suitsunicode [list "\u2660" "\u2665" "\u2666" "\u2663"]
     variable suitsymbols $suitletters
+    variable voidsymbol "---"
 
     stringbox ::formatter::writer 12 60
 
@@ -40,11 +41,12 @@ namespace eval formatter {
 
     proc puthand {hand} {
         variable suitsymbols
+        variable voidsymbol
 	writer.$hand  clear
 	set row 0
 	foreach suit {spades hearts diamonds clubs} symbol $suitsymbols {
 	    
-writer.$hand write $row 0 "$symbol [$hand -void --- $suit]"
+writer.$hand write $row 0 "$symbol [$hand -void $voidsymbol $suit]"
 	    incr row
 	}
     }	
