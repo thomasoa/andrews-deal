@@ -24,6 +24,9 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <time.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 
 #include "deal.h"
 #include "vector.h"
@@ -501,9 +504,9 @@ int old_main(argc,argv)
 
   time(&for_seeding);
 #ifdef USE_RAND48
-  srand48(for_seeding);
+  srand48(for_seeding ^ getpid());
 #else
-  srandom(for_seeding);
+  srandom(for_seeding ^ getpid());
 #endif
 
   init_name_tables();
