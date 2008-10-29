@@ -188,9 +188,9 @@ static int deal_random(dealt)
      int dealt;
 {
 #if USE_RAND48
-  return dealt+(int) (drand48() *(double)(52-dealt));
+   return dealt+(int) (drand48() *(double)(52-dealt));
 #else
-  return dealt+(int) (fast_mod(random() , (52-dealt)));
+  return dealt+(int) (fast_mod((unsigned) random() , (52-dealt)));
 #endif
 }
 
