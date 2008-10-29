@@ -48,6 +48,7 @@ already done this.
 using, to distinguish between normal parentheses, <span class="code">()</span>, and curly
 parentheses, <span class="code">{}</span>.  Almost all of the parentheses in the script
 listings below are curly parentheses.
+<p>Deal only works from the directory where you did your installation, because it looks there for files that Deal uses.
 <h2> <a href="#basic">Basic Dealing - The Command Line </a></h2>
 <UL>
 <LI> <a href="#basicbasic">Dealing hands</a>
@@ -65,11 +66,11 @@ listings below are curly parentheses.
 <h2><a name="basic">Basic Dealing</a></h2>
 
 <h3><a name="basicbasic">Dealing hands</a></h3>
-At your command or DOS prompt, you say, <span class="code">deal</span>.  By default, this deals ten hands.
+At your command prompt, you say, <span class="code">deal</span>.  By default, this deals ten hands.
 If you give <span class="code">deal</span> a numeric argument, it will deal that number
 of hands you specify.
 <pre class="codesample">
-$ deal 2
+$ ./deal 2
           S : T6542
           H : A4
           D : A93
@@ -117,7 +118,7 @@ this?
 <p>
 <strong>Deal</strong> can help.  Just run it as:
 <pre class="codesample">
-$ deal -S "- KQJT62 T9876 84" 25
+$ ./deal -S "- KQJT62 T9876 84" 25
           S : KJ2
           H : 954
           D : A5
@@ -159,7 +160,7 @@ This can be arranged fairly easily.
 For example, suppose you wish to deal 8 hands for practice bidding
 with partner.  In that case, you would use the "practice" format:
 <pre class="codesample">
-$ deal -i format/practice 8 > out.all
+$ ./deal -i format/practice 8 > out.all
 $ cat out.east
                               east hands
 ============================================================================
@@ -226,7 +227,7 @@ practice bidding.
 There is one last output format, which, for historical reasons,
 has its own command line switch, <span class="code">-l</span>.
 <pre class="codesample">
-$ deal -l 3
+$ ./deal -l 3
 AJ9 976532 K92 A|86 A AT87 987653|Q732 JT8 543 T42|KT54 KQ4 QJ6 KQJ
 K94 J93 QJ3 7653|A8 A8765 97 KQ98|JT2 Q AKT8654 T4|Q7653 KT42 2 AJ2
 KJ753 T A4 KQ932|AQ94 AJ92 QT87 J|86 Q764 K9653 74|T2 K853 J2 AT865
@@ -257,7 +258,7 @@ main {
 <h4> Running the script</h4>
 We run this code by saying:
 <pre class="codesample">
-$ deal -i onespade 2
+$ ./deal -i onespade 2
           S : AKQT5
           H : A7
           D : 8542
@@ -331,7 +332,7 @@ main {
 <h4> Monitoring Deal</h4>
 You might want to try running this script with the <span class="code">-v</span> switch:
 <pre class="codesample">
-$ deal -v -i onespade
+$ ./deal -v -i onespade
 </pre>
 The <span class="code">-v</span> flag tells <strong>Deal</strong> to give a progress report, which looks
 like:
@@ -356,7 +357,7 @@ redirected to a file without obscuring these messages.  <p>
 If we wanted to use another output format with this script, we could do so 
 on the command line, as follows:
 <pre class="codesample">
-$ deal -i format/practice -i onespade
+$ ./deal -i format/practice -i onespade
 </pre>
 Or, alternately, we could add an explicit "source" command to our
 script:
@@ -374,7 +375,7 @@ write your own formatter, you would not have to put the file in
 the "format" directory.
 If you put it in the current directory, you could then say:
 <pre class="codesample">
-$ deal -i myformatter 100
+$ ./deal -i myformatter 100
 </pre>
 and it would work fine.  The "format" subdirectory is just a convenience.
 You will often want to re-use a format, and placing them in one place
@@ -402,7 +403,7 @@ very bad at assessing levels of risk.
 <strong>Deal</strong> can help.  Using our script, <span class="code">onespade</span>,
 we can run the following simulation:
 <pre class="codesample">
-$ deal -S "- 96532 A864 T962" -i onespade
+$ ./deal -S "- 96532 A864 T962" -i onespade
 </pre>
 The <span class="code">-S</span> flag stacks the south hand with the hand you held,
 and the script runs exactly the same thereafter.  You can now peruse
