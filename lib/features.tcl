@@ -181,3 +181,7 @@ holdingProc newLTC {A K Q J T length} {
   }
   return $halflosers
 }
+
+holdingProc zero {length} {
+  return 0
+}
