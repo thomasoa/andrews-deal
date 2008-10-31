@@ -5,6 +5,9 @@
   $indexTable = array(
 "accept"=>"accept",
 "balanced"=>"balanced",
+"binky" => "Binky Points evaluators",
+"binky::nt" => "binky::nt",
+"binky::suit" => "binky::suit",
 "clubs"=>"clubs",
 "correlation"=>"correlation",
 "deal::input"=>"deal::input",
