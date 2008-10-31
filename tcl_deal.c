@@ -25,8 +25,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <sys/types.h>
-#include <unistd.h>
-
+extern int getpid();
 
 #include "deal.h"
 #include "vector.h"
