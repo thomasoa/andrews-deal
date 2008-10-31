@@ -540,6 +540,36 @@ It is probably better to reimplement in <code>Tcl</code> using
 </table>
 <hr>
 
+<a name="binky"></a>
+<h1>Binky Points Evaluators</h1>
+<p>Binky Points are described in my <a href="<?php echo $bridgeFantasia;?>valuations/">hand evaluations articles.</a></p>
+<p>Binky Points are designed so that sum of your partnership's Binky Point values comes as close as possible to the number of tricks that your partnership can make, double dummy.</p>
+<a name="binky_suit"></a>
+<a name="binky_nt"></a>
+<h2>Commands: <code>binky::suit</code> and <code>binky::nt</code></h2>
+<table cellpadding=5 style="width: 100%">
+<tr valign=top><td style="width: 65%">
+<h3>Usage</h3>
+<pre class='example'>
+source lib/binky.tcl
+binky::nt <em>handname</em>
+binky::nt hand {<em>s h d c</em>}
+binky::suit <em>handname</em>
+binky::suit hand {<em>s h d c</em>}
+</pre>
+These two functions are <a href="#handInterface">hand procedures</a> which
+computes the Binky Point value for the hand.
+<td style="width: 35%">
+<div class='programmer'>
+<b>For Programmers</b>
+<dl><dt>Implementation:</dt>
+<dd>Tcl code
+<dt>Location:</dt>
+<dd><code>lib/binky.tcl</code> and <code>lib/binky-data.tcl</code>
+</dl>
+</div>
+</table>
+
 <h1>Bridge Logic and Utilities</h1>
 <a name="lho"></a>
 <a name="rho"></a>
