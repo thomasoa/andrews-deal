@@ -558,7 +558,7 @@ binky::suit <em>handname</em>
 binky::suit hand {<em>s h d c</em>}
 </pre>
 These two functions are <a href="#handInterface">hand procedures</a> which
-computes the Binky Point value for the hand.
+computes the Binky Point values for a hand.
 <td style="width: 35%">
 <div class='programmer'>
 <b>For Programmers</b>
