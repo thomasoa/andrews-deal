@@ -471,9 +471,10 @@ static int executeScript(Tcl_Interp *interp,
                          char *argv[],
                          const char *command) {
   int i, result;
+  Tcl_Obj *list = Tcl_NewListObj(0,NULL);
   Tcl_SetVar(interp,"argv0",argv0,TCL_GLOBAL_ONLY);
   Tcl_SetVar2Ex(interp,"argc",NULL,Tcl_NewIntObj(argc),TCL_GLOBAL_ONLY);
-  Tcl_Obj *list = Tcl_NewListObj(0,NULL);
+
   for (i=0;i<argc;i++) {
     Tcl_ListObjAppendElement(interp,list,Tcl_NewStringObj(argv[i],strlen(argv[i])));
   }
@@ -505,7 +506,7 @@ int old_main(argc,argv)
 #ifdef USE_RAND48
   srand48(for_seeding ^ getpid());
 #else
-  srandom(for_seeding ^ getpid());
+  srandom(for_seeding);
 #endif
 
   init_name_tables();
@@ -605,7 +606,7 @@ int old_main(argc,argv)
     sprintf(tcl_command_string,"deal_deck ; %s",writecmd);
   }
  
-  command=Tcl_NewStringObj(tcl_command_string,strlen(tcl_command_string));
+  command=Tcl_NewStringObj(tcl_command_string,(int)strlen(tcl_command_string));
 
   Tcl_IncrRefCount(command);
 
