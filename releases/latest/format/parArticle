@@ -1,0 +1,55 @@
+#
+# parArticle - an output format used for generating HTML with comments
+#      which include ways to load into GIB's bridge.exe or iDeal.
+#
+# Copyright (C) 1996-2001, Thomas Andrews
+#
+# $Id$
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+source lib/parscore.tcl
+
+set particle(num) 0
+set particle(dealer) [list north east south west]
+set particle(vul) [list None NS EW Both NS EW Both None EW Both None NS Both None NS EW]
+
+proc par_upcase {word} {
+    set first [string toupper [string range $word 0 0]]
+    set rest [string range $word 1 end]
+    append first $rest
+}
+
+proc write_deal {} {
+    global particle particle
+    set num $particle(num)
+    set dealer [lindex $particle(dealer) [expr {$num%4}]]
+    set vul [lindex $particle(vul) [expr {$num%16}]]
+    incr num
+    puts stderr "$num $dealer $vul"
+    set par [parscore $dealer $vul]	
+    set contract [lindex $par 0]
+    set declarer [lindex $par 1]
+    set score    [lindex $par 2]
+    puts "Deal #$num"
+    puts "Dealer: [par_upcase $dealer]"
+    puts "Vulnerability: $vul vul"
+    puts "Contract: $contract by [par_upcase $declarer]"
+    puts "N/S score: $score"
+    puts ""
+    puts -nonewline [format_deal]
+    incr particle(num)
+}
+
