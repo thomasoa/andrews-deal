@@ -3,8 +3,9 @@ Changes in Deal 3.1.7
    * Added code to pass argument values (argc, argv, argv0) when using the '-x' flag
    * Added code to allow for easier build against Tcl 8.3.
 
-   * Updated binky.tcl points with newly computed values.  The new version
-   does not have binky::offense.nt or binky::defense.nt.
+   * Updated binky points with newly computed values.  The new version
+   does not have binky::defense.suit or binky::defense.nt.  Added documentation
+   for Binky Points evaluators.
 
    * Fixed 64-bit builds using a fix found in Christoph Berg's Ubuntu
    package for Deal.
