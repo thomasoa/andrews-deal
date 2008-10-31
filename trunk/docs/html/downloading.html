@@ -43,7 +43,7 @@ style="width:225px;height:216px"
   } else {
 ?>
 <ul>
-<li><a href="<?php echo $package;?>-bin.dmg">Mac OS X Universal Binary release</a> - A disk image containing an OS X binary for Intel and PowerPC Macs.  After opening this disk image, <b>do not<b> drag the folder to your Applications folder.  Instead, drag it to your home folder.
+<li><a href="<?php echo $package;?>-bin.dmg">Mac OS X Universal Binary release</a> - A disk image containing an OS X binary for Intel and PowerPC Macs.  After opening this disk image, <b>do not</b> drag the folder to your Applications folder.  Instead, drag it to your home folder.
 <li><a href="<?php echo $package;?>win.zip">Windows binary release</a>
 <span class="alert">Note: </span>This is <em>not</em> a Windows program - it is a DOS program.  If, after
 unzipping, you double click on the Deal application, it will open a DOS
@@ -71,3 +71,6 @@ your platform.
 <h4>Ubuntu Users</h4>
 <p>Be careful, there is an Ubuntu package of Deal which is almost always a few revisions behind.  If it tells you to try to use <code>apt-get</code> to install deal, that just means that you've run deal outside of the directory where you built it, or you don't have '.' in your PATH environment variable.
 <p>Otherwise, checkout the Wiki at http://code.google.com/p/andrews-deal/wiki/BuildingNotes for notes on how to build Deal on Linux or Mac OS X or other Unix-like platforms.
+</div>
+<?php include("sig.htmlf");?>
+
