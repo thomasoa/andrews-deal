@@ -22,8 +22,8 @@ source lib/handProc.tcl
 
 namespace eval binky {
   variable binkyData
-  set binkyData(offense/nt) 0
-  set binkyData(offense/suit) 1
+  set binkyData(nt) 0
+  set binkyData(suit) 1
 
   proc add {key args} {
      variable binkyData
@@ -80,18 +80,16 @@ namespace eval binky {
 
     
     set body {
-       expr {[binkys.%s.%s %%h]+[binkyh.%s.%s %%h]}
+       expr {[binkys.%s %%h]+[binkyh.%s %%h]}
     }
 
-    foreach val {offense} {
-       foreach contract {nt suit} {
-          set column $binkyData($val/$contract)
-          holdingProc -double binkyh.$val.$contract {x2 string len} [format $hbody $column]
-          shapefunc binkys.$val.$contract [format $sbody $column]
-          handProc $val.$contract [format $body $val $contract $val $contract]
-          namespace export $val.$contract
-       }
-    } 
+    foreach contract {nt suit} {
+       set column $binkyData($contract)
+       holdingProc -double binkyh.$contract {x2 string len} [format $hbody $column]
+       shapefunc binkys.$contract [format $sbody $column]
+       handProc $contract [format $body $contract $contract]
+       namespace export $contract
+    }
   }
   source lib/binky-data.tcl
   initialize
