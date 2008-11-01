@@ -20,7 +20,7 @@ $ sudo apt-get install tcl8.5-dev
 $ sudo apt-get install g++
 }}}
 
-Edit the Makefile so the it include Make.ubuntu file.
+Edit the Makefile so that it includes Make.ubuntu file.
 
 Create an empty file, Make.dep.
 
