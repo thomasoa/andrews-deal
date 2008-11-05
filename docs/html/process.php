@@ -2,9 +2,9 @@
    $command = array_shift($argv);
    $output = array_shift($argv);
    $file = array_shift($argv);
-   $version = "3.1.7";
+   $version = "3.1.8";
    $shorterVersion = "3.1";
-   $package = "deal317";
+   $package = "deal318";
    if ($output == 'site') {
      $bridgeFantasia = "../";
    } else {
