@@ -341,11 +341,19 @@ the following methods:
 <pre class='example'>
 balanced <em>handname</em>
 
-balanced hand {AJ43 AKxx xxx K5}
+balanced hand {AJxx xxx AKxx Kx}
 
 balanced eval 4 3 4 2
 
 balanced shape {4 3 4 2}
+
+semibalanced <em>handname</em>
+
+semibalanced hand {AJ432 AKx Kx xxx}
+
+semibalanced eval 5 3 2 3
+
+semibalanced shape {5 3 2 3}
 </pre>
 This follows the <a href="#hand">hand procedure</a> outline with the
 addition of the <code>eval</code> option.
