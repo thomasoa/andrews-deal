@@ -13,7 +13,9 @@
 #    define DLLEXPORT __declspec(dllexport)
 #    define STDCALL __stdcall
 #else
+#if !defined(DLLEXPORT)
 #    define DLLEXPORT
+#endif
 #    define STDCALL
 #    define INT8 char
 #endif
