@@ -21,7 +21,7 @@
  */
 
 /*
- * This file encapsulates a specific class of functions, namely,
+ * This file encapsulates a specific class of bridge functions, namely,
  * "additive" functions.  An additive function is one that
  * is computed suit-by-suit, with the total equalling the sum
  * of the values for each suit.

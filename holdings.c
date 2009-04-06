@@ -28,7 +28,7 @@
  *
  * or
  *
- * holdingProc AKQpts {A K Q} { expr {3*$A+2*$K+$Q } }
+ * holdingProc AKQpoints {A K Q} { expr {3*$A+2*$K+$Q } }
  *
  *
  * This, in turn, defines a normal Tcl procedure with the
@@ -49,7 +49,7 @@
  *     solidsuit south clubs
  *     solidsuit holding AKQ7432
  *
- * This call checks a lookup table.  In the case of 'AKQpts' above, the
+ * This call checks a lookup table.  In the case of 'AKQpoints' above, the
  * lookup table consists of 8 elements.  In the case 'solidsuit,' the
  * table has 10*16 entries.  If the lookup entry is NULL, it
  * calls the SlowHoldingProcedure with the appropriate args.
