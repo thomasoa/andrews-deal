@@ -41,7 +41,7 @@ if {[catch {set hands}]} {
 # create file handles for writing
 foreach hand $hands {
 	set ofile($hand) [open "$output.$hand" "w"]
-	stringbox box.$hand 7 78
+	stringbox box.$hand 7 80
 	for {set i 0; set j 0} {$i<4} {incr i ; incr j 20} {
 		box.$hand subbox box.$hand.$i 0 $j 7 20
 	}
