@@ -7,20 +7,20 @@
  * Repository for simple inline functions used by DDS
  */
 
-inline int RelativeHand(int hand, int relative) {
-  return (hand + relative)&3;
+inline int RelativeSeat(int seat, int relative) {
+  return (seat + relative)&3;
 }
 
-inline int partner(int hand) {
-  return (hand^2); /* slightly faster */
+inline int partner(int seat) {
+  return (seat^2); /* slightly faster than calling RelativeSeat */
 }
 
-inline int lho(int hand) {
-  return RelativeHand(hand,1);
+inline int lho(int seat) {
+  return RelativeSeat(seat,1);
 }
 
-inline int rho(int hand) {
-  return RelativeHand(hand,3);
+inline int rho(int seat) {
+  return RelativeSeat(seat,3);
 }
 
 inline holding_t BitRank(int rank) {
