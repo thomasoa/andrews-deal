@@ -75,8 +75,8 @@ class RelativeRanksFinder {
  public:
   inline RelativeRanksFinder() {
     for (int suit=0; suit<4; suit++) {
-      for (int hand=0; hand<4; hand++) {
-	originalsBySuitFirst.cards[suit][hand]=0;
+      for (int seat=0; seat<4; seat++) {
+	originalsBySuitFirst.cards[suit][seat]=0;
       }
     }
   }
@@ -87,14 +87,14 @@ class RelativeRanksFinder {
 
   inline void initialize(const struct diagram &diagram) {
     int newDiagram = 0;
-    int hand, suit;
+    int seat, suit;
 
     for (suit=0; suit<4; suit++) {
-      for (hand=0; hand<4; hand++) {
-	if (diagram.cards[hand][suit] != originalsBySuitFirst.cards[suit][hand]) {
+      for (seat=0; seat<4; seat++) {
+	if (diagram.cards[seat][suit] != originalsBySuitFirst.cards[suit][seat]) {
 	  newDiagram = 1;
 	}
-	originalsBySuitFirst.cards[suit][hand]=diagram.cards[hand][suit];
+	originalsBySuitFirst.cards[suit][seat]=diagram.cards[seat][suit];
       }
     }
 
@@ -116,16 +116,16 @@ class RelativeRanksFinder {
 
  protected:
   inline void compute(const holding_t ind,const holding_t topBitRank) {
-    int hand, suit;
+    int seat, suit;
     
     relative[ind] = relative[ind^topBitRank];
 
     for (suit=0; suit<=3; suit++) {
       struct relRanksType &relRanks = relative[ind].suits[suit];
 
-      for (hand=0; hand<=3; hand++) {
-        if (originalsBySuitFirst.cards[suit][hand] & topBitRank) {
-          relRanks.aggrRanks = (relRanks.aggrRanks >> 2) | (hand << 24);
+      for (seat=0; seat<=3; seat++) {
+        if (originalsBySuitFirst.cards[suit][seat] & topBitRank) {
+          relRanks.aggrRanks = (relRanks.aggrRanks >> 2) | (seat << 24);
           relRanks.winMask   = (relRanks.winMask >> 2)   | (3   << 24);
           break;
         }
@@ -141,13 +141,13 @@ struct gameInfo  {          /* All info of a particular deal */
   int vulnerable;
   int declarer;
   int contract;
-  int leadHand;
+  int leadSeat;
   int leadSuit;
   int leadRank;
   int first;
   int noOfCards;
   struct diagram diagram;
-    /* 1st index is hand id, 2nd index is suit id */
+    /* 1st index is seat id, 2nd index is suit id */
 };
 
 struct moveType {
@@ -173,7 +173,7 @@ struct movePlyType {
 
 struct highCardType {
   int rank;
-  int hand;
+  int seat;
 };
 
 struct makeType {
@@ -190,15 +190,15 @@ struct nodeCardsType {
 };
 
 struct posStackItem {
-  int first;                 /* Hand that leads the trick for each ply*/
-  int high;                  /* Hand that is presently winning the trick */
+  int first;                 /* Seat that leads the trick for each ply*/
+  int high;                  /* Seat that is presently winning the trick */
   struct moveType move;      /* Presently winning move */              
   holding_t winRanks[4];  /* Cards that win by rank, index by suit */
 };
 
 struct pos {
   struct posStackItem stack[50];
-  struct diagram diagram;   /* 1st index is hand, 2nd index is
+  struct diagram diagram;   /* 1st index is seat, 2nd index is
                                         suit id */
   int orderSet[4];
   int winOrderSet[4];
@@ -212,7 +212,7 @@ struct pos {
   char lbound;
   char bestMoveSuit;
   char bestMoveRank;
-  int handRelFirst;              /* The current hand, relative first hand */
+  int seatRelFirst;              /* The current seat, relative first seat */
   int tricksMAX;                 /* Aggregated tricks won by MAX */
   struct highCardType winner[4]; /* Winning rank of the trick,
                                     index is suit id. */
@@ -242,21 +242,21 @@ struct pos {
     return isRemovedBitRank(suit,BitRank(rank));
   }
 
-  inline int hasCardBitRank(int hand, int suit, holding_t bitRank) const {
-    return (diagram.cards[hand][suit] & bitRank);
+  inline int hasCardBitRank(int seat, int suit, holding_t bitRank) const {
+    return (diagram.cards[seat][suit] & bitRank);
   }
 
-  inline int hasCard(int hand,int suit, int rank) const {
-    return hasCardBitRank(hand,suit,BitRank(rank));
+  inline int hasCard(int seat,int suit, int rank) const {
+    return hasCardBitRank(seat,suit,BitRank(rank));
   }
 
-  inline void getSuitLengths(LONGLONG &lengths,int relHand = 0) const {
-    int hand, suit;
+  inline void getSuitLengths(LONGLONG &lengths,int relSeat = 0) const {
+    int seat, suit;
     lengths = 0;
     for (suit=0; suit<=2; suit++) {
-      for (hand=0; hand<=3; hand++) {
+      for (seat=0; seat<=3; seat++) {
 	lengths = lengths << 4;
-        lengths |= length[(relHand+hand)%4][suit];
+        lengths |= length[(relSeat+seat)%4][suit];
       }
     }
   }
@@ -264,8 +264,8 @@ struct pos {
   inline void computeOrderSet() {
     for (int suit=0; suit<4; suit++) {
       holding_t aggr = 0;
-      for (int hand=0; hand<4; hand++) {
-        aggr |= diagram.cards[hand][suit];
+      for (int seat=0; seat<4; seat++) {
+        aggr |= diagram.cards[seat][suit];
       }
       aggregate[suit] = aggr;
       orderSet[suit] = rel(suit,aggr).aggrRanks;
@@ -275,9 +275,9 @@ struct pos {
   inline void computeWinData(int suit, holding_t winners) {
     holding_t aggr = 0;
     holding_t w = smallestRankInSuit(winners);
-    int hand, wm;
-    for (hand=0; hand<4; hand++) {
-      aggr |= (diagram.cards[hand][suit] & (-w));
+    int seat, wm;
+    for (seat=0; seat<4; seat++) {
+      aggr |= (diagram.cards[seat][suit] & (-w));
     }
 
     winMask[suit] = rel(suit,aggr).winMask;
@@ -455,7 +455,7 @@ extern int tricksTargetOpp;             /* Target no of tricks for MAX
                                         opponent */
 extern int targetNS;
 extern int targetEW;
-extern int handToPlay;
+extern int seatToPlay;
 extern int nodeSetSize;
 extern int winSetSize;
 extern int lenSetSize;
@@ -463,7 +463,7 @@ extern int lastTTstore;
 extern int searchTraceFlag;
 extern int countMax;
 extern int depthCount;
-extern int highHand;
+extern int highSeat;
 extern int nodeSetSizeLimit;
 extern int winSetSizeLimit;
 extern int lenSetSizeLimit;
@@ -472,17 +472,17 @@ extern int recInd;
 extern int suppressTTlog;
 extern unsigned char suitChar[4];
 extern unsigned char rankChar[15];
-extern unsigned char handChar[4];
+extern unsigned char seatChar[4];
 extern int cancelOrdered;
 extern int cancelStarted;
 extern int threshold;
-extern unsigned char cardRank[15], cardSuit[5], cardHand[4];
+extern unsigned char cardRank[15], cardSuit[5], cardSeat[4];
 
 extern FILE * fp2, *fp7, *fp11;
   /* Pointers to logs */
 
 void InitStart(void);
-void InitGame(int gameNo, int moveTreeFlag, int first, int handRelFirst,struct pos &position);
+void InitGame(int gameNo, int moveTreeFlag, int first, int seatRelFirst,struct pos &position);
 void InitSearch(struct pos * posPoint, int depth,
   struct moveType startMoves[], int first, int mtd);
 int ABsearch(struct pos * posPoint, int target, int depth);
@@ -494,20 +494,20 @@ void UpdateSecondBest(struct pos * posPoint, int suit);
 inline int WinningMove(const struct moveType &mvp1,const struct moveType &mvp2);
 inline unsigned short int CountOnes(unsigned short int b);
 int AdjustMoveList(void);
-int QuickTricks(struct pos * posPoint, int hand, 
+int QuickTricks(struct pos * posPoint, int seat, 
 	int depth, int target, int *result);
-int LaterTricksMIN(struct pos *posPoint, int hand, int depth, int target); 
-int LaterTricksMAX(struct pos *posPoint, int hand, int depth, int target);
+int LaterTricksMIN(struct pos *posPoint, int seat, int depth, int target); 
+int LaterTricksMAX(struct pos *posPoint, int seat, int depth, int target);
 struct nodeCardsType * CheckSOP(struct pos * posPoint, struct nodeCardsType
   * nodep, int target, int tricks, int * result, int *value);
 struct nodeCardsType * UpdateSOP(struct pos * posPoint, struct nodeCardsType
   * nodep);  
 struct nodeCardsType * FindSOP(struct pos * posPoint,
-  struct winCardType * nodeP, int firstHand, 
+  struct winCardType * nodeP, int firstSeat, 
 	int target, int tricks, int * valp);  
 struct nodeCardsType * BuildPath(struct pos * posPoint, 
   struct posSearchType *nodep, int * result);
-void BuildSOP(struct pos * posPoint, int tricks, int firstHand, int target,
+void BuildSOP(struct pos * posPoint, int tricks, int firstSeat, int target,
   int depth, int scoreFlag, int score);
 struct posSearchType * SearchLenAndInsert(struct posSearchType
 	* rootp, LONGLONG key, int insertNode, int *result);  
