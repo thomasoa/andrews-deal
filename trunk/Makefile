@@ -59,6 +59,7 @@ deal: $(OBJS)
 universal:
 	$(MAKE) clean
 	$(MAKE) MAC_ARCH="$(MAC_ARCH_UNIVERSAL)"
+
 deal.cgi:
 	make clean
 	make CFLAGS="$(CFLAGS) -DCGI"
@@ -223,6 +224,6 @@ depends:
 	$(CC) $(CFLAGS) -M *.c *.cpp >Make.dep
 
 clean:
-	rm -rf deal $(OBJS) $(SRCDIR) $(SRCZIP) $(SRCGZIP) $(DOCZIP) $(DMG) $(EXEZIP) $(BINDIR) html site
+	rm -rf deal $(OBJS) $(SRCDIR) $(SRCZIP) $(SRCGZIP) $(DOCZIP) $(DMG) $(EXEZIP) $(BINDIR) counttable.c makecounttable html site
 
 include Make.dep
