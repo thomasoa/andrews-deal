@@ -1086,6 +1086,92 @@ inside them.
 </table>
 <hr>
 
+<a name="patternclass"></a>
+<a name="patterncond"></a>
+<a name="patternfunc"></a>
+<h2>Commands: <code>patternclass</code>, <code>patterncond</code>, and <code>patternfunc</code></h2>
+<table cellpadding=5 style="width: 100%">
+<tr valign=top><td style="width: 65%">
+<h3>Usage</h3>
+<pre class='example'>
+patternclass <em>name</em> {... <em>code</em> ...}
+
+patterncond <em>name</em> {<em>expr</em>}
+
+patternfunc <em>name</em> {... <em>code</em> ...}
+
+<em>name</em> [ north | south | east | west ]
+
+<em>name</em> eval <em>s</em> <em>h</em> <em>d</em> <em>c</em>
+
+<em>name</em> shape {<em>s</em> <em>h</em> <em>d</em> <em>c</em>}
+
+</pre>
+A pattern class (or equivalently, a shape condition) also has the list
+subcommand:
+<pre class='example'>
+<em>name</em> list
+</pre>
+<h3>Summary</h3>
+These commands create new procedures which fit the <a href="#shapes">shape
+function</a> interface.
+<p>
+<code>patternclass</code> and <code>patterncond</code> define procedures which returns boolean
+values. <code>patternfunc</code> can return any type of data.
+<code>patterncond</code> is actually an alias:
+<pre class='example'>
+patterncond <em>name</em> {<em>expr</em>}
+</pre>
+is the equivalent of:
+<pre class='example'>
+patternclass <em>name</em> {
+  if {<em>expr</em>} {
+    return 1
+  } else {
+    return 0
+}
+</pre>
+The <em>code</em> or <em>expr</em> is allowed to use the variables
+<code>l1</code>, <code>l2</code>, <code>l3</code>, or <code>l4</code>, the suit lengths in descending order.
+<p>
+The <code>list</code> subcommand for pattern classes returns a list of
+shapes (not patterns) that are in the class.
+<p>
+Why are there two subcommands, "eval" and "shape" which do the
+roughly the same things?
+<p>
+Let's say you have a class named "SemiBalanced" already defined,
+which includes 5-card majors.  You want to define a "Balanced"
+class which excludes the 5-card majors.  You can do this with
+the call:
+<pre class='example'>
+shapecond Balanced {[SemiBalanced eval $s $h $d $c] && $s<5 && $h<5}
+</pre>
+
+On the other hand, if you have a shape - output by the, say, a
+call to [north shape] you can evaluate it as:
+<pre class='example'>
+    SemiBalanced shape [north shape]
+</pre>
+In fact, this is exactly equivalent to calling 
+<pre class='example'>
+    SemiBalanced north
+</pre>
+only slightly slower.
+<p>Since these routines cache results in memory and use lookup
+tables, you should not use any external state or global variables
+inside them.
+
+<td style="width: 35%">
+<div class='programmer'>
+<b>For Programmers</b>
+<dl><dt>Implementation: <dd>Tcl
+<dt>Location: <dd><code>features.tcl</code>
+</dl>
+</div>
+</table>
+<hr>
+
 <a name="statistics"></a>
 <h1>Statistics</h1>
 <a name="sdev"></a>

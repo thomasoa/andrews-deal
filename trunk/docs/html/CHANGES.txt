@@ -1,3 +1,19 @@
+Changes in Deal 3.1.8
+
+   * Added patternfunc, patternclass, and patterncond, which are similar in
+     function to the shapefunc, shapeclass, and shapecond routines. [In
+     Deal, a shape is the ordered list of suit lengths: s-h-d-c. A pattern
+     is sorted by lengths (decreasing.)  So the 3-4-5-1 shape has the pattern
+     5431.
+
+   * Added documentation to commands-body.html for the new pattern procedures
+
+   * Added google analytics code to the documentation (for my web site
+     only - local documentation does not have the google analytics)
+
+   * [Internals] Changed occurances of "hand" in variable names to "seat"
+     when it refers to a location at the table (North, East, South, West.)
+
 Changes in Deal 3.1.7
 
    * Added code to pass argument values (argc, argv, argv0) when using the 

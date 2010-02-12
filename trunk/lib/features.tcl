@@ -205,5 +205,5 @@ proc patternfunc {name code} {
 }
 
 proc patterncond {name expr} {
-    patternclass $name "expr {$expr}"
+    patternclass $name "if {$expr} { return 1} else {return 0}"
 }
