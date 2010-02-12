@@ -185,3 +185,25 @@ holdingProc newLTC {A K Q J T length} {
 holdingProc zero {length} {
   return 0
 }
+
+proc patternclass {name code} {
+   namespace eval ::pattern "proc $name {l1 l2 l3 l4} {$code}"
+   
+   set shapecode {
+     set sorted [lsort -integer -decreasing [list $s $h $d $c]]
+   }
+   shapeclass $name "$shapecode\n eval ::pattern::$name \$sorted"
+}
+
+proc patternfunc {name code} {
+   namespace eval ::pattern "proc $name {l1 l2 l3 l4} {$code}"
+   
+   set shapecode {
+     set sorted [lsort -integer -decreasing [list $s $h $d $c]]
+   }
+   shapefunc $name "$shapecode\n eval ::pattern::$name \$sorted"
+}
+
+proc patterncond {name expr} {
+    patternclass $name "expr {$expr}"
+}
