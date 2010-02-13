@@ -1,0 +1,12 @@
+<hr>
+<table><tr><td><a href="<?php echo $bridgeFantasia;?>" class="image">
+<img style="border:0;width:40px;height:56px" alt="Silhouette" src="graphics/StampSm.gif"></a><td>
+Thomas Andrews
+(<a href="mailto:deal&#64;thomasoandrews.com">deal&#64;thomasoandrews.com</a>)
+Copyright <?php echo $copyright; ?>.  Deal is covered by the 
+<a href="http://www.gnu.org/copyleft/gpl.html">GNU General Public License.</a>
+<p>
+<a href="graphics/falling.jpg"><em>Plane Dealing</em></a> graphic
+above created using
+<a href="http://www.povray.org/">POV-Ray.</a>
+</tr></table>

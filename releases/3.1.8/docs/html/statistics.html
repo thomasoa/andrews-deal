@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+     "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<!-- $Id$ -->
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<LINK REL="SHORTCUT ICON" HREF="/icon/bridge.ico">
+<link rev="made" href="mailto:deal&#64;thomasoandrews.com (Thomas Andrews)">
+<link rel="stylesheet" type="text/css" href="look.css">
+<title>Statistics in Deal and iDeal</title>
+<?php analytics(); ?>
+
+</head>
+<body>
+<div class="toplevel">
+<h1>Statistics in Deal</h1>
+<p>
+One can, of course, implement statistical functions in pure Tcl, but
+the number crunching of Tcl is not particularly fast, so I've implemented
+two methods in C which do some rudimentary statistics.
+<p>
+The two procedures are <span class="code">sdev</span> and <span class="code">correlate</span>.
+<p>
+<h1>The <span class="code">sdev</span> declaration</h1>
+The call:
+<pre class="codesample">
+sdev fitstats
+</pre>
+defines a new procedure, <span class="code">fitstats</span>, which is used to accumulate
+data.  After it is defined, we can add data to it:
+<pre class="codesample">
+fitstats add 4
+fitstats add 5
+fitstats add 6
+</pre>
+Then we can dump the data with:
+<pre class="codesample">
+set average [fitstats average]
+set deviation [fitstats sdev]
+</pre>
+
+In Deal 3.1 you might write:
+<pre class="codesample">
+# Determine the avearge spade length of north if south has
+# five spades.
+
+#
+# Use "format/none" because we are not interested in specific
+# deals.
+#
+source format/none
+
+#
+# Declare the statistical collector
+#
+sdev fitstats
+
+main {
+  reject unless {[spades south]==5}
+
+  fitstats add [spades north]
+
+  accept
+}
+     
+deal_finished {
+  puts "Count=[fitstats count]"
+  puts "Average=[fitstats average]"
+  puts "Deviation=[fitstats sdev]"
+}
+</pre>
+
+The code in <span class="code">deal_finished</span> is executed once, after the appropriate
+set of deals are generated.  Saving this code to the file "fit.tcl" we
+can run it:
+<pre class="codesample">
+\deal30> deal -i fit.tcl 100000
+Count=100000
+Average=2.67254
+Deviation=1.20679325006
+</pre>
+<h1>The <span class="code">correlation</span> declaration</h1>
+The <span class="code">correlation</span> declaration defines a routine much like
+the <span class="code">sdev</span> correlation.  It computes the linear correlation
+between two data bits.  In tclsh, with iDeal:
+<pre class="codesample">
+% correlation baz
+% baz add 10 20
+% baz add 20 30
+% baz add 30 40
+% baz add 40 50
+% baz correlate
+1.0
+%
+</pre>
+
+<?php include("sig.htmlf"); ?>
+</div>
+</body>
+</html>
