@@ -31,6 +31,7 @@ style="border:0;width:225px;height:216px"
 Covering: <UL>
 <LI> Vector additive functions
 <LI> Shape functions
+<LI> Pattern functions
 <LI> Customizable output formats
 <LI> Statistical analysis
 <LI> Hints for fast scripts
@@ -61,6 +62,7 @@ listings below are curly parentheses.
 <UL> 
 <LI><a href="#vector">Vector additive functions</a>
 <LI><a href="#shapefunc">Shape functions</a>
+<LI><a href="#patternfunc">Pattern functions</a>
 <LI><a href="#formatting">Customizable output formats</a>
 <LI><a href="#statistics">Statistical analysis</a>
 <LI><a href="#faster">Hints for fast scripts</a>
@@ -262,6 +264,18 @@ a new shape class, <span class="code">majorshape</span>.  You can do so as follo
 shapecond majorshape \
 	{[spadeshape eval $s $h $d $c] || [heartshape eval $s $h $d $c]}
 </pre>
+
+<h2><a name="patternfunc">Pattern functions and classes</a></h2>
+<p>In <strong>Deal 3.1.8</strong>, you have access to pattern functions and
+classes, as well as shape functions and classes.</p>
+<p>The pattern of a hand is the lengths of the suits in the hand, sorted
+in descending order.</p>
+<p>You could define the pattern class, "balanced," as:
+<pre class="codesample">
+patterncond balanced {$l1>3 && $l2>=3 && $l3>=3 && $l4>=2}
+</pre>
+<p>The variables <code>l1</code>, <code>l2</code>, <code>l3</code>, and <code>l4</code> are set to the lengths of the suits, <code>l1</code> being the longest,
+<code>l4</code> the shortest.</p> [For clarification, the first characters of each of those variables is the lowercase letter L.]
 
 
 <h2><a name="formatting">Customizable output formats</a></h2>
