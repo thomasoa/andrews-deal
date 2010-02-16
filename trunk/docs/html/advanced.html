@@ -276,6 +276,12 @@ patterncond balanced {$l1>3 && $l2>=3 && $l3>=3 && $l4>=2}
 </pre>
 <p>The variables <code>l1</code>, <code>l2</code>, <code>l3</code>, and <code>l4</code> are set to the lengths of the suits, <code>l1</code> being the longest,
 <code>l4</code> the shortest.</p> [For clarification, the first characters of each of those variables is the lowercase letter L.]
+<p>There are similar <code>patternfunc</code> and <code>patternclass</code> functions.
+<p>The pattern functions are implemented as shape functions.  Note that this means you can call it with:
+<pre class="codesample">
+balanced eval 4 2 4 3
+</pre>
+<p>and it runs properly and returns 1 (true.)
 
 
 <h2><a name="formatting">Customizable output formats</a></h2>
