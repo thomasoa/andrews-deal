@@ -41,7 +41,9 @@
   Tcl_AppendResult(interp,argv[0]," failed due to error: ",\
 		   Tcl_PosixError(interp),NULL); return TCL_ERROR;
 
+/*
 #define MyAlloc(string,bytes) (string)=(char *)Tcl_Alloc(bytes)
+*/
 
 #define tcl_error(interp)  \
   fprintf(stderr,"Tcl stack dump of error info:\n"); \
