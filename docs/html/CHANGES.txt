@@ -1,6 +1,8 @@
 Changes in Deal 3.1.9
 
    * Added documentation of pattern functions to advanced.html
+   * Minor documentation fix
+   * Fix issue #14 - smartstack was broken on OS X
 
 Changes in Deal 3.1.8
 
