@@ -104,7 +104,7 @@ namespace eval smartstack {
 	set v [catch {deck_stack_hand $info(hand) $hand}]
 	if {$v} {
 	    global errorInfo
-	    puts stderr "Problem running smartstack: $errorInfo"
+	    puts stderr "Problem running smartstack: $errorInfo $info(hand) $hand"
 	    return -code return
         }
 	deal_reset_cmds {::smartstack::next}
