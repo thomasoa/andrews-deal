@@ -127,8 +127,10 @@ extern struct deck complete_deal;
 #define IDEAL_VERSION "0.9.0"
 
 #endif
-void __srandom PROTO((int));
-int __random();
+
+void __srandom PROTO((unsigned));
+long __random();
 
 #define srandom __srandom
 #define random __random
+#define RANDOM_MAX LONG_MAX
