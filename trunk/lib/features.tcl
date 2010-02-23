@@ -90,6 +90,7 @@ namespace eval deal {
 if {[string equal [info commands dds_reset] "dds_reset"]} {
   dds_reset_command
 }
+
 shapecond balanced {($h<5)&&($s<5)&&($s*$s+$h*$h+$d*$d+$c*$c)<=47}
 shapecond semibalanced {$h<=5&&$s<=5&&$d<=6&&$c<=6&&$c>=2&&$d>=2&&$h>=2&&$s>=2}
 shapecond AnyShape {1}
