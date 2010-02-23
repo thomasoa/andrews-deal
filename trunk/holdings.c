@@ -677,17 +677,23 @@ evalHoldingNums(
     (Tcl_Obj **)Tcl_Alloc(count*sizeof(Tcl_Obj *));
   if (values==NULL) { return TCL_ERROR; }
 
+
   /*
    * Evaluate for each individual holding
    */
   for (i=0; i<count; i++) {
     int holding=holdings[i];
-    if (holding<0) { Tcl_Free((char *)values); return TCL_ERROR;}
+    if (holding<0) { 
+      Tcl_Free((char *)values); 
+      return TCL_ERROR;
+    }
+
     values[i]=evalHoldingProcedure(interp,procedure,holding);
     if (values[i]==NULL) {
       Tcl_Free((char *)values);
       return TCL_ERROR;
     }
+
   }
 
   /*
@@ -968,7 +974,6 @@ static int IDeal_HoldingCmd(TCLOBJ_PARAMS) TCLOBJ_DECL
       return TCL_ERROR;
     }
 
-    /* fprintf(stderr,"Holding %d\n",holding); */
     Tcl_SetObjResult(interp,getIntObj(counttable[holding&8191]));
     return TCL_OK;
   }
