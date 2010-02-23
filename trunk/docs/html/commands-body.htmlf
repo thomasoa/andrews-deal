@@ -783,7 +783,7 @@ dds [-reuse | -noreuse] [-diagram <em>diagram</em>] [-goal <em>goal</em>]
 <h3>Summary</h3>
 <p>The <code>dds</code> command gives even more refined access to Bo Haglund's double dummy engine, including the ability to solve problems with fewer than 52 cards.
 
-<p>The <code>-reuse</code> flag tells the double-dummy solver to reuse the data it generated from the last call.  For example, if the hand is identical to the previous call and played in the same denomination, you'll want to reuse the data.
+<p>The <code>-reuse</code> flag tells the double-dummy solver to reuse the data it generated from the last call.  For example, if the deal  is identical to the previous call and played in the same denomination, you'll want to reuse the data.
 <p>The <code>-noreuse</code> flag tells the double-dummy solver not to reuse the data.  This is the default.
 <p>The <code>-diagram</code> flag tells the double-dummy solver to solve a specific diagram, rather than the current deal.  A diagram is of the form of a Tcl list in the order north, east, south, west.  
 <p>The <code>-leader</code> flag tells the double-dummy solver who is on lead to the current trick.
