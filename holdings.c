@@ -733,7 +733,7 @@ IDealHoldingProcedure(TCLOBJ_PARAMS) TCLOBJ_DECL
 
 	
 
-  if (objc>6 || objc<=1) {
+  if (objc>7 || objc<=1) {
     goto usage;
   }
 
@@ -795,18 +795,50 @@ IDealHoldingProcedure(TCLOBJ_PARAMS) TCLOBJ_DECL
   }
 
   if (subCmd==handSubCmdID) {
-    int hnum[4];
+    int allHoldingNums[4];
+    int subsetHoldings[4];
+    int *hnum;
+    int countHoldings;
+    Tcl_Obj * CONST *allSuits;
+    Tcl_Obj *chosenSuits[4];
+    Tcl_Obj * CONST *suits;
 
-    if (objc!=3) {
-      Tcl_WrongNumArgs(interp,2,objv,"<hand>");
+    if (objc<3 || objc>7) {
+      Tcl_WrongNumArgs(interp,2,objv,"hand <hand> [<suit> ...]");
       goto usage;
     }
 
-    if (TCL_OK!=getHandHoldingsFromObj(interp,objv[2],hnum)) {
+    if (TCL_OK!=getHandHoldingsFromObj(interp,objv[2],allHoldingNums)) {
       Tcl_SetResult(interp,"Badly formatted hand",TCL_STATIC);
       return TCL_ERROR;
     }
-    return evalHoldingNums(interp,procedure,4,hnum,getAllSuitObjs());
+    allSuits = getAllSuitObjs();
+
+    if (objc == 3) {
+       hnum = allHoldingNums;
+       countHoldings = 4;
+       suits = allSuits;
+     } else {
+       int i;
+       countHoldings = 0;
+       for (i=3; i<objc; i++) {
+	   int suit=getSuitNumFromObj(interp,objv[i]);
+	   if (suit==NOSUIT) { 
+	       Tcl_AppendResult(interp,
+			   "Expected suit name, got ",
+			   Tcl_GetString(objv[i]),
+			   NULL);
+                return TCL_ERROR;
+	   }
+           chosenSuits[countHoldings] = allSuits[suit];
+           subsetHoldings[countHoldings] = allHoldingNums[suit];
+           countHoldings++;
+       }
+       hnum = subsetHoldings;
+       suits = chosenSuits;
+    }
+
+    return evalHoldingNums(interp,procedure,countHoldings,hnum,suits);
   }
 
   if (subCmd==holdingSubCmdID) {
