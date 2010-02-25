@@ -84,8 +84,8 @@ counttable.c: makecounttable
 	./makecounttable > counttable.c
 
 KITNAME=deal
-DEAL_VERSION=319
-OLD_VERSION=318
+DEAL_VERSION=31-10
+OLD_VERSION=319
 RELEASE=$(KITNAME)$(DEAL_VERSION)
 SRCDIR=$(RELEASE)
 BINDIR=$(RELEASE)-bin
