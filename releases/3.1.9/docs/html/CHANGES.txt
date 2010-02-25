@@ -1,0 +1,268 @@
+Changes in Deal 3.1.9
+
+   * Fix issue #14 - smartstack was broken on OS X
+   * Fix issue #15 - holding procedures implementation incomplete
+   * Added documentation of pattern functions to advanced.html
+   * Minor documentation fix
+
+Changes in Deal 3.1.8
+
+   * Added patternfunc, patternclass, and patterncond, which are similar in
+     function to the shapefunc, shapeclass, and shapecond routines. [In
+     Deal, a shape is the ordered list of suit lengths: s-h-d-c. A pattern
+     is sorted by lengths (decreasing.)  So the 3-4-5-1 shape has the pattern
+     5431.
+
+   * Added documentation to commands-body.html for the new pattern procedures
+
+   * Added google analytics code to the documentation (for my web site
+     only - local documentation does not have the google analytics)
+
+   * [Internals] Changed occurances of "hand" in variable names to "seat"
+     when it refers to a location at the table (North, East, South, West.)
+
+Changes in Deal 3.1.7
+
+   * Added code to pass argument values (argc, argv, argv0) when using the 
+     '-x' flag
+
+   * Added code to allow for easier build against Tcl 8.3.
+
+   * Updated binky points with newly computed values.  The new version
+     does not have binky::defense.suit or binky::defense.nt.
+     Added documentation for Binky Points evaluators.
+
+   * Fixed 64-bit builds using a fix found in Christoph Berg's Ubuntu
+     package for Deal.
+
+   * Added another fix by Christoph Berg which improves random number
+     seeding
+
+   * Added Make.ubuntu and Make.mac-osx to source release build
+
+   * Clarified some build and install notes
+
+   * Fixed docs to use './deal' rather than 'deal'
+
+Changes in Deal 3.1.6
+
+   * Added newLTC function
+
+   * Merged in changes with DDS 1.1.9 (about 5% performance increase in
+     double dummy solving in tests of average deals)
+
+   * Moderate changes in documentation
+
+   * Moved the source code to a Google Code project, at http://andrews-deal.googlecode.com/
+
+Changes in Deal 3.1.5
+
+   * Changed "stringbox" procedures to allow Unicode characters
+
+   * Small changes to DDS to clarify code and very slightly improve performance (fixing a
+     'bug' that I had created which required holding_t type to be unsigned int rather
+     that unsigned short
+
+   * Allow fully played tricks to be passed with the -trick option to 'dds' command
+
+   * Documentation for 'dds'  -trick option
+
+   * Reorganization of commands documentation file to create a non-framed version
+
+
+Changes in Deal 3.1.4
+
+   * Added -trick flag to dds
+
+   * Allowed for inclusion of Tcl release libraries
+
+   * Moved most of deal.tcl to lib/features.tcl
+
+Changes in Deal 3.1.3
+
+   * Fixed performance issue in DDS that I introduced in Deal 3.1.0.
+
+   * Added -x command line flag
+
+Changes in Deal 3.1.2
+
+   * Added dds command for more control over the double dummy solver
+
+   * Added 'universal' target to Makefile for building Mac universal binaries
+
+   * Added tests for double-dummy solver, including Great 88 file
+
+   * Performance tweaks to the double-dummy solver
+
+   * Fixed a typo bug in deal.tcl
+
+   * Added full_deal command
+
+   * Added unicode output option for default format (to put out suit symbols)
+
+   * Changed to allow "-" as void in inputs
+
+   * Fixed seeding with seed_deal command
+
+   * Updated documentation and built a documentation-management system
+
+Changes in Deal 3.1.1
+
+   * Implemented deal::tricks for caching of double dummy data
+     and uniform interface to double dummy tricks data
+
+   * Changed call to Haglund's solver to re-use data when processing
+     contracts in the same denomination and different declarers.
+
+Changes in Deal 3.1
+
+   * Added Bo Haglund's Double Dummy Solver
+
+Changes in Deal 3.0.8
+
+[ No binary changes ]
+
+   * Fixed "line" input format
+
+   * Updates documentation
+
+Changes in Deal 3.0.7
+
+[ No binary changes - all changes in the Tcl files. ]
+
+   * Changed "score" to be a table lookup.
+   * Fixed a bug in "parscore" which wrong-sided the
+     contract sometimes.
+   * Fixed documentation file "commands.html".
+
+Changes in Deal 3.0.6
+
+[ No binary changes this release - all changes in the Tcl files. ]
+
+   * Made changes to gib.tcl to work with the latest version of GIB.
+
+   * Fixed a few bugs with various formatting procedures.
+
+Changes in Deal 3.0.5
+
+   * Fixed a bug - Deal 3.0.4 failed to recognize "-" as void
+   in -S, -E, -N, -W options, as well as in "north is " commands.
+
+     -----
+
+Changes in Deal 3.0.4
+
+   * Update doc examples to match ex/ subdirectory.
+
+   * Deleted util.c and util.h from distribution.
+
+     -----
+
+Changes in Deal 3.0.3
+
+  * Added GNU General Public License copyright to most files, and full
+  GPL text to release.
+
+  * Altered deal.c to improve performance of reset_deal() routine.
+  Improved overall performance of 10%.
+
+  * Re-implemented in Tcl the broken undocumented old procedures,
+   intersectclass, negateclass, and joinclass.  This lets you create
+   new shape classes from old shape classes using standard boolean
+   functions.  Old code removed from dist.c, new code added to deal.tcl .
+
+  * Deleted some unused code in deal.tcl which was left from early
+   efforts at the smart stacking routines.
+
+  * Updated the documentation
+
+     -----
+Changes in Deal 3.0.2
+
+  * Fixed a bug in the smartstack methods.
+
+  * Altered zip builds to put files in deal302 directory (rather than
+   deal3.0.2)
+
+  * Polished the HTML docs (in docs/html directory.)
+
+  * Many, many improved error messages when commands are misused
+
+  * Cleaned up some code
+
+  * Made dist.c use more Tcl_Obj pointers rather than strings - makes for
+   faster compiles of shape classes.  (I can't believe I left those
+   sprintf calls for so long. :-)
+
+  * Fixed some of the examples which called deal::stack_hand, a non-existant
+   procedure.
+
+     -----
+
+Changes in Deal 3.0.1
+
+The changes for Deal 3.0.1 (from Deal 3.0 beta 11) were made essentially
+for two reasons:
+
+ (1) To finish the Deal 3.0 release - e.g., added documentation.
+ (2) To add features needed for the "smartstack" routines.
+
+  * Include HTML docs in docs/html directory.
+
+  * Most library files in release moved to the lib directory
+
+  * Added "smartstack" input class for fast building of hands which fit
+  specific patterns
+  
+  * Added "stacked" procedure to find out the current state of the
+  deck-stacking. Returns the list of cards stacked to the named hand.
+
+  * Altered stacking methods.  Added procedures "deck_stack_cards," 
+  "deck_stack_hand", "stack_cards," and "stack_hand."  By default,
+  "stack_hand" and "stack_cards" just call the "deck_" procedures,
+  but the idea is that "stack_cards" and "stack_hands" can be
+  overridden. Now when you call "south is AJ4 KJ54 9643 72" it in
+  turn calls "stack_hand south AJ4 KJ54 9643 72." Similarly,
+  "south gets ..." calls "stack_cards," although there the transformation
+  is somewhat different.
+  
+  * Added "list" subcommand to shape classes.  e.g.,
+
+	  shapeclass hasVoid { expr {$s*$h*$d*$c==0} }
+
+	  foreach shape [hasVoid list] {
+		...
+	  }
+
+  * Added "shape" subcommand to the shape classes and functions, e.g.,
+
+	  shapefunc foo { ... }
+
+	  foo shape {4 2 4 3}
+
+    So:
+
+	  foo north
+
+    Is the same as:
+
+	  foo shape [north shape]
+
+  * Added the "holding" utility procedure, with subcommands length,
+    disjoint, ...
+
+	  holding length AKxxx   =>    5
+	  holding disjoint AKJ4 QT94  => 0    [ false ]
+  
+New to Deal 3.0:
+
+  * Fast holding procedures definable with holdingProc.
+
+  * GIB interfaces (gib::directory, gib::tricks, parscore)
+
+  * Bridge utility routines - lho, rho, partner, score
+
+  * Input format extensibility
+
+  * Uses features of faster versions of Tcl (Tcl 8.x)
+

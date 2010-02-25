@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+     "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<!-- $Id$ -->
+
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<LINK REL="SHORTCUT ICON" HREF="/icon/bridge.ico">
+<link rel="stylesheet" type="text/css" href="look.css">
+
+<title>Deal 3.1 - GIB interfaces</title>
+<?php analytics(); ?>
+
+</head>
+<body>
+<div class="toplevel">
+<h1>Deal 3.1 - GIB interfaces</h1>
+<p>If you add the line:
+<pre class='codesample'>
+source lib/gib.tcl
+</pre>
+<p>it will include the GIB interface library.
+<p>
+<span class="alert">This code only works on Windows.</span>
+
+<h2><span class="code">gib::directory</span></h2>
+This command tells Deal where GIB is installed.  If GIB is installed
+in the standard Windows directory,
+<span class="code">C:\Program Files\GIB</span>,
+then you don't need to call this.  But if it is installed elsewhere,
+you need to call this procedure:
+<pre class="codesample">
+source lib/gib.tcl
+
+gib::directory "c:/Games/GIB"
+</pre>
+Note that Tcl uses forward-slash characters, <span
+class="code">/</span> to seperate directory patchs.
+<p>
+You can also just edit gib.tcl to permanently change the default.
+<p>
+Another thing you might want to change is where the gib library
+places temporary files.  Currently, gib.tcl has the directory
+<span class="code">C:\temp</span> hard-coded for the temporary files.  If you
+don't have such a directory, and don't want to create one, then you'll
+need to edit gib.tcl .
+
+<h2><span class="code">deal:tricks</span></h2>
+<p><span class="alert">Note: In past releases, you would use the <code>gib::tricks</code> command, but that is obsolete in Deal 3.1.</span></p>
+<p>By default, <code>deal::tricks</code> uses the built-in double dummy solver written by Bo Haglund. But when you include <code>lib/gib.tcl</code>, <code>deal::tricks</code> changes to call GIB's double dummy solver.</p>
+<p>The procedure <span class="code">deal::tricks</span> returns the number of tricks
+a hand can make in a specific denomination (suit or notrump.)
+For example:
+<pre class="codesample">
+source lib/gib.tcl
+
+main {
+
+  accept if {[deal::tricks south notrump]>=12}
+
+}
+</pre>
+
+finds deals where south can make 12 or more tricks in notrump,
+double-dummy.
+<p>
+This is going to be slow - each call to deal::tricks can take
+over a second - so you might try to put some additional
+conditions:
+<pre class="codesample">
+source lib/gib.tcl
+
+main {
+
+  reject if {[hcp north]+[hcp south]<26}
+
+  accept if {[deal::tricks south notrump]>=12}
+
+}
+</pre>
+That might miss the occasional freakish slam, but it will be considerably
+faster.
+
+<p>
+The <span class="code">deal::tricks</span> procedure caches values,
+so that multiple calls with the same parameters on the same deal
+result in quick turn-around.
+<p>
+This is useful if we are using the <span class="code">parscore</span>
+in our query, or if we use the output format, <span class="code">gibpar</span>,
+discussed later.
+
+<h2><span class="code">parscore</span></h2>
+
+<p>This routine determines the double-dummy par score for a deal.  Because
+it calls <code>deal::tricks</code> 20 times - once for each declarer and denomination - it
+can take 20 seconds or more per deal.  Not good for huge batches.
+<p>Parscore takes as input the dealer and vulnerability:
+<pre class="codesample">
+set result [parscore north NS]
+set contract [lindex $result 0]
+set declarer [lindex $result 1]
+set score    [lindex $result 2]
+set tricks   [lindex $result 3]
+set auction  [lindex $result 4]
+</pre>
+Vulnerability can be one of <span class="code">None</span>, <span class="code">NS</span>, <span class="code">EW</span>,
+or <span class="code">All</span>.
+<p>
+The result returned is fairly complex - it consists of a list of elements.
+<ul>
+<li> The first element is a contract, in the form "2 spades doubled" or "2 spades." [ Double-dummy par scores are, of course, never redoubled. ]
+<li> The second element is the declarer.
+<li> The third element is the score
+<li> The fourth element is the number of tricks declarer can take.
+<li> The fifth is a stupid auction to get to the contract.  If north is dealer
+and east is declarer in the double-dummy par contract of 4 clubs doubled,
+the auction will be "Pass 4C X Pass Pass Pass".  Not very inspired, but
+needed for the <span class="code">gibpar</span> application, below.
+</ul>
+
+<span style="font-size: small">[Why do we need to know the dealer?  Suppose north <em>and</em> east are
+the only ones who can make 1NT, and that no higher contracts make.  Then
+double-dummy par is 1NT by east if east is dealer, while it is 1NT by north
+if anybody else is dealer.]</span>
+
+<h2>The <span class="code">gibpar</span> format</h2>
+
+As soon as I got GIB, I wanted to use Deal to generate PBN files for
+GIB to use in play.  It was trickier than I thought - GIB apparently
+wants a *score* in the PBN file.  This was why I created the
+<span class="code">parscore</span> command above - so that I could write out a PBN
+file with a score which was objective, rather than random.
+<p>
+This format is used like any other format:
+<pre class="codesample">
+C:\Deal30> deal -i format/gibpar 36 > myfile.pbn
+</pre>
+
+As with any other Deal format, <span class="code">format/gibpar</span> can be used with filters:
+
+<pre class="codesample">
+C:\Deal30> deal -i format/gibpar -i ex/1.tcl > myfile.pbn
+</pre>
+
+Once you've generated this PBN file, you can load it into GIB via the
+"Load Saved Deal" command.
+<p>
+Competing against double-dummy par is grueling work - it's essentially
+playing a team game where everybody at the other table is an
+infallible psychic - both your "opponents" and your teammates.
+That means that any swings are due to errors at your table
+and/or luck. They will always bid that making 15% grand at the
+other table, for example.
+<hr>
+<table><tr><td><a href="../">
+<img style="border:0;width:40px;height:56px" alt="Silhouette" src="graphics/StampSm.gif"></a><td>
+<a NAME="mysig"> Thomas Andrews</a>
+(<a href="mailto:thomaso@best.com">thomaso@best.com</a>)
+<a name="caveat"> Copyright 1996-2008.</a>  Deal is covered by the 
+<a href="http://www.gnu.org/copyleft/gpl.html">GNU General Public License.</a>
+<p>
+<a href="graphics/falling.jpg"><em>Plane Dealing</em></a> graphic
+above created using
+<a href="http://www.povray.org/">POV-Ray.</a>
+</tr></table>
+</div>

@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+     "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<!-- $Id$ -->
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<LINK REL="SHORTCUT ICON" HREF="/icon/bridge.ico">
+<link rev="made" href="mailto:thomaso@centerline.com (Thomas Andrews)">
+<link rel="stylesheet" type="text/css" href="look.css">
+<title>
+    Deal <?php echo $shorterVersion; ?> - Downloading
+</title>
+<script src='<?php echo $bridgeFantasia;?>deal/version.js'></script>
+<?php analytics(); ?>
+
+</head>
+
+<body onload='noteOldVersion("<?php echo $version;?>")'>
+<div class="back"><A href="index.html">Back to <em>Deal Top Page</em></A></div>
+<TABLE class="toplevel">
+<TR valign="middle"><td align="center"><img
+style="width:225px;height:216px"
+ SRC="graphics/falling_small.jpg" alt="Deal <?php echo $shorterVersion;?>"></td>
+<td valign="middle">
+<div class="header"><h2>Downloading Deal</h2></div>
+<UL>
+<li> <a href="#downloading">Downloading Deal <?php echo $version;?></a>
+<li> <a href="#googlecode">Google Code Source Repository</a>
+<li> <a href="#changes">Recent Changes</a>
+<li> <a href="#building">Building Deal</a>
+</UL></td>
+</tr></table>
+
+<div class="toplevel">
+<hr>
+
+<div id='versionWarning'></div>
+<h3><a name="downloading">Downloading Deal <?php echo $version;?></a></h3>
+<?php
+  if ($output == "release") {
+?>
+<p>Go to the <a href="http://bridge.thomasoandrews.com/deal/">main Deal page</a> to download the latest version.
+<?php
+  } else {
+?>
+<ul>
+<li><a href="<?php echo $package;?>-bin.dmg">Mac OS X Universal Binary release</a> - A disk image containing an OS X binary for Intel and PowerPC Macs.  After opening this disk image, <b>do not</b> drag the folder to your Applications folder.  Instead, drag it to your home folder.
+<li><a href="<?php echo $package;?>win.zip">Windows binary release</a>
+<span class="alert">Note: </span>This is <em>not</em> a Windows program - it is a DOS program.  If, after
+unzipping, you double click on the Deal application, it will open a DOS
+window, deal 10 deals, then close, which is hardly useful.  See the
+<a href="quickdos.html">Windows/DOS tutorial</a> for operation instructions.
+
+<li><a href="<?php echo $package;?>.zip">The Deal <?echo $version;?> source code (.zip file)</a>,
+[280K]. Unzip this file - it should create
+a source directory called <?php echo $package;?>. Then go to <a
+href="#building">Building Deal</a> for hints on how to build Deal on 
+your platform.  
+</ul>
+<?php
+  }
+?>
+<h3><a name="googlecode">Google Code Source Repository</a></h3>
+<p>There is now a <a href="http://andrews-deal.googlecode.com/">Google Code project for Deal</a> containing the source code for this project. You can browse the source code, check out the latest source code or past versions of the source code.
+
+<h3><a name="changes">Recent Changes</a></h3>
+<pre class="codesample">
+<?php include("CHANGES.txt"); ?>
+</pre>
+
+<h3><a name="building">Building Deal</a></h3>
+<h4>Ubuntu Users</h4>
+<p>Be careful, there is an Ubuntu package of Deal which is almost always a few revisions behind.  If it tells you to try to use <code>apt-get</code> to install deal, that just means that you've run deal outside of the directory where you built it, or you don't have '.' in your PATH environment variable.
+<p>Otherwise, checkout the Wiki at <a href="http://code.google.com/p/andrews-deal/wiki/BuildingNotes">the build notes in the Google Code project</a> for notes on how to build Deal on Linux or Mac OS X or other Unix-like platforms.
+</div>
+<?php include("sig.htmlf");?>
+

@@ -1,0 +1,487 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+     "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<!-- $Id$ -->
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<LINK REL="SHORTCUT ICON" HREF="/icon/bridge.ico">
+<link rev="made" href="mailto:thomaso@centerline.com (Thomas Andrews)">
+<link rel="stylesheet" type="text/css" href="look.css">
+
+<title>
+    Deal - An Advanced User Guide
+</title>
+
+<?php analytics(); ?>
+
+</head>
+
+<body>
+<div class="back"><a href="index.html">Back to <em>Deal Top Page</em></a></div>
+
+<table class="toplevel">
+<TR>
+<td valign="middle"><img
+style="border:0;width:225px;height:216px"
+ SRC="graphics/falling_small.jpg" ALT="Plane Dealing image"></td>
+<td valign="middle" style="width:50%">
+<div class="header"><h1>Deal 3.1</h1>
+<h2>An Advanced User Guide</h2>
+</div>
+Covering: <UL>
+<LI> Vector additive functions
+<LI> Shape functions
+<LI> Pattern functions
+<LI> Customizable output formats
+<LI> Statistical analysis
+<LI> Hints for fast scripts
+</UL>
+</td>
+</tr>
+<tr><td colspan="2"><hr style="width:75%"></td></tr>
+</table>
+
+<div class="toplevel">
+<h2> Prologue </h2>
+First things first, you will need to <a href="downloading.html">download
+Deal and build it</a>.  The rest of this guide assumes you have
+already done this.
+<p>
+This guide also assumes you know everything in the
+<a href="quickstart.html">Introductory Tutorial</a>.  Some sections
+in this guide will require more <a href="ext-ref.html#tclptr">knowledge
+of Tcl</a> than others.
+<p>
+<img SRC="graphics/warning.gif" ALT="**Warning**">  It takes careful
+eyes, at least on the version of Netscape I am using, to distinguish 
+between normal parentheses, <span class="code">()</span>, and curly
+parentheses, <span class="code">{}</span>.  Almost all of the parentheses in the script
+listings below are curly parentheses.
+<hr>
+<h2> Contents </h2>
+<UL> 
+<LI><a href="#vector">Vector additive functions</a>
+<LI><a href="#shapefunc">Shape functions</a>
+<LI><a href="#patternfunc">Pattern functions</a>
+<LI><a href="#formatting">Customizable output formats</a>
+<LI><a href="#statistics">Statistical analysis</a>
+<LI><a href="#faster">Hints for fast scripts</a>
+</UL>
+<h2><a name="vector">Vector additive functions</a></h2>
+
+In the <a href="quickstart.html">Introductory Tutorial</a>, we mentioned
+three functions which we called "additive functions."  They were <span class="code">
+hcp</span>, <span class="code">controls</span>, and <span class="code">losers</span>.  We called them additive
+because we could compute them for a single suit holding in a hand or
+across the entire hand by summing over all the suits.
+<p>
+In this section, we will show how a user can create a large class
+of fast additive functions, and show how they can be used.
+<p>
+The most common additive function is <span class="code">hcp</span>.  How is it
+computed?  Given a suit holding, we count 4 for the ace, 3 for
+the king, 2 for the queen, and 1 for the jack.  Here is how
+we would define this with a "vector":
+<pre class="codesample">
+defvector Hcp 4 3 2 1
+</pre>
+
+That's pretty simply.  Similarly, we can define a <span class="code">Controls</span> vector:
+<pre class="codesample">
+defvector Controls 2 1
+</pre>
+<p>
+Once these vectors are defined, we can use them as functions anywhere
+we used <span class="code">hcp</span> and <span class="code">controls</span>. 
+<p>
+
+Now, considering the following case: Your partner, north, opens a weak
+two spades, and you have the agreement that partner always has a 6-card
+suit with at least two of the top three honors.  You can define a vector:
+<pre class="codesample">
+defvector Top3 1 1 1
+</pre>
+Now, to test the quality of the spade suit, you could say:
+<pre class="codesample">
+if {[Top3 north spades]>=2} { ... }
+</pre>
+Pretty simple.
+<p>
+So you decide to write a "weak2" procedure:
+<pre class="codesample">
+defvector Top3 1 1 1
+
+proc weak2 {hand suit} {
+  if {[$suit $hand]==6 && [Top3 $hand $suit]>=2} { return 1 }
+  return 0
+}
+</pre>
+You can call this by saying:
+<pre class="codesample">
+#... 
+main {
+	if {[weak2 north spades]} { accept }
+}
+</pre>
+This will deal out hands where north has exactly six
+spades and two of the top three spades.
+<p>
+This works okay (although you have forgotten to restrict the other
+suit lengths, so you could end up with voids and side 5-card or
+6-card suits.)
+<p>
+Two weeks later, you and your partner decide that you will also
+consider a suit worth a weak 2 if it contains three of the top
+five cards, which, specifically, really means you've now allowed
+suits led by <span class="code">QJT</span>, <span class="code">KJT</span>, and <span class="code">AJT</span>.  This is
+not an uncommon agreement.
+<p>
+We could, of course, write a routine called "Top5" and check
+both Top3 and Top5, but a little cleverness allows us to roll
+this all up into one vector.
+<pre class="codesample">
+defvector weak2quality 2 2 2 1 1
+</div>
+
+You will see, if you think about it, that this vector evaluates
+to 4 or more precisely when the suit has the right quality for
+a weak two.  You then rewrite the weak2 function:
+<p>
+<pre class="codesample">
+defvector weak2quality 2 2 2 1 1
+
+proc weak2 {hand suit} {
+  if {[$suit $hand]==6 && [weak2quality $hand $suit]>=4} { return 1 }
+  return 0
+}
+</pre>
+
+The advantage of the vector functions is that they can be computed
+quickly, using table lookups.
+<p>
+However, vectors don't compute many additive functions, like "losers"
+and "quick tricks," or even high card points with distribution adjustments.
+For this, you will need to use the Deal 3.1 feature,
+<a href="holding.html">holding functions.</a>  It pretty much
+covers *all* such procedures, but still allows for a fast lookup.
+
+<h2><a name="shapefunc">Shape functions and classes</a></h2>
+
+In the <a href="quickstart.html">Introductory Tutorial</a>, we mentioned
+the two functions, <span class="code">balanced</span>, and <span class="code">semi_balance</span>, and
+called them "shape functions" because they take a hand name as an
+argument, the return value depends only on the "shape" of the hand -
+that is, on how many cards are in each suit.
+<p>
+In fact, <span class="code">balanced</span> and <span class="code">semi_balanced</span> are a special
+sort of shape function, which we will call a "shape class."  A "shape
+class" is a shape function which returns only the values 0 and 1,
+and therefore defines a class of shapes, namely those shapes which
+evaluate as 1.
+<p>
+<strong>Deal</strong> allows for extremely fast shape class and
+shape function computations.
+<p>
+<h3> A basic shape class </h3>
+For example, lets say that we want to write a shapeclass which
+returns 1 if our hand is right shape for a one spade opening.  We would
+do so with the following definition:
+<pre class="codesample">
+shapeclass spadeshape {
+    if {$s>=5 && $s>=$h && $s>=$d && $s>=$c} { return 1}
+    return 0
+}
+</pre>
+This defines a routine, <span class="code">spadeshape</span>, which returns true
+precisely when the hand has 5 or more spades and at least as
+many spades as any other suit.
+<p>
+Notice, the variables <span class="code">$s</span>, <span class="code">$h</span>, <span class="code">$d</span>, and
+<span class="code">$c</span>.  Consider it this way - when you pass a hand name to
+a shape function, it sets these variables to the suit lengths,
+and then evaluates the code.  <em> [ That is not how it works in
+reality, because that would be too slow. ]</em>
+<p>
+The idiom, <span class="code">if {<em>expr</em>} {return 1}  return 0
+</span> is so common in shape classes, <strong>Deal</strong> has
+a shorthand, <span class="code">shapecond</span>, and we could have defined <span class="code">spadeshape</span>
+as:
+<pre class="codesample">
+shapecond spadeshape {$s>=5 && $s>=$h && $s>=$d && $s>=$c}
+</pre>
+<h3> A sample shape function </h3>
+
+Shape functions can return any string.  They can be extremely
+powerful.
+<p>
+For example, we can define a function, <span class="code">opening_suit</span>:
+<pre class="codesample">
+shapefunc opening_suit {
+	if {$c>$s && $c>$h && $c>$d} { return clubs }
+	if {$d>$s && $d>$h && $d>$c} { return diamonds }
+	if {$s>=5 && $s>=$h} { return spades }
+	if {$h>=5} { return hearts }
+	if {$d>=5 && $d>=$c} { return diamonds }
+	if {$d>$c} { return diamonds }
+	return clubs
+}
+</pre>
+This function returns the name of the suit in which you should open 
+open the hand (at least according to some people) in Standard American
+bidding.
+		
+<p>
+Recently, a number of people have mentioned to me Bergen's "rule of
+20" for determining whether a hand is worth an opening bid. 
+According to the rule, add your high card points to
+the sum of the lengths of your longest two suits.  If that adds up to
+20, open the hand.  We can write this as follows:
+<pre class="codesample">
+shapefunc bergen::shapeval {
+    set p [lsort -integer -decreasing "$s $h $d $c"]
+    set first [lindex "$p" 0]
+    set second [lindex "$p" 1]
+    expr $first+$second
+}
+
+proc bergen::opening {hand} {
+    expr { [hcp $hand] + [bergen::shapeval $hand] >= 20}
+}
+</pre>
+We can now use Bergen's rule in our simulations.
+<p>
+<h3> Calling shape functions explicitly </h3>
+
+A shape function (or shape class) can be called with 4 numeric arguments:
+<pre class="codesample">
+set open3343 [openingsuit eval 3 3 4 3]
+</pre>
+This is most useful in defining shape classes and functions from
+other shape classes and functions.  Assume you have shape classes
+<span class="code">spadeshape</span> and <span class="code">heartshape</span> and you want to define
+a new shape class, <span class="code">majorshape</span>.  You can do so as follows:
+<pre class="codesample">
+shapecond majorshape \
+	{[spadeshape eval $s $h $d $c] || [heartshape eval $s $h $d $c]}
+</pre>
+
+<h2><a name="patternfunc">Pattern functions and classes</a></h2>
+<p>In <strong>Deal 3.1.8</strong>, you have access to pattern functions and
+classes, as well as shape functions and classes.</p>
+<p>The pattern of a hand is the lengths of the suits in the hand, sorted
+in descending order.</p>
+<p>You could define the pattern class, "balanced," as:
+<pre class="codesample">
+patterncond balanced {$l1>3 && $l2>=3 && $l3>=3 && $l4>=2}
+</pre>
+<p>The variables <code>l1</code>, <code>l2</code>, <code>l3</code>, and <code>l4</code> are set to the lengths of the suits, <code>l1</code> being the longest,
+<code>l4</code> the shortest.</p> [For clarification, the first characters of each of those variables is the lowercase letter L.]
+<p>There are similar <code>patternfunc</code> and <code>patternclass</code> functions.
+<p>The pattern functions are implemented as shape functions.  Note that this means you can call it with:
+<pre class="codesample">
+balanced eval 4 2 4 3
+</pre>
+<p>and it runs properly and returns 1 (true.)
+
+
+<h2><a name="formatting">Customizable output formats</a></h2>
+
+With verson 2.0 of <strong>Deal</strong>, it is finally possible to write
+your own customizable format routines.
+<p>
+It is really fairly simple.  When <span class="code">Deal</span> accepts a hand,
+it calls the procedure named <span class="code">write_deal</span>.  When it is finished
+dealing the number of hands requested, it calls a procedure named 
+<span class="code">flush_deal</span>.
+<p>
+To change the output format, we simply redefine these procedures.
+Tcl does not mind such redefinitions.
+<p>
+For example, the formatter, <span class="code">format/none</span>, is just the code:
+<pre class="codesample">
+proc write_deal {} {
+	# empty function
+}
+</pre>
+By default, the <span class="code">flush_deal</span> procedure is already empty, so
+we do not have to redefine it here.
+<p>
+Why might we need <span class="code">flush_deal</span> at all?  Some formatters
+only write to output periodically. For example, <span class="code">format/practice</span>
+writes files <span class="code">out.north</span>, <span class="code">out.east</span>, <span class="code">out.south</span>,
+and <span class="code">out.west</span>.  The output in <span class="code">out.north</span> looks like:
+<pre class="codesample">
+                              north hands
+============================================================================
+     *1*                 *2*                 *3*                 *4*
+  S 84                S T7                S QT3               S AJ9654
+  H J8642             H Q65               H Q983              H K8
+  D Q843              D KJ42              D 865               D J
+  C 73                C T842              C AJ9               C K532
+
+=============================================================================
+</pre>
+Clearly, therefore, <span class="code">write_deal</span> is buffering output
+internally and only printing every fourth hand.  What happens when
+the user requests 10 deals?  <span class="code">write_deal</span> will be called
+on the tenth deal, but because the deal number is not a multiple
+of four, <span class="code">write_deal</span> will not know to print the output.
+The last two hands will be lost.
+<p>
+The solution is to make <strong>Deal</strong> call <span class="code">flush_deal</span>
+on completion of dealing.
+<h3> A most basic formatter - printing one hand </h3>
+
+Here is a new formatter, which we will place in a file call <span class="code">NorthFmt</span>.
+<pre class="codesample">
+proc write_deal {} {
+	puts "S: [north -void --- spades]"
+	puts "H: [north -void --- hearts]"
+	puts "D: [north -void --- diamonds]"
+	puts "C: [north -void --- clubs]"
+	puts "============================="
+}
+</pre>
+Okay, what does this expression, 
+<span class="code">[north&nbsp;-void&nbsp;---&nbsp;spades]</span>, do?
+The expression <span class="code">[north&nbsp;spades]</span> returns the spade holding
+of the north hand in a simple string form.  If the suit is void,
+it returns the empty string.  The "<span class="code">-void ---</span>" in the
+example above tells the formatter to use the string "<span class="code">---</span>" for
+voids.
+<p>
+We could do this a little more easily:
+
+<pre class="codesample">
+proc write_deal {} {
+    foreach char {S H D C} suit {spades hearts diamonds clubs} {
+	puts "$char: [north -void --- $suit]"
+    }
+    puts "============================="
+}
+</pre>
+This uses the interesting feature of the  Tcl <span class="code">foreach</span>
+which lets two variables move through two lists.
+<p>
+
+The <span class="code">north</span> routine, without arguments, returns all four suits, in
+a Tcl list format.  Here is a simple formatter for the north and south
+hands:
+<pre class="codesample">
+proc write_deal {} {
+    puts "{[north]} {[south]}"
+}
+</pre>
+Yielding ugly output like:
+<pre class="codesample">
+{{J9654} {KQT832} {} {42}} {{7} {A74} {T763} {J9865}}
+{{KT852} {Q} {KT83} {A83}} {{96} {AK7543} {Q96} {52}}
+</pre>
+Not pretty, but useful if piping to another Tcl program, because
+Tcl programs will find this fairly easy to parse.
+<p>
+<h3><a name="stringbox">String boxes</a></h3>
+For more complicated formats, I have added to Tcl an invention
+of my own for string "drawings."  Tcl does not have any
+decent formatting routines, other than the <span class="code">format</span>
+command, which is based on the <span class="code">printf</span> class of functions
+in C.  I've always found <span class="code">printf</span> a pain, even back in Fortran.
+<p>
+So I invented "string boxes."  A string box is a like a drawable
+canvas, but for characters rather than pixels.  For example, here
+is a slightly simpler version of the file <span class="code">format/okb</span>:
+<pre class="codesample">
+stringbox okbox 14 70
+okbox write 4 15 "West"
+okbox write 4 50 "East"
+okbox write 0 30 "North"
+okbox write 10 30 "South"
+	...
+</pre>
+This code creates a string box named <span class="code">okbox</span> with 14 rows of
+70 columns of text (initially all blank), and then writes
+the words "West", "East", "North", and "South" in different locations
+in that box.
+<p>
+Next we define the sub-boxes, one for each hand:
+<pre class="codesample">
+	...
+okbox subbox okbox.north 0 36 4 15
+okbox subbox okbox.south 10 36 4 15
+okbox subbox okbox.east 5 50 4 15
+okbox subbox okbox.west 5 15 4 15
+	...
+</pre>
+
+A "subbox" is created from a parent box, and has both a row and column
+location, and a row and column width.  In the above instance, all of
+our sub-boxes are 4 rows and 15 columns, and placed in the location
+where the hands will eventually be printed.
+<p>
+Our <span class="code">write_deal</span> procedure would look like:
+<pre class="codesample">
+proc write_deal {} {
+  foreach hand {west south north east} {
+    okputhand $hand
+  }
+
+  puts "[okbox]"
+  puts "                       -----------------------------"
+}
+
+proc okputhand {hand} {
+
+  okbox.$hand clear
+
+  set rowhand 0
+  foreach char {S H D C} suit {spades hearts diamonds clubs} {
+    okbox.$hand write $rowhand 0 "$char [$hand -void --- $suit]"
+    incr rowhand
+  }
+}
+</pre>
+
+<span class="code">write_deal</span> just calls the routine <span class="code">okputhand</span> for each 
+hand, then writes out the contents of the entire string box, <span class="code">okbox</span>,
+followed by the seperator string of hyphens.  Note that we convert
+a string box to a normal string just by using its name alone, without
+arguments, as in <span class="code">[okbox]</span>.  We can also convert a string with trailing
+whitespace removed from lines, by saying <span class="code">[okbox compact]</span>. 
+In fact, we probably should have used the <span class="code">compact</span> modifier,
+since there is so much trailing white space in this format.
+<p>
+The <span class="code">okputhand</span> procedure first clears the sub-box associated 
+that hand, then writes out the contents of the hand one suit at a time
+to that same sub-box.
+<p>
+The output looks like:
+<pre class="codesample">
+                              North S KT6                             
+                                    H J97                             
+                                    D T8543                           
+                                    C T5                              
+               West                               East                
+               S J75                              S Q983              
+               H T86                              H A52               
+               D AKJ7                             D Q9                
+               C AQ8                              C KJ64              
+                                                                      
+                              South S A42                             
+                                    H KQ43                            
+                                    D 62                              
+                                    C 9732                            
+-----------------------------
+</pre>
+
+I have yet to put together complete documentation for string boxes,
+but I intend to do so.  They have some remarkable features, and perhaps
+some surprises for the unwary.
+<h2><a name="statistics">Statistical analysis</a></h2>
+
+<a href="statistics.html">Go here.</a>
+
+<h2><a name="faster">Hints for fast scripts</a></h2>
+
+Documentation not yet written.
+<?php include("sig.htmlf"); ?>
+</div>

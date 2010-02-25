@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+     "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<!-- $Id$ -->
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<LINK REL="SHORTCUT ICON" HREF="/icon/bridge.ico">
+<link rev="made" href="mailto:thomaso@centerline.com (Thomas Andrews)">
+<link rel="stylesheet" type="text/css" href="look.css">
+<title>
+The Sum of the Squares of the Suit Lengths
+</title>
+
+<?php analytics(); ?>
+
+</head>
+
+<body>
+<div class="toplevel">
+<h1> The Sum of the Squares of the Suit Lengths</h1>
+<h2>A Measure of the "Sickness" of a Hand Pattern </h2>
+
+In any hand, the average of the suit lengths is 3.25 = 13/4, obviously,
+but what is the standard deviation of the suit lengths?
+<p>
+The standard deviation, it turns out, is related to
+the sum of the squares of the suit lengths.  In particular, the higher
+the sum of the squares, the higher the standard deviation.
+<p>
+So it should come as no surprise that the more balanced hands should
+have lower standard deviations, and hence lower sums of squares.  In
+particular, when the sum of the squares of the suit lengths is less
+than or equal to 47, the hand is "balanced" in the traditional sense:
+No singleton or void, and at most one doubleton.
+<p>
+Since the smallest value is 43, and all values are odd, we can "normalize"
+this metric by subtracting 43 and dividing by 2.
+<p>
+We get the following table:
+
+<pre class="codesample" style="margin-left:0">
+Normalized | Squares sum | Std Dev  | Shapes
+============================================
+         0 |          43 |  0.5000  | 4-3-3-3	 
+         1 |          45 |  0.9574  | 4-4-3-2	
+         2 |          47 |  1.2583  | 5-3-3-2       
+         3 |          49 |  1.5000  | 4-4-4-1, 5-4-2-2 
+         4 |          51 |  1.7078  | 5-4-3-1         
+         5 |          53 |  1.8930  | 6-3-2-2        
+         6 |          55 |  2.0616  | 5-5-2-1,6-3-3-1  
+         7 |          57 |  2.2166  | 5-4-4-0,6-4-2-1 
+         8 |          59 |  2.3629  | 5-5-3-0        
+         9 |          61 |  2.5000  | 7-2-2-2,6-4-3-0  
+        10 |          63 |  2.6300  | 7-3-2-1,6-5-1-1
+        11 |          65 |  2.7538  | 6-5-2-0       
+        12 |          67 |  2.8723  | 7-3-3-0, 7-4-1-1
+        13 |          69 |  2.9860  | 7-4-2-0        
+        15 |          73 |  3.2016  | 6-6-1-0, 8-2-2-1
+        16 |          75 |  3.3040  | 7-5-1-0, 8-3-1-1
+	17 |          77 |  3.4034  | 8-3-2-0        
+        19 |          81 |  3.5940  | 8-4-1-0       
+        21 |          85 |  3.7749  | 7-6-0-0      
+        22 |          87 |  3.8622  | 9-2-1-1     
+        23 |          89 |  3.9476  | 8-5-0-0, 9-2-2-0   
+        24 |          91 |  4.0311  | 9-3-1-0           
+        27 |          97 |  4.2720  | 9-4-0-0          
+        30 |         103 |  4.5000  | 10-1-1-1        
+        31 |         105 |  4.5735  | 10-2-1-0       
+        33 |         109 |  4.7170  | 10-3-0-0      
+        40 |         123 |  5.1881  | 11-1-1-0     
+        41 |         125 |  5.2519  | 11-2-0-0    
+        51 |         145 |  5.8524  | 12-1-0-0   
+        63 |         169 |  6.5000  | 13-0-0-0  
+
+</pre>
+
+In addition, one can get the wildness of a deal by adding up the sum of the
+squares of all 16 suit lengths, or add up the normalized values.  Again,
+this is correlated to the standard deviation of the suit lengths.
+<p>
+We can also measure the wildness of a "fit" by summing the squares of the fits
+in each suit.  So if I'm 5-3-3-2 and partner is 4-3-2-4, our "fit" is
+9-6-5-6.  One thing interesting about this is that our opponent's fit
+wildness is the same as our fit pattern wildness. That's because if our
+pattern is:  s-h-d-c, their pattern is (13-s)-(13-h)-(13-d)-(13-c), and the
+sum of the squares of these values is:
+<pre class="codesample" style="margin-left:0">
+(13-s)^s+(13-h)^s+(13-d)^2+(13-c)^2=
+       s^2 + h^2 + d^2 + c^2 - 26*(s+h+d+c) + 4*13^2
+</pre>
+But (s+h+d+c) is 26, so the last two terms cancel, and we are left with the
+original value.
+<p>
+Of course, if you think in terms of standard deviation, this makes more sense
+than the pure calculation - the opponents' pattern has the same relative
+distribution, just inverted, so the deviation should be the same.
+<p>
+This table can also be normalized, by subtracting 170 and dividing by 2.
+There are 103 fit patterns, or 65 if we consider our fit pattern and opponent's
+as the same (e.g., that 8-6-6-6 is the same as 7-7-7-5.  If the sum of the longest fit and the shortest fit is 13, then the pattern is self-dual, for example, if our fit pattern is 9-7-6-4, then so is the opponent's.)
+<pre class="codesample" style="margin-left:0">
+Normalized |  Squares sum | Patterns
+============================================
+         0 |          170 | 7-7-6-6
+         1 |          172 | 8-6-6-6,7-7-7-5
+         2 |          174 | 8-7-6-5
+         4 |          178 | 9-6-6-5,8-8-5-5,8-7-7-4
+         5 |          180 | 9-7-5-5,8-8-6-4
+         6 |          182 | 9-7-6-4
+         8 |          186 | 10-6-5-5,9-8-5-4,8-8-7-3
+         9 |          188 | 10-6-6-4,9-7-7-3
+        10 |          190 | 10-7-5-4,9-8-6-3
+        12 |          194 | 10-7-6-3,9-9-4-4
+        13 |          196 | 11-5-5-5,10-8-4-4,9-9-5-3,8-8-8-2
+        14 |          198 | 11-6-5-4,10-8-5-3,9-8-7-2
+        16 |          202 | 11-7-4-4,11-6-6-3,10-7-7-2,9-9-6-2
+        17 |          204 | 11-7-5-3,10-8-6-2
+        18 |          206 | 10-9-4-3
+        20 |          210 | 12-5-5-4,11-8-4-3,11-7-6-2,10-9-5-2,9-8-8-1
+        21 |          212 | 12-6-4-4,9-9-7-1
+        22 |          214 | 12-6-5-3,11-8-5-2,10-8-7-1
+        24 |          218 | 12-7-4-3,10-10-3-3,10-9-6-1
+        25 |          220 | 12-6-6-2,11-9-3-3,11-7-7-1,10-10-4-2
+        26 |          222 | 12-7-5-2,11-9-4-2,11-8-6-1
+        28 |          226 | 13-5-4-4,12-8-3-3,10-10-5-1,9-9-8-0
+        29 |          228 | 13-5-5-3,12-8-4-2,11-9-5-1,10-8-8-0
+        30 |          230 | 13-6-4-3,12-7-6-1,10-9-7-0
+        32 |          234 | 13-6-5-2,12-8-5-1,11-10-3-2,11-8-7-0
+        33 |          236 | 13-7-3-3,10-10-6-0
+        34 |          238 | 13-7-4-2,12-9-3-2,11-10-4-1,11-9-6-0
+        36 |          242 | 13-6-6-1,12-9-4-1,12-7-7-0
+        37 |          244 | 13-7-5-1,12-8-6-0
+        38 |          246 | 13-8-3-2,11-10-5-0
+        40 |          250 | 13-8-4-1,12-9-5-0,11-11-2-2
+        41 |          252 | 12-10-2-2,11-11-3-1
+        42 |          254 | 13-7-6-0,12-10-3-1
+        44 |          258 | 13-9-2-2,13-8-5-0,11-11-4-0
+        45 |          260 | 13-9-3-1,12-10-4-0
+        48 |          266 | 13-9-4-0
+        50 |          270 | 12-11-2-1
+        52 |          274 | 13-10-2-1,12-11-3-0
+        54 |          278 | 13-10-3-0
+        60 |          290 | 12-12-1-1
+        61 |          292 | 13-11-1-1,12-12-2-0
+        62 |          294 | 13-11-2-0
+        72 |          314 | 13-12-1-0
+        84 |          338 | 13-13-0-0
+</pre>
+<?php include("sig.htmlf"); ?>
+</div>

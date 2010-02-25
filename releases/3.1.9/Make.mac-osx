@@ -1,0 +1,9 @@
+MAC_ARCH = 
+MAC_ARCH_UNIVERSAL = -arch x86_64 -arch i386 -arch ppc
+#DEBUG_FLAGS=-g -ansi -Wall $(MAC_ARCH)
+DEBUG_FLAGS=-fast -ansi -Wall $(MAC_ARCH)
+CPPFLAGS = -fno-rtti -fast -Winline -Wall $(MAC_ARCH)
+TCL_INCL=/usr/local/include
+TCL_LIB=$(TCL_DIR)/lib
+LDFLAGS=  -L$(TCL_LIB) -ltcl -lm
+
