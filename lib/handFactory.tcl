@@ -114,10 +114,8 @@ namespace eval handFactory {
     #     
     proc restrictSuit {id suitname cardset {compare disjoint}} {
        variable data
-       if {$len>0} {
-           set suitnum $data($suitname)
-           addHoldingCond $id "holding $compare \$h $cardset" $suitnum
-       }
+       set suitnum $data($suitname)
+       addHoldingCond $id "holding $compare \$h {$cardset}" $suitnum
     }
 
     #
