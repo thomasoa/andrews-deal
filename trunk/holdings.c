@@ -121,6 +121,16 @@
 #define LENGTH_ARGUMENT 13
 #define STRING_ARGUMENT 14
 
+static int match_holding_pattern(int topSpotRank,int pattern,int holding) {
+    if (counttable[pattern&8191] != counttable[holding&8191]) {
+        return 0;
+    }
+    if (((pattern&8191)>>(12-topSpotRank)) == ((8191&holding)>>(12-topSpotRank))) {
+      return 1;
+    }
+    return 0;
+}
+
 extern int atoi(const char*);
 
 /*
@@ -684,14 +694,14 @@ evalHoldingNums(
   for (i=0; i<count; i++) {
     int holding=holdings[i];
     if (holding<0) { 
-      Tcl_Free((char *)values); 
-      return TCL_ERROR;
+      retval = TCL_ERROR;
+      goto finish;
     }
 
     values[i]=evalHoldingProcedure(interp,procedure,holding);
     if (values[i]==NULL) {
-      Tcl_Free((char *)values);
-      return TCL_ERROR;
+      retval = TCL_ERROR;
+      goto finish;
     }
 
   }
@@ -708,6 +718,7 @@ evalHoldingNums(
      */
     retval=(procedure->aggregator->fn)(interp,count,values,suits);
   }
+finish:
   Tcl_Free((char *)values);
   return retval;
 
@@ -956,13 +967,11 @@ static int IDeal_HoldingCmd(TCLOBJ_PARAMS) TCLOBJ_DECL
     disjointCmd,
     unionCmd,
     randomCmd,
-    listCmd,
     encodeCmd,
     decodeCmd,
     subsetCmd,
     matchesCmd,
     lengthFlag,
-    spotFlag,
     initKeywords=1;
   int cmd;
 
@@ -977,11 +986,8 @@ static int IDeal_HoldingCmd(TCLOBJ_PARAMS) TCLOBJ_DECL
     subsetCmd=Keyword_addKey("contains");
     matchesCmd=Keyword_addKey("matches");
 
-    listCmd=Keyword_addKey("list");
     /* Flags for the list subcommand */
     lengthFlag=Keyword_addKey("-length");
-    spotFlag=Keyword_addKey("-spot");
-
     initKeywords=0;
   }
 
@@ -1119,8 +1125,35 @@ static int IDeal_HoldingCmd(TCLOBJ_PARAMS) TCLOBJ_DECL
    *      holding matches AKxxx AKJ92     => 0  (false)
    */
   if (cmd==matchesCmd) {
-    Tcl_AddErrorInfo(interp,"'holding matches' not implemented yet");
-    return TCL_ERROR;
+    int topSpot = NINE, pattern, holding,result;
+
+    if (objc>5 || objc<4) {
+      Tcl_WrongNumArgs(interp,2,objv,"[topSpotRank] pattern holding");
+      return TCL_ERROR;
+    }
+
+    if (objc==5) {
+       topSpot = getCardRankNumFromObj(interp,objv[2]);
+       if (topSpot == NORANK) {
+           return TCL_ERROR;
+       }
+       objc--; objv++;
+    }
+
+    pattern = getHoldingNumFromObj(interp,objv[2]);
+    if (pattern==-1) {
+       return TCL_ERROR;
+    }
+ 
+    holding = getHoldingNumFromObj(interp,objv[3]);
+    if (holding==-1) {
+       return TCL_ERROR;
+    }
+
+    result = match_holding_pattern(topSpot,pattern,holding);
+    Tcl_SetObjResult(interp,getIntObj(result));
+       
+    return TCL_OK;
     /*
       The *lowest spot* that is not a spot in the x should be the
       limit
