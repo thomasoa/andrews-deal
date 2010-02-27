@@ -43,7 +43,7 @@
 #include "ctype.h"
 #include "string.h"
 
-Tcl_ObjType CardType, HoldingType;
+Tcl_ObjType CardType, HoldingType, CardRankType;
 
 static Tcl_Obj* lengthObjs[14];
 
@@ -99,6 +99,40 @@ void initializeCardType() {
   CardType.setFromAnyProc=convertToCardRep;
   Tcl_RegisterObjType(&CardType);
 
+}
+
+static void updateCardRankStringRep(Tcl_Obj *card) {
+  int rank=card->internalRep.longValue;
+  char *string=Tcl_Alloc(2);
+  string[0]=cards[rank];
+  string[1]=0;
+  card->bytes=string;
+  card->length=1;
+}
+
+static int convertToCardRankRep(Tcl_Interp *interp,Tcl_Obj *card)
+{
+  char *string=Tcl_GetString(card);
+  int rank;
+  rank = card_rank(string);
+  if (rank == NORANK) {
+      return TCL_ERROR;
+  }
+
+  card->typePtr=&CardType;
+  
+  card->internalRep.longValue=card_rank(string);
+  return TCL_OK;
+}
+
+void initializeCardRankType() {
+  CardRankType.freeIntRepProc=NULL;
+  CardRankType.name="Card";
+  CardRankType.dupIntRepProc=dupDealRepProc;
+  CardRankType.freeIntRepProc=NULL;
+  CardRankType.updateStringProc=updateCardRankStringRep;
+  CardRankType.setFromAnyProc=convertToCardRankRep;
+  Tcl_RegisterObjType(&CardRankType);
 }
 
 static int validHoldingNum(int num) {
@@ -330,6 +364,7 @@ void initializeDealTypes(Tcl_Interp *interp) {
     Keyword_Init(interp);
 
     initializeCardType();
+    initializeCardRankType();
     initializeHoldingType();
 
     spadeId=Keyword_addKey("spades");
@@ -414,9 +449,9 @@ int getHoldingNumFromObj(Tcl_Interp *interp, Tcl_Obj *holding) {
     int res=Tcl_ConvertToType(interp,holding,&HoldingType);
     if (res!=TCL_OK) { 
       Tcl_AppendResult(interp,
-		       "Could not convert ",
+		       "Could not convert '",
 		       Tcl_GetString(holding),
-		       "to a suit holding",
+		       "' to a suit holding",
 		       NULL);
       return -1;
     }
@@ -428,10 +463,30 @@ int getCardNumFromObj(Tcl_Interp *interp, Tcl_Obj *card) {
   if (card->typePtr!=&CardType) {
     int res=Tcl_ConvertToType(interp,card,&CardType);
     if (res!=TCL_OK) {
+      Tcl_AppendResult(interp,
+                       "Could not convert '",
+                       Tcl_GetString(card),
+                       "' to a card",
+                       NULL);
       return NOCARD;
     }
   }
   return card->internalRep.longValue;
+}
+
+int getCardRankNumFromObj(Tcl_Interp *interp, Tcl_Obj *rank) {
+  if (rank->typePtr!=&CardRankType) {
+    int res=Tcl_ConvertToType(interp,rank,&CardRankType);
+    if (res!=TCL_OK) {
+      Tcl_AppendResult(interp,
+                       "Could not convert '",
+                       Tcl_GetString(rank),
+                       "' to a card rank",
+                       NULL);
+      return NORANK;
+    }
+  }
+  return rank->internalRep.longValue;
 }
 
 int getHandHoldingsFromObjv(Tcl_Interp *interp,Tcl_Obj * CONST *objv,int *retHoldings)
