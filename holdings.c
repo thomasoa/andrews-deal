@@ -970,6 +970,7 @@ static int IDeal_HoldingCmd(TCLOBJ_PARAMS) TCLOBJ_DECL
     encodeCmd,
     decodeCmd,
     subsetCmd,
+    containedInCmd,
     matchesCmd,
     lengthFlag,
     initKeywords=1;
@@ -979,6 +980,7 @@ static int IDeal_HoldingCmd(TCLOBJ_PARAMS) TCLOBJ_DECL
 
     lengthCmd=Keyword_addKey("length");
     disjointCmd=Keyword_addKey("disjoint");
+    containedInCmd=Keyword_addKey("containedIn");
     unionCmd=Keyword_addKey("union");
     randomCmd=Keyword_addKey("random");
     encodeCmd=Keyword_addKey("encode");
@@ -1072,6 +1074,35 @@ static int IDeal_HoldingCmd(TCLOBJ_PARAMS) TCLOBJ_DECL
   /*
    * Check to see whether the first holding passed contains all
    * of the other holdings passed:
+   *    holding containedIn J832 AJT832   => 1  (true)
+   *    holding containedIn K AJT832      => 0  (false)
+   */
+  if (cmd==containedInCmd) {
+    int holding,subset,i;
+    if (objc!=4) {
+      Tcl_WrongNumArgs(interp,2,objv,"<holding> <holding> [<holding>..</holding>]");
+      return TCL_ERROR;
+    }
+    holding=getHoldingNumFromObj(interp,objv[2]);
+    if (holding<0 || holding>8191) { return TCL_ERROR; }
+    
+    subset = 0;
+    for (i=3;i<objc;i++) {
+      subset |= getHoldingNumFromObj(interp,objv[i]);
+      if (subset<0||subset>8191) { return TCL_ERROR; }
+    }
+
+    if ((subset&holding)!=holding) { 
+	Tcl_SetObjResult(interp,getIntObj(0));
+	return TCL_OK;
+    }
+    Tcl_SetObjResult(interp,getIntObj(1));
+    return TCL_OK;
+  }
+
+  /*
+   * Check to see whether the first holding passed contains all
+   * of the other holdings passed:
    *    holding contains AJT832 J832    => 1  (true)
    *    holding contains AJT832 J 8 3 2 => 1  (true)
    *    holding contains AJT832 K       => 0  (false)
@@ -1086,7 +1117,7 @@ static int IDeal_HoldingCmd(TCLOBJ_PARAMS) TCLOBJ_DECL
     if (holding<0 || holding>8191) { return TCL_ERROR; }
     for (i=3;i<objc;i++) {
       subset=getHoldingNumFromObj(interp,objv[i]);
-      if (holding<0||holding>8191) { return TCL_ERROR; }
+      if (subset<0||subset>8191) { return TCL_ERROR; }
       if ((subset&holding)!=subset) { 
 	Tcl_SetObjResult(interp,getIntObj(0));
 	return TCL_OK;
