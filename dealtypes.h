@@ -20,7 +20,7 @@
 #include "keywords.h"
 #include "deal.h"
 
-extern Tcl_ObjType CardType, HoldingType;
+extern Tcl_ObjType CardType, HoldingType,CardRankType;
 
 void initializeDealTypes();
 void initializeLengths();
@@ -32,6 +32,7 @@ Tcl_Obj *getLengthObj(int i);
 int getSuitNumFromObj(Tcl_Interp *interp, Tcl_Obj *suit);
 int getDenomNumFromObj(Tcl_Interp *interp, Tcl_Obj *suit);
 int getCardNumFromObj(Tcl_Interp *interp, Tcl_Obj *card);
+int getCardRankNumFromObj(Tcl_Interp *interp, Tcl_Obj *card);
 int getHoldingNumFromObj(Tcl_Interp *interp, Tcl_Obj *card);
 Tcl_Obj *Tcl_NewHoldingObj(int holding);
 Tcl_Obj * CONST *getAllSuitObjs();
