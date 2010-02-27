@@ -97,6 +97,7 @@ extern int count_deals;
 extern int verbose;
 
 int card_num PROTO((char *));
+int card_rank  PROTO((char *));
 void rotate_deal PROTO((int));
 void get_stacked_cards PROTO((int,int*));
 

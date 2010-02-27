@@ -562,6 +562,12 @@ int put_hand(int hand,char *hstring)
   return TCL_OK;
 }
 
+int card_rank(string)
+    char *string;
+{
+  return card_name_table[(int)string[0]];
+}
+
 int card_num (string)
      char *string;
 {
