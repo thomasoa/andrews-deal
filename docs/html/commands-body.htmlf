@@ -618,11 +618,15 @@ holding length AJxx           =>     4
 holding contains AJ64 A6      =>     1 (true)
 holding contains AJ64 A65     =>     0 (false)
 
+holding containedIn A6 AJ64    =>     1 (true)
+holding containedIn A65 AJ64  =>     0 (false)
+
 holding encode AJ4            =>     4612  (binary: 1001000000100 )
 
 holding decode 4612           =>     AJ4
 
 holding matches AKxx  AK42    =>     1 (true)
+holding matches AQxx  AK42    =>     1 (false)
 
 holding disjoint AJ65 KT82    =>     1 (true)
 holding disjoint A65  A32     =>     0 (false)
