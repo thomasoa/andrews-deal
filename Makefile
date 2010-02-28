@@ -9,8 +9,8 @@
 
 TCL_DIR=/usr
 
-#include Make.mac-osx
-include Make.ubuntu
+include Make.mac-osx
+#include Make.ubuntu
 
 CC=gcc
 
@@ -216,7 +216,8 @@ great88: ./deal
 	$(BINARY) -x tests/script/unit.tcl tests/great88.tcl | fgrep FAIL || echo "PASSED"
 
 alltests: ./deal
-	$(BINARY) -x tests/script/unit.tcl tests/*.tcl | fgrep FAIL || echo PASSED
+	$(BINARY) -x tests/script/unit.tcl tests/*.tcl 
+
 html: documentation
 ftp: $(SRCZIP)
 	cp $(SRCZIP) $(FTP)
