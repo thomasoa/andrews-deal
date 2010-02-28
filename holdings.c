@@ -545,10 +545,17 @@ evalHoldingProcedure(
       }
     }
 
+    for (i=1; i<objc; i++) {
+       Tcl_IncrRefCount(objv[i]);
+    }
+
     /**
      * Once done, evaluate this list in a global context
      */
     retval=Tcl_EvalObjv(interp,objc,objv,TCL_EVAL_GLOBAL);
+    for (i=1; i<objc; i++) {
+       Tcl_DecrRefCount(objv[i]);
+    }
     Tcl_Free((char *)objv);
     if (retval!=TCL_OK) {
       return NULL;
@@ -1086,7 +1093,7 @@ static int IDeal_HoldingCmd(TCLOBJ_PARAMS) TCLOBJ_DECL
       return TCL_ERROR;
     }
     holding=getHoldingNumFromObj(interp,objv[2]);
-    if (holding<0 || holding>8191) { return TCL_ERROR; }
+    if (holding<0) { return TCL_ERROR; }
     
     subset = 0;
     for (i=3;i<objc;i++) {
@@ -1116,7 +1123,7 @@ static int IDeal_HoldingCmd(TCLOBJ_PARAMS) TCLOBJ_DECL
       return TCL_ERROR;
     }
     holding=getHoldingNumFromObj(interp,objv[2]);
-    if (holding<0 || holding>8191) { return TCL_ERROR; }
+    if (holding<0) { return TCL_ERROR; }
     for (i=3;i<objc;i++) {
       subset=getHoldingNumFromObj(interp,objv[i]);
       if (subset<0||subset>8191) { return TCL_ERROR; }
