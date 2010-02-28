@@ -1,11 +1,13 @@
+# To run this test, call it from the parent directory with:
+#   deal -x tests/script/unit.tcl tests/great88.tcl 
 proc problem {id title diagram goal {denomination notrump} {leader south}} {
   set tricks [dds -diagram $diagram -leader $leader south $denomination]
   if {$tricks != $goal} {
-    set result FAIL
+    fail "$id ($title)" "makes $tricks with goal $goal"
   } else {
-    set result PASS
+    pass "$id ($title)"
   }
-  puts "$result: Problem $id ($title) makes $tricks tricks with goal $goal"
+  #puts "$result: Problem $id ($title) makes $tricks tricks with goal $goal"
 }
 
 # Tribe 1 - Eliminations, Endplays of Position
