@@ -213,7 +213,7 @@ smalltest: ./deal
 	if cmp test.out correct.out ; then echo PASS; else echo FAIL  ; fi
 
 great88: ./deal
-	$(BINARY) -x tests/great88 | fgrep FAIL || echo "PASSED"
+	$(BINARY) -x tests/script/unit.tcl tests/great88.tcl | fgrep FAIL || echo "PASSED"
 
 html: documentation
 ftp: $(SRCZIP)
