@@ -16,7 +16,7 @@ proc finishContext {} {
     incr unit_test(totalcount) $unit_test(count)
     incr unit_test(totalfails) $unit_test(fails)
     if {$unit_test(fails)>0 || $unit_test(verbosity)>0} {
-        puts "$unit_test(context): $unit_test(fails) failures out of $unit_test(count) tests"
+        puts stderr "$unit_test(context): $unit_test(fails) failures out of $unit_test(count) tests"
     }
 }
 
