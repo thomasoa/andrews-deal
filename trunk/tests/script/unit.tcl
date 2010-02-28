@@ -4,6 +4,21 @@ set unit_test(totalcount) 0
 set unit_test(totalfails) 0
 set unit_test(verbosity) 1
 
+# Borrowed from http://wiki.tcl.tk/918
+ #==========================================================
+ # NAME    : lshift
+ # PURPOSE : shift list and return first element
+ # AUTHOR  : Richard Booth
+ #           http://www.lehigh.edu/~rvb2
+ #           rvb2@lehigh.edu rvbooth@agere.com
+ # ---------------------------------------------------------
+proc lshift {inputlist} {
+    upvar $inputlist argv
+    set arg  [lindex $argv 0]
+    set argv [lreplace $argv[set argv {}] 0 0]
+    return $arg
+}
+
 proc startContext {context} {
     global unit_test
     set unit_test(count) 0
@@ -37,7 +52,6 @@ proc pass {id} {
 
 proc test {id cmd expected} {
     global unit_test
-    incr unit_test(count)
     set result [uplevel "$cmd"]
    
     if {$expected != $result} {
@@ -59,7 +73,17 @@ proc test-moe {id expectedP sampleSize sampleCount} {
     }
 }
 
-foreach testFile $argv {
+set testFiles [list]
+while {[llength $argv] > 0} {
+  set arg [lshift argv]
+  switch -- $arg {
+      -silent { set unit_test(verbosity) 0 }
+      -verbose { set unit_test(verbosity) 2 }
+      default { lappend testFiles $arg }
+   }
+}
+
+foreach testFile $testFiles {
     startContext $testFile
     source $testFile
     finishContext 
