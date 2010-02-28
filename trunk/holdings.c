@@ -121,13 +121,15 @@
 #define LENGTH_ARGUMENT 13
 #define STRING_ARGUMENT 14
 
-static int match_holding_pattern(int topSpotRank,int pattern,int holding) {
+static int match_holding_pattern(int bottomHighCard,int pattern,int holding) {
     if (counttable[pattern&8191] != counttable[holding&8191]) {
         return 0;
     }
-    if (((pattern&8191)>>(12-topSpotRank)) == ((8191&holding)>>(12-topSpotRank))) {
+
+    if ((pattern&8191)/bottomHighCard == (holding&8191)/bottomHighCard) {
       return 1;
     }
+
     return 0;
 }
 
@@ -1156,16 +1158,21 @@ static int IDeal_HoldingCmd(TCLOBJ_PARAMS) TCLOBJ_DECL
    *      holding matches AKxxx AKJ92     => 0  (false)
    */
   if (cmd==matchesCmd) {
-    int topSpot = NINE, pattern, holding,result;
+    int bottomHighCard = SINGLETON(NINE), pattern, holding,result;
 
     if (objc>5 || objc<4) {
-      Tcl_WrongNumArgs(interp,2,objv,"[topSpotRank] pattern holding");
+      Tcl_WrongNumArgs(interp,2,objv,"[bottomHighCard] pattern holding");
       return TCL_ERROR;
     }
 
     if (objc==5) {
-       topSpot = getCardRankNumFromObj(interp,objv[2]);
-       if (topSpot == NORANK) {
+       bottomHighCard = getHoldingNumFromObj(interp,objv[2]);
+       if (bottomHighCard<0 || bottomHighCard>8191 || counttable[bottomHighCard]!=1) {
+           Tcl_AppendResult(interp,
+		   "Invalid singleton '", Tcl_GetString(objv[2]) ,
+		   "' passed to '", Tcl_GetString(objv[0]),
+                   " ", Tcl_GetString(objv[1]),
+		   "' command.",NULL);
            return TCL_ERROR;
        }
        objc--; objv++;
@@ -1181,7 +1188,7 @@ static int IDeal_HoldingCmd(TCLOBJ_PARAMS) TCLOBJ_DECL
        return TCL_ERROR;
     }
 
-    result = match_holding_pattern(topSpot,pattern,holding);
+    result = match_holding_pattern(bottomHighCard,pattern,holding);
     Tcl_SetObjResult(interp,getIntObj(result));
        
     return TCL_OK;
