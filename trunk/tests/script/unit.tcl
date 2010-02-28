@@ -19,6 +19,13 @@ proc lshift {inputlist} {
     return $arg
 }
 
+proc test_notify {string} {
+    global unit_test
+    if {$unit_test(verbosity)>0} {
+        puts stderr $string
+    }
+}
+   
 proc startContext {context} {
     global unit_test
     set unit_test(count) 0
@@ -88,6 +95,8 @@ foreach testFile $testFiles {
     source $testFile
     finishContext 
 }
+
+test_notify "AllTests: $unit_test(totalfails) failures out of $unit_test(totalcount) tests"
 
 if {$unit_test(totalfails)>0} {
     exit 1
