@@ -819,6 +819,8 @@ void InitStart(void) {
   maxmem=(6000001*sizeof(struct nodeCardsType)+
                    18000001*sizeof(struct winCardType)+
                    240001*sizeof(struct posSearchType));
+  //maxmem = maxmem * 3 /2 ;
+  //cerr << maxmem << endl;
 
   bestMove = (struct moveType *)calloc(50, sizeof(struct moveType));
   /*bestMove = new moveType [50];*/
