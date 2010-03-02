@@ -70,11 +70,12 @@ proc test {id cmd expected} {
 
 proc test-moe {id expectedP sampleSize sampleCount} {
     set sampleP [expr {1.0*$sampleCount/$sampleSize}]
-    set moe [expr {1.96*sqrt($expectedP*(1-$expectedP)/($sampleSize-1))}]
+    # 99% confidence interval
+    set moe [expr {1.29*sqrt(1.0/$sampleSize)}]
     set min [expr {$expectedP-$moe}]
     set max [expr {$expectedP+$moe}]
     if {$sampleP<$min || $sampleP>$max} {
-	fail $id [format "Expected sample probability between %.4f and %.4f 95% of the time%, got %.4f" $min $max $sampleP]
+	fail $id [format {99%% of the time, expected sample probability in range [ %.4f , %.4f ]. Got %.4f} $min $max $sampleP]
     } else {
 	pass $id
     }
