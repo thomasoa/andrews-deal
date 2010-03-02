@@ -25,8 +25,8 @@ set spots {2 3 4 5 6 7 8 9}
 
 foreach spot $spots {
     sdev spot
-    foreach hand $hands {
 
+    foreach hand $hands {
         set count 0
         foreach suit $hand {
              if {[holding contains $suit $spot]} {
@@ -36,6 +36,7 @@ foreach spot $spots {
          spot add $count
     }
     set average [spot average]
+
     # Expected value is 13/8 = 1.625
     set error "0.010"
     set expected "1.625"
@@ -51,9 +52,12 @@ foreach hand $hands {
     incr pattern([pattern hand  $hand])
 }
 
+
+# Hand-computed probabilities
 set p(4333) [expr {40.0/163}]
 set p(5332) [expr {48.0/163}]
 set p(4432) [expr {75.0/163}]
+
 foreach pat {4333 5332 4432} {
     test-moe yarborough-$pat-moe $p($pat) 100000 $pattern($pat)
 }

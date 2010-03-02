@@ -84,12 +84,13 @@ namespace eval deal {
     }
 }
 
-# These two routines used to be defined in C, but it's better for them
-# to fit the pattern of shape functions.
-
 if {[string equal [info commands dds_reset] "dds_reset"]} {
   dds_reset_command
 }
+
+# These two routines used to be defined in C, but it's better for them
+# to fit the pattern of shape functions.
+
 
 shapecond balanced {($h<5)&&($s<5)&&($s*$s+$h*$h+$d*$d+$c*$c)<=47}
 shapecond semibalanced {$h<=5&&$s<=5&&$d<=6&&$c<=6&&$c>=2&&$d>=2&&$h>=2&&$s>=2}

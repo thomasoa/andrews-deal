@@ -113,7 +113,7 @@ namespace eval giblib {
 	    set results [list $contract]
 	    foreach hand {south west north east} {
 		set tr [expr {15&$trickvalue}]
-		::deal::metadata tricks.$hand.$contract {
+		::deal::metadata gib.$hand.$contract {
 		    gib::rectify_tricks $hand $tr
 		}
 		set trickvalue [expr {$trickvalue/16}]
