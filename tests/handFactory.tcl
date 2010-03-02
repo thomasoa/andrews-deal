@@ -26,21 +26,18 @@ set spots {2 3 4 5 6 7 8 9}
 foreach spot $spots {
     sdev spot
 
+    set count 0
     foreach hand $hands {
-        set count 0
         foreach suit $hand {
              if {[holding contains $suit $spot]} {
                  incr count
              }
          }
-         spot add $count
     }
-    set average [spot average]
 
-    # Expected value is 13/8 = 1.625
-    set error "0.010"
-    set expected "1.625"
-    test spot-$spot {expr {$average>=$expected-$error&&$average<=$expected+$error}} 1
+    # Expected value is 13/8/4
+    set expected [expr {13.0/8/4}]
+    test-moe yarborough-$spot-moe $expected 400000 $count
 }
 
 patternfunc pattern { return "$l1$l2$l3$l4" }
