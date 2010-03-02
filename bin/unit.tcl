@@ -4,7 +4,7 @@ set unit_test(totalcount) 0
 set unit_test(totalfails) 0
 set unit_test(verbosity) 1
 
-# Borrowed from http://wiki.tcl.tk/918
+# Borrowed lshift code from http://wiki.tcl.tk/918
  #==========================================================
  # NAME    : lshift
  # PURPOSE : shift list and return first element
@@ -74,7 +74,7 @@ proc test-moe {id expectedP sampleSize sampleCount} {
     set min [expr {$expectedP-$moe}]
     set max [expr {$expectedP+$moe}]
     if {$sampleP<$min || $sampleP>$max} {
-	fail $id [format "Expected sample probability between %.3f and %.3f, got %.3f" $min $max $sampleP]
+	fail $id [format "Expected sample probability between %.4f and %.4f 95% of the time%, got %.4f" $min $max $sampleP]
     } else {
 	pass $id
     }
@@ -100,7 +100,7 @@ foreach testFile $testFiles {
     finishContext 
 }
 
-test_notify "AllTests: $unit_test(totalfails) failures out of $unit_test(totalcount) tests"
+test_notify "Total: $unit_test(totalfails) failures out of $unit_test(totalcount) tests"
 
 if {$unit_test(totalfails)>0} {
     exit 1
