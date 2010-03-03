@@ -1,5 +1,7 @@
+#
 # To run this test, call it from the parent directory with:
-#   deal -x tests/script/unit.tcl tests/great88.tcl 
+#   deal -x bin/unit.tcl tests/great88.tcl 
+#
 proc problem {id title diagram goal {denomination notrump} {leader south}} {
   set tricks [dds -diagram $diagram -leader $leader south $denomination]
   if {$tricks != $goal} {
@@ -635,3 +637,5 @@ problem 88 {Contra squeeze} {
              {- - AQ765 -}
            } 3 notrump
 
+
+rename problem {}
