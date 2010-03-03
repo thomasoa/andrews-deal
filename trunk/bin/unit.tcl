@@ -25,6 +25,19 @@ proc test_notify {string} {
         puts stderr $string
     }
 }
+
+proc test_prep {message code} {
+    global unit_test
+    if {$unit_test(verbosity)>0} {
+        puts -nonewline stderr "$unit_test(context) $message"
+    }
+
+    uplevel $code
+
+    if {$unit_test(verbosity)>0} {
+        puts stderr ""
+    }
+}
    
 proc startContext {context} {
     global unit_test
@@ -72,10 +85,12 @@ proc test-moe {id expectedP sampleSize sampleCount} {
     set sampleP [expr {1.0*$sampleCount/$sampleSize}]
     # 99% confidence interval
     set moe [expr {1.29*sqrt(1.0/$sampleSize)}]
-    set min [expr {$expectedP-$moe}]
-    set max [expr {$expectedP+$moe}]
-    if {$sampleP<$min || $sampleP>$max} {
-	fail $id [format {99%% of the time, expected sample probability in range [ %.4f , %.4f ]. Got %.4f} $min $max $sampleP]
+    set diff [expr {abs($sampleP-$expectedP)}]
+    if {$diff>$moe} {
+        set error [expr {100.0*($diff/$moe-1)}]
+        #set min [expr {$expectedP-$moe}]
+        #set max [expr {$expectedP+$moe}]
+	fail $id [format {Sample out of 99%% confidence range: Prob: %.4f outside expected sample range of %.4f +/- %.4f ; outside range by %4.2f%%} $sampleP $expectedP $moe $error]
     } else {
 	pass $id
     }

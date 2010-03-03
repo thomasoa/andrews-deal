@@ -26,3 +26,5 @@ testDominated JT {Jx}
 testDominated AKQ {AKJ}
 testDominated KQ {KJ}
 testDominated {} {}
+
+rename testDominated {}
