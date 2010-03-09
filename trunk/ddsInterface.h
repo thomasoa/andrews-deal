@@ -30,33 +30,33 @@ typedef unsigned short int holding_t;
 
 
 struct diagram {
-   holding_t cards[4][4];
+    holding_t cards[4][4];
 };
 
 struct deal {
-  int trump;
-  int first;
-  int currentTrickSuit[3];
-  int currentTrickRank[3];
-  struct diagram remaining;
+    int trump;
+    int first;
+    int currentTrickSuit[3];
+    int currentTrickRank[3];
+    struct diagram remaining;
 };
 
 struct futureTricks {
-  int nodes;
+    int nodes;
 #ifdef BENCH
-  int totalNodes;
+    int totalNodes;
 #endif
-  int cards;
-  int suit[13];
-  int rank[13];
-  int equals[13];
-  int score[13];
+    int cards;
+    int suit[13];
+    int rank[13];
+    int equals[13];
+    int score[13];
 };
 
 #include <string.h>
 
 EXTERN_C int SolveBoard(struct deal dl, 
-  int target, int solutions, int mode, struct futureTricks *futp);
+                        int target, int solutions, int mode, struct futureTricks *futp);
 
 EXTERN_C void DDSInitStart();
 

@@ -8,40 +8,40 @@
  */
 
 inline int RelativeSeat(int seat, int relative) {
-  return (seat + relative)&3;
+    return (seat + relative)&3;
 }
 
 inline int partner(int seat) {
-  return (seat^2); /* slightly faster than calling RelativeSeat */
+    return (seat^2); /* slightly faster than calling RelativeSeat */
 }
 
 inline int lho(int seat) {
-  return RelativeSeat(seat,1);
+    return RelativeSeat(seat,1);
 }
 
 inline int rho(int seat) {
-  return RelativeSeat(seat,3);
+    return RelativeSeat(seat,3);
 }
 
 inline holding_t BitRank(int rank) {
-  /*
-   * Trick calculation
-   * Equivalent to 1<<(rank-2) for rank>=2, and 0 for rank<2.
-   */
-  return (1<<rank)>>2;
+    /*
+     * Trick calculation
+     * Equivalent to 1<<(rank-2) for rank>=2, and 0 for rank<2.
+     */
+    return (1<<rank)>>2;
 }
 
 template<class INT> inline INT smallestBitInInteger(INT value) {
-  return value & (-value);
+    return value & (-value);
 }
 
 inline holding_t smallestRankInSuit(holding_t h) {
-  return smallestBitInInteger<holding_t>(h);
+    return smallestBitInInteger<holding_t>(h);
 }
 
 inline int InvBitMapRank(holding_t bitMap) {
 
-  switch (bitMap) {
+    switch (bitMap) {
     case 0x1000: return 14;
     case 0x0800: return 13;
     case 0x0400: return 12;
@@ -56,12 +56,12 @@ inline int InvBitMapRank(holding_t bitMap) {
     case 0x0002: return 3;
     case 0x0001: return 2;
     default: return 0;
-  }
+    }
 }
 
 inline int InvWinMask(int mask) {
 
-  switch (mask) {
+    switch (mask) {
     case 0x01000000: return 1;
     case 0x00400000: return 2;
     case 0x00100000: return 3;
@@ -76,7 +76,7 @@ inline int InvWinMask(int mask) {
     case 0x00000004: return 12;
     case 0x00000001: return 13;
     default: return 0;
-  }
+    }
 }
 
 #endif

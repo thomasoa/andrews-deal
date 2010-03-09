@@ -256,7 +256,7 @@ char *getStringForHoldingNum(int hnum,int *lenPtr)
     source=Tcl_Alloc(14);
     for (j=0; j<13; j++,i=i/2) {
       if (hnum&i) {
-	source[count++]=cards[j];
+        source[count++]=cards[j];
       }
       source[count]=0;
     }
@@ -347,10 +347,10 @@ static int tcl_type_assert(TCLOBJ_PARAMS) TCLOBJ_DECL
   value=Keyword_getIdFromObj(interp,objv[1]);
   if (value<base||value>base+3) {
     Tcl_AppendResult(interp,
-		     Tcl_GetString(objv[0]),
-		     ": failed. '",
-		     Tcl_GetString(objv[1]),
-		     "' does not match type.", NULL);
+                     Tcl_GetString(objv[0]),
+                     ": failed. '",
+                     Tcl_GetString(objv[1]),
+                     "' does not match type.", NULL);
     return TCL_ERROR;
   }
   return TCL_OK;
@@ -382,9 +382,9 @@ void initializeDealTypes(Tcl_Interp *interp) {
     Keyword_alias("West","west",0);
 
     Tcl_CreateObjCommand(interp,"assertHandname",
-			 tcl_type_assert,(ClientData)northId,NULL);
+                         tcl_type_assert,(ClientData)northId,NULL);
     Tcl_CreateObjCommand(interp,"assertSuitname",
-			 tcl_type_assert,(ClientData)spadeId,NULL);
+                         tcl_type_assert,(ClientData)spadeId,NULL);
 
     initializeAllSuits();
     initialized=1;
@@ -449,10 +449,10 @@ int getHoldingNumFromObj(Tcl_Interp *interp, Tcl_Obj *holding) {
     int res=Tcl_ConvertToType(interp,holding,&HoldingType);
     if (res!=TCL_OK) { 
       Tcl_AppendResult(interp,
-		       "Could not convert '",
-		       Tcl_GetString(holding),
-		       "' to a suit holding",
-		       NULL);
+                       "Could not convert '",
+                       Tcl_GetString(holding),
+                       "' to a suit holding",
+                       NULL);
       return -1;
     }
   }
@@ -518,8 +518,8 @@ getHandHoldingsFromObj(Tcl_Interp *interp, Tcl_Obj *obj, int *retHoldings)
   retval=Tcl_ListObjGetElements(interp,obj,&length,&objv);
   if (retval!=TCL_OK || length!=4) { 
     Tcl_SetResult(interp,
-		  "Hand argument was not a list of length 4",
-		  TCL_STATIC);
+                  "Hand argument was not a list of length 4",
+                  TCL_STATIC);
     return TCL_ERROR;
   }
 

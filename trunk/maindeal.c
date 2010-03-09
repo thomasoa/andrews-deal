@@ -22,6 +22,6 @@ int main(argc,argv)
      int argc;
      char *argv[];
 {
-  return old_main(argc,argv);
+    return old_main(argc,argv);
 }
 
