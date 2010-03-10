@@ -1,3 +1,10 @@
+Changes in Deal 3.1.10
+
+   * Fixed issue #17 - "holding" command didn't implement "matches" subcommand
+   * Fixed issue #18 - holdingProc was free memory too early
+   * Added unit tests and unit test script tests/script/unit.tcl
+   * Added "dominated" command
+
 Changes in Deal 3.1.9
 
    * Fix issue #14 - smartstack was broken on OS X
