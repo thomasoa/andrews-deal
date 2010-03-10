@@ -20,6 +20,8 @@
 namespace eval ddline {
     variable glob
 
+    set glob(suitorder) {spades hearts diamonds clubs notrump}
+
     ::deal::nostacking
 
     proc set_input {{fname {}} {skip 0} {suitorder {spades hearts diamonds clubs}}} {
@@ -47,14 +49,9 @@ namespace eval ddline {
 	}
     }
 
-    proc nextline {} {
-	variable glob
-	set length -1
-	catch { set length [gets $glob(filehandle) line] }
-	reset_deck
-	if {$length<=0} {
-	    return -code return
-	}
+    proc parseline {line} {
+        variable glob
+
 	foreach pname {north east south west ddnorth ddeast ddsouth ddwest} val [split $line "|"] {
 	    set part($pname) $val
 	}
@@ -71,6 +68,16 @@ namespace eval ddline {
 	}
     }
 
+    proc nextline {} {
+	variable glob
+	set length -1
+	catch { set length [gets $glob(filehandle) line] }
+	reset_deck
+	if {$length<=0} {
+	    return -code return
+	}
+        parseline $line
+    }
 }
 
 set deal::tricksCache ddline
