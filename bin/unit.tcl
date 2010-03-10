@@ -81,10 +81,21 @@ proc test {id cmd expected} {
     }
 }
 
+proc test-moe-sample {id expectedAverage expectedDev sampleSize average} {
+    set moe [expr {2.58*$expectedDev/sqrt($sampleSize-1)}]
+    set min [expr {$expectedAverage-$moe}]
+    set max [expr {$expectedAverage+$moe}]
+    if {$average<$min || $average>$max} {
+	fail $id [format {99%% of the time, expected sample average in range [ %.2f , %.2f ]. Got %.2f} $min $max $average]
+    } else {
+	pass $id
+    }
+}
+
 proc test-moe {id expectedP sampleSize sampleCount} {
     set sampleP [expr {1.0*$sampleCount/$sampleSize}]
     # 99% confidence interval
-    set moe [expr {1.29*sqrt(1.0/$sampleSize)}]
+    set moe [expr {2.58*sqrt($expectedP*(1-$expectedP)/$sampleSize)}]
     set diff [expr {abs($sampleP-$expectedP)}]
     if {$diff>$moe} {
         set error [expr {100.0*($diff/$moe-1)}]
