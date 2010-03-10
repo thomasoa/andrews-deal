@@ -45,12 +45,13 @@ foreach spot $spots {
 }
 
 patternfunc pattern { return "$l1$l2$l3$l4" }
-set attern(4333) 0
+
+set pattern(4333) 0
 set pattern(4432) 0
 set pattern(5332) 0
 
 foreach hand $hands {
-    incr pattern([pattern hand  $hand])
+    incr pattern([pattern hand $hand])
 }
 
 
