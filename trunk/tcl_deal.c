@@ -248,7 +248,7 @@ int tcl_rand_cmd( TCLOBJ_PARAMS ) TCLOBJ_DECL
         Tcl_SetObjResult(interp,Tcl_NewIntObj(res));
     }
     else {
-        double dres = res * 1.0 /((long long)RANDOM_MAX+1);
+        double dres = res * 1.0 /((double)RANDOM_MAX+1);
         Tcl_SetObjResult(interp,Tcl_NewDoubleObj(dres));
     }
     return TCL_OK;
