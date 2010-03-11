@@ -118,7 +118,7 @@ while {[llength $argv] > 0} {
 }
 
 if {[llength $testFiles]==0} {
-   set testFiles [glob -type f {tests/*.tcl}]
+   set testFiles [lsort [glob -type f {tests/*.tcl}]]
 }
 
 foreach testFile $testFiles {
