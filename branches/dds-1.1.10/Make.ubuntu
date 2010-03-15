@@ -1,0 +1,12 @@
+CC=gcc
+#DEBUG_FLAGS=-ansi -Wall -g
+#CPPFLAGS = -fno-rtti -g
+DEBUG_FLAGS=-ansi -Wall -O3
+CPPFLAGS = -fno-rtti -O3
+
+# Ubuntu settings
+TCL_VERSION=8.6
+TCL_INCL=/usr/local/include
+TCL_LIB=/usr/local/lib
+LDFLAGS=  -L$(TCL_LIB) -ltcl$(TCL_VERSION) -lm
+

@@ -1,0 +1,163 @@
+#
+# Copyright (C) 1996-2001, Thomas Andrews
+#
+# $Id$
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+source lib/parscore.tcl
+
+namespace eval par {
+
+    variable par
+
+    set par(num) 1
+    set par(incr) 1
+    set par(dealer) [list north east south west]
+    set par(vul) [list None NS EW All NS EW All None EW All None NS All None NS EW]
+
+    if {[info commands clock]=="clock"} {
+	set par(Date) [clock format [clock seconds] -format "%Y.%m.%d"]
+    } else {
+	set par(Date) "1965.01.01"
+    }
+
+    foreach seat {North East South West} {
+	set par($seat) "$seat"
+    }
+
+    set par(letter:north) N
+    set par(letter:east) E
+    set par(letter:west) W
+    set par(word:doubled) X
+    set par(word:redoubled) XX
+    set par(word:) ""
+    set par(lho:south) W
+    set par(lho:west) N
+    set par(lho:north) E
+    set par(lho:east) S
+
+    proc pbn_write_line {key value} {
+	puts "\[$key \"$value\"\]"
+    }
+
+    proc getVul {} {
+	variable par
+	set vullist $par(vul)
+	set num $par(num)
+	set index [expr {($num-1)%[llength $vullist]}]
+	lindex $vullist $index
+    }
+
+    proc dealerOrder {args} {
+	variable par
+	set par(dealer) $args
+    }
+
+    proc vulOrder {args} {
+	variable par
+	set par(vul) $args
+    }
+
+    proc getDealer {} {
+	variable par
+	set dlrlist $par(dealer)
+	set num $par(num)
+	set index [expr {($num-1)%[llength $dlrlist]}]
+	lindex $dlrlist $index
+    }
+
+    proc pbn_contract {contract} {
+	variable par
+	set level [lindex $contract 0]
+	set denom [lindex $contract 1]
+	set dbl [lindex $contract 2]
+
+	append level [par_first_upper $denom] $par(word:$dbl)
+    }
+
+    proc write_deal {} {
+	
+	variable par
+	set num $par(num)
+	set dealer [getDealer]
+	set vul [getVul]
+	incr par(num) $par(incr)
+	puts stderr "Computing par for deal $num $dealer $vul"
+	set mypar [parscore $dealer $vul]	
+	set contract [lindex $mypar 0]
+	set declarer [lindex $mypar 1]
+	set score    [lindex $mypar 2]
+	set tricks [lindex $mypar 3]
+	set auction [lindex $mypar 4]
+	pbn_write_line Date $par(Date)
+	pbn_write_line Board $num
+
+	foreach seat {West North East South} {
+	    pbn_write_line $seat $par($seat)
+	}
+
+	pbn_write_line Dealer [par_first_upper $dealer]
+	pbn_write_line Vulnerable $vul
+
+	foreach hand {north east south west} {
+	    set fmt($hand) "[$hand spades].[$hand hearts].[$hand diamonds].[$hand clubs]"
+	}
+	pbn_write_line Deal "N:$fmt(north) $fmt(east) $fmt(south) $fmt(west)"
+
+	pbn_write_line Contract [pbn_contract $contract]
+	pbn_write_line Declarer [par_first_upper $declarer]
+	pbn_write_line Result $tricks
+	pbn_write_line Score "NS $score"
+	puts "{"
+	::formatter::write_deal
+        foreach hand {north east south west} {
+          foreach denom {clubs diamonds hearts spades notrump} {
+            puts "$hand makes [::deal::tricks $hand $denom] tricks in $denom"
+          }
+        }
+	puts "}"
+
+	pbn_write_line Auction [par_first_upper $dealer]
+
+	set count 0	
+	foreach bid $auction {
+	    if {$count==4} {
+		puts ""
+		set count 0
+	    }
+
+	    if {$count>0} {
+		puts -nonewline "   "
+	    }
+
+	    puts -nonewline $bid
+	    incr count
+	}
+
+
+	puts ""
+
+        if {$declarer != ""} {
+	  pbn_write_line Play $par(lho:$declarer)
+	  puts "*"
+	  puts ""
+        }
+    }
+}
+
+proc write_deal {} {
+    ::par::write_deal
+}

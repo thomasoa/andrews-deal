@@ -1,0 +1,82 @@
+body {
+    background-image: url(graphics/idealbg.jpg) 
+}
+
+A:link { 
+   color: #663300;
+}
+
+A:visited { 
+   color: #990000 ; 
+}
+
+A:hover {
+   color: white ;
+   background: #336699
+}
+
+A:active { 
+   color: #000099 
+}
+
+A.image:hover {
+   background: transparent ;
+}
+
+div.header {
+    text-align: center
+}
+
+span.alert {
+    color: red ;
+    background: transparent
+}
+
+span.code { 
+    font-family: Courier, monospace ;
+    white-space: nowrap ;
+}
+
+pre.example {
+  padding: 1em;
+  background: #CCCCCC;
+  white-space: pre;
+}
+
+div.codesample, pre.codesample { 
+	width: 0 ;
+	font-family: Courier, monospace; 
+        font-size: small ;
+	white-space: pre ;
+	margin-left: 10% ;
+	padding-bottom: 1em; 
+        padding-top: 1em;
+	margin-top: 0.25in ;
+	margin-bottom: 0.25in ;
+	border-top: thin groove ;
+        line-height: 120%;
+	border-bottom: thin groove 
+}
+
+div.back {
+   margin-left: 5% ;
+   margin-right: 5% ;
+   text-align: right
+}
+
+div.toplevel,table.toplevel {
+   width:90% ;
+   margin-left: 5%;
+   margin-right: 5%;
+}
+
+span.reference {
+   font-style: italic ;
+}
+
+div#versionWarning {
+  font-weight: bold;
+  color: red;
+  display: none;
+}
+

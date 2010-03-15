@@ -1,0 +1,148 @@
+<head>
+<!-- $Id$ -->
+<title>Holding Procedures</title>
+<?php analytics(); ?>
+
+</head>
+<body bgcolor="#DDEEFF">
+<h1>Holding Procedures in Deal 3.1 and iDeal</h1>
+
+<h2>Introduction</h2>
+One of the main new bridge evaluation features in Deal 3.1 and iDeal
+is the ability to define fast procedures for evaluating a single holding.
+<p>
+In Deal 2.0, we were able to define
+<a href="advanced.html#vector">Vector functions,</a> which assigned
+integer values to each card.  This covered a lot of standard evaluation 
+techniques, but not the more complicated forms.  Evaluators like
+"quick tricks" and "losers," while still computed suit by suit and totaled,
+cannot be defined by assigning values to cards alone.
+<p>
+The solution is to allow the creation of general procedures for evaluating
+a holding, while still taking advantage of fast lookup tables.  Thus,
+the introduction of the <em>holdingProc</em> command.
+
+<h2>The <code>holdingProc</code> Command</h2>
+
+holdingProc looks like a normal Tcl definition of a procedure.  For example,
+we might write:
+<blockquote>
+<pre>
+holdingProc HCP {A K Q J} {
+    expr {$A*4+$K*3+$Q*2+$J}
+}
+</pre>
+</blockquote>
+to define a function called <code>HCP</code>.  This function behaves exactly
+the same as the builtin <code>hcp</code> routine - the user can ask for
+the total points in a hand or for a specific suit in the hand:
+<blockquote>
+<pre>
+set n [HCP north]
+set hs [HCP north spades]
+</pre>
+</blockquote>
+When evaluated, the parameter A is set to one if the holding has the ace,
+and zero otherwise.
+<p>
+That's a simple example, but let's say we want to do some smart reevaluation.
+For example, we might want to add a point for each card in a suit beyond
+the fourth.  We also might want to evaluate a stiff king as two points, rather
+than three, a stiff queen as zero, and a doubleton queen as one.
+<p>
+We can do this by adding a "length" parameter to the parameters list:
+<blockquote>
+<pre>
+holdingProc SmartHCP {A K Q J length} {
+
+    if {$length>=4} {
+        # Normal evaluation, +1 for each card longer than the fourth
+	return [expr {$A*4+$K*3+$Q*2+$J+($len-4)}]
+    }
+
+    if {$length==3} {
+        # Normal evaluation for 3-card suits
+	return [expr {$A*4+$K*3+$Q*2+$J}]
+    }
+
+    if {$length==2} {
+        # Jacks in doubletons are worth zero, queens one
+	return [expr {$A*4+$K*3+$Q}]
+    }
+
+    if {$length==1} {
+        # Queens and jacks in singletons are worth zero, kings two
+	return [expr {$A*4+$K*2}]
+    }
+
+    return 0
+}
+</pre>
+</blockquote>
+
+Even though this code is slow, it is only evaluated at most 160 times, after
+which values are reused, yielding remarkably fast evaluations.  One deal,
+you might get a holding of <code>KQ75</code> which this routine evaluates
+as if it were evaluating <code>KQxx</code>.  The next hand, it sees the
+holding <code>KQ82</code> and, seeing this also as <code>KQxx</code>, remembers
+the previous value.
+<h3>Types of Holding Procedures</h3>
+
+By default, the holding procedure assumes that the values returned are integers,
+so that when it tries to add up the values of all four suits, it applies
+an integer sum.
+<p>
+If you want the return value interpreted as a double, you can specify it
+in the declaration.  For example, we can define a quick tricks procedure:
+<blockquote>
+<pre>
+holdingProc -double QuickTricks {A K Q J T length} {
+    if {$A&&$K} { return 2 }
+    if {$A} { return 1 }
+    if {$K && ($Q || ($J && $T))} {
+         return 1
+    }
+    if {$K && $length>1} {
+            return 0.5
+    }
+    return 0
+}
+</pre>
+</blockquote>
+<p>
+You can define the type to be any of the following:
+<dl>
+<dt><code>-integer</code>
+<dd>The default, adds integer values when evaluated across multiple suits.
+<dt><code>-double</code>
+<dd>Adds resulting values as doubles when evaluated across multiple suits.
+<dt><code>-boolean</code>
+<dd>When evaluated on a hand, lists the suits, by name, which evaluate as true.
+For example, if you defined 'biddableSuit' it would return the list
+"<code>spades hearts</code>" for the hand <code>KT954 AJ32 94 92</code>.
+<dt><code>-string</code>
+<dd>Returns a list of values when evaluated on multiple suits.
+</dl>
+<h3>Arguments Allowed</h3>
+The arguments are interpreted based on the first character of their name,
+or, in the case of spots, via the idiom 'x<num>.'  For example, we could
+have defined SmartHCP as:
+<blockquote>
+<pre>
+holdingProc SmartHCP {ace King QuizShow j len} {
+      ...
+}
+</pre>
+</blockquote>
+They can occur in any order.
+<p>
+For spot cards, you can use arguments named "x2", "x3", "x4", .., and "x9."
+The ten can be passed as "x10" or "T."
+<p>
+One last possible parameter is anything beginning with an "s" or "S", which means
+that the holding is passed as a string.  This is useful when you already have
+a hash table somewhere for stored data.  For example, the 'ddeval' code which
+comes with <em>iDeal</em> and Deal 3.1 uses a table of raw data created in
+advance.
+<?php include("sig.htmlf"); ?>
+</div>

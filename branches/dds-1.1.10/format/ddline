@@ -1,0 +1,53 @@
+#
+# Copyright (C) 1996-2001, Thomas Andrews
+#
+# $Id$
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+
+set ddline(counter) 0
+
+proc write_deal {} {
+    global ddline
+    set line [list]
+    set dd [list]
+    foreach suit {spades hearts diamonds clubs notrump} {
+      puts -nonewline stderr "."
+      foreach hand {north east south west} {
+        set dummy [deal::tricks $hand $suit]
+      }
+    }
+    foreach hand {north east south west} {
+	lappend line [join [$hand] "."]
+	set handdd [list]
+	foreach suit {spades hearts diamonds clubs notrump} {
+	    lappend handdd [deal::tricks $hand $suit]
+	}
+	lappend dd $handdd
+    }
+    puts "[join $line |]|[join $dd |]"
+
+    incr ddline(counter)
+    if {$ddline(counter)%10==0} {
+	puts stderr "Finished #$ddline(counter)"
+    } else {
+    }	
+
+    while {[file exists "lock.txt"]} {
+	puts stderr "Sleeping a bit... lock.txt exists"
+	after 10000
+    }
+}

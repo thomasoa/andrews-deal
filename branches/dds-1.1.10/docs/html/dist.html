@@ -1,0 +1,723 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+     "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<!-- $Id$ -->
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<LINK REL="SHORTCUT ICON" HREF="/icon/bridge.ico">
+<link rev="made" href="mailto:thomaso@centerline.com (Thomas Andrews)">
+<link rel="stylesheet" type="text/css" href="look.css">
+<title>
+      Hand Distribution Table
+</title>
+<?php analytics(); ?>
+
+
+</head>
+
+<body>
+<div class="toplevel back"><a href="index.html">Back to <em>Deal Top Page</em></a></div>
+<div class="toplevel">
+<h1> Hand Distribution Table </h1>
+<p>
+I am including this information in my web pages because I think it is
+neat and that it is a method I think other writers of hand generators
+might want to use.
+<p>
+It is also the only time I can think of when I have
+used anything I learned in graduate school.
+
+<h2> Creation of the table </h2>
+<p>
+My program, 'Deal', needed a fast way to determine whether a hand
+was in a particular class.  The goal was to stay out of the TCL interpreter
+as much as possible.  The answer was to implement a lookup table with an easy
+indexing algorithm.
+<p>
+There are 560 hand shapes, where by "shape", I mean the ordered listing
+of suit lengths: spades-hearts-diamonds-clubs.
+<p>
+The hand shapes are in easy 1-1 correspondence with the 3-subsets
+of {0,...,15}. 
+In particular, the hand shape with <var>s</var> spades, <var>h</var> hearts,
+<var>d</var> diamonds, and <var>c</var> clubs corresponds
+to the 3-set {<var>s</var>, <var>s</var>+<var>h</var>+1,
+<var>s</var>+<var>h</var>+<var>d</var>+2}.
+<p>
+There is a linear order on n-subsets, for fixed n, called the squashed
+order [see <span class="reference">Combinatorics on Finite Sets</span>, Anderson, pp 112-119.]
+The nice thing about this order is that it is easy to find the index of
+an n-set in the order.
+In the case of n=3, take a subset {x,y,z}, with 0&lt;=x&lt;y&lt;z&lt;=15.
+The index of this set in the squashed order is
+<blockquote>(z choose 3) + (y choose 2) + (x choose 1)</blockquote>
+For the hand shape s-h-d-c, then, the corresponding index in the squashed
+order is
+<blockquote>(s+h+d+2 choose 3) + (s+h+1 choose 2) + (s choose 1)</blockquote>
+<p>
+For added speed, I pre-computed
+(n+2 choose 3) and (n+1 choose 2) for n=0,...13, placing the values
+in static arrays.  The resulting C code looks like:
+<blockquote>
+<pre>
+static int distTableIndex(s,h,d)
+int s,h,d;
+{
+  static choose2tab[]={0, 1, 3,  6, 10, 15, 21, 28,  36,  45,  55,  66,  78,  91};
+  static choose3tab[]={0, 1, 4, 10, 20, 35, 56, 84, 120, 165, 220, 286, 364, 455};
+  return choose3tab[s+h+d]+choose2tab[s+h]+s;
+}
+</pre>
+</blockquote>
+
+It is precisely because I can quickly compute this index that I have
+chosen the squashed order.  Perhaps other orders also happen to allow
+for quick indexing, but this is the one I found in my personal math library.
+
+<h2> Usage of the table </h2>
+
+The table is useful for fast lookups.  For example, lets say you were
+looking for hands which were five-five or better in any two suits.  You could,
+of course, simply check each suit length, but the problem with this is
+that in an interpreted language, like Tcl, that might be too slow.  If,
+however, you built a 560 element binary array, and do the computation
+560 times up front, then when we start analyzing actual deals, we
+can quickly determine whether a particular shape was in that class.
+<p>
+In reality, the table is not computed until the first request
+is made of a shapeclass, which allows users to create large libraries
+to be included but not instantiated until used.
+<p>
+For example:
+<blockquote>
+<pre>
+shapecond Balanced {$s*$s+$h*$h+$d*$d+$c*$c<=47}
+</pre>
+</blockquote>
+When this shapeclass is first used, a table of 560 entries is created,
+and then the interpreter evaluates this expression only 560 times.
+For rare hand classes, this is a significant improvement.
+<p>
+When Deal is confronted with a specific query about membership
+in this class, all it has to do is use distTableIndex find the
+index, then look it up in the table.  This is significantly
+faster than reinterpreting the Tcl code every time.
+<p>
+The concept of "shape class" led to the concept of "shape function".
+These are functions which use the shape of the hand to determine the
+value.  For instance, I have a function which determines the opening
+suit for a hand:
+<blockquote>
+<pre>
+shapefunc opensuit {
+
+	if {$s>=5 && $s>=$h && $s>=$d && $s>=$c} {return spades}
+
+	if {$h>=5 && $h>=$d && $h>=$c} { return hearts }
+
+	if {$d>=4 && $d>=$c} {return diamonds}
+
+	if {$c<3} {return diamonds}
+
+	return clubs
+}
+</pre>
+</blockquote>
+[ The current implementation of shapefunc is a bit of a memory hog,
+unfortunately, since it allocates strings for every element of the
+table, even if the strings are duplicates. For instance, the function
+above has only 4 return values, "spades", "hearts", "diamonds", and "clubs".
+Still, shapefunc instantiates 560 strings.  Smarter implementations
+are certainly possible, and Tcl 8.0 alleviates the problem considerably
+(because it allows deals with reference-counted strings.) ]
+<p>
+[ We could also instantiate the table an entry at a time, leaving null pointers
+in the table until a value has been requested.  This has the advantage that
+we will often compute considerably fewer values from the table.  The
+disadvantage is that every time we need a value from the table, we will have
+to do a check to see if a pointer value is null.  It
+is not clear to me this would be an improvement or not, but it would
+add a complexity to the code that I am not willing to maintain.  It might
+seem that you would need to check a pointer anyway, to determine if the
+shapeclass has been instantiated or not, but the implementation avoids
+such a check.]
+
+<h3> Note </h3>
+The above definition of Balanced is an interesting oddity,
+which I leave it up to the reader to try to understand.
+Think about it for a moment before you look <a href=balanswer.html>here</a>.
+
+<h2> Table </h2>
+
+Here is the raw data of the table.  Not very interesting, but it does
+help to make it clear how the squashed ordering works, and why the index
+values are computed as they are.
+
+<xmp>
+Index| S  H  D  C
+==================
+  0  | 0  0  0 13
+  1  | 0  0  1 12
+  2  | 0  1  0 12
+  3  | 1  0  0 12
+  4  | 0  0  2 11
+  5  | 0  1  1 11
+  6  | 1  0  1 11
+  7  | 0  2  0 11
+  8  | 1  1  0 11
+  9  | 2  0  0 11
+ 10  | 0  0  3 10
+ 11  | 0  1  2 10
+ 12  | 1  0  2 10
+ 13  | 0  2  1 10
+ 14  | 1  1  1 10
+ 15  | 2  0  1 10
+ 16  | 0  3  0 10
+ 17  | 1  2  0 10
+ 18  | 2  1  0 10
+ 19  | 3  0  0 10
+ 20  | 0  0  4  9
+ 21  | 0  1  3  9
+ 22  | 1  0  3  9
+ 23  | 0  2  2  9
+ 24  | 1  1  2  9
+ 25  | 2  0  2  9
+ 26  | 0  3  1  9
+ 27  | 1  2  1  9
+ 28  | 2  1  1  9
+ 29  | 3  0  1  9
+ 30  | 0  4  0  9
+ 31  | 1  3  0  9
+ 32  | 2  2  0  9
+ 33  | 3  1  0  9
+ 34  | 4  0  0  9
+ 35  | 0  0  5  8
+ 36  | 0  1  4  8
+ 37  | 1  0  4  8
+ 38  | 0  2  3  8
+ 39  | 1  1  3  8
+ 40  | 2  0  3  8
+ 41  | 0  3  2  8
+ 42  | 1  2  2  8
+ 43  | 2  1  2  8
+ 44  | 3  0  2  8
+ 45  | 0  4  1  8
+ 46  | 1  3  1  8
+ 47  | 2  2  1  8
+ 48  | 3  1  1  8
+ 49  | 4  0  1  8
+ 50  | 0  5  0  8
+ 51  | 1  4  0  8
+ 52  | 2  3  0  8
+ 53  | 3  2  0  8
+ 54  | 4  1  0  8
+ 55  | 5  0  0  8
+ 56  | 0  0  6  7
+ 57  | 0  1  5  7
+ 58  | 1  0  5  7
+ 59  | 0  2  4  7
+ 60  | 1  1  4  7
+ 61  | 2  0  4  7
+ 62  | 0  3  3  7
+ 63  | 1  2  3  7
+ 64  | 2  1  3  7
+ 65  | 3  0  3  7
+ 66  | 0  4  2  7
+ 67  | 1  3  2  7
+ 68  | 2  2  2  7
+ 69  | 3  1  2  7
+ 70  | 4  0  2  7
+ 71  | 0  5  1  7
+ 72  | 1  4  1  7
+ 73  | 2  3  1  7
+ 74  | 3  2  1  7
+ 75  | 4  1  1  7
+ 76  | 5  0  1  7
+ 77  | 0  6  0  7
+ 78  | 1  5  0  7
+ 79  | 2  4  0  7
+ 80  | 3  3  0  7
+ 81  | 4  2  0  7
+ 82  | 5  1  0  7
+ 83  | 6  0  0  7
+ 84  | 0  0  7  6
+ 85  | 0  1  6  6
+ 86  | 1  0  6  6
+ 87  | 0  2  5  6
+ 88  | 1  1  5  6
+ 89  | 2  0  5  6
+ 90  | 0  3  4  6
+ 91  | 1  2  4  6
+ 92  | 2  1  4  6
+ 93  | 3  0  4  6
+ 94  | 0  4  3  6
+ 95  | 1  3  3  6
+ 96  | 2  2  3  6
+ 97  | 3  1  3  6
+ 98  | 4  0  3  6
+ 99  | 0  5  2  6
+100  | 1  4  2  6
+101  | 2  3  2  6
+102  | 3  2  2  6
+103  | 4  1  2  6
+104  | 5  0  2  6
+105  | 0  6  1  6
+106  | 1  5  1  6
+107  | 2  4  1  6
+108  | 3  3  1  6
+109  | 4  2  1  6
+110  | 5  1  1  6
+111  | 6  0  1  6
+112  | 0  7  0  6
+113  | 1  6  0  6
+114  | 2  5  0  6
+115  | 3  4  0  6
+116  | 4  3  0  6
+117  | 5  2  0  6
+118  | 6  1  0  6
+119  | 7  0  0  6
+120  | 0  0  8  5
+121  | 0  1  7  5
+122  | 1  0  7  5
+123  | 0  2  6  5
+124  | 1  1  6  5
+125  | 2  0  6  5
+126  | 0  3  5  5
+127  | 1  2  5  5
+128  | 2  1  5  5
+129  | 3  0  5  5
+130  | 0  4  4  5
+131  | 1  3  4  5
+132  | 2  2  4  5
+133  | 3  1  4  5
+134  | 4  0  4  5
+135  | 0  5  3  5
+136  | 1  4  3  5
+137  | 2  3  3  5
+138  | 3  2  3  5
+139  | 4  1  3  5
+140  | 5  0  3  5
+141  | 0  6  2  5
+142  | 1  5  2  5
+143  | 2  4  2  5
+144  | 3  3  2  5
+145  | 4  2  2  5
+146  | 5  1  2  5
+147  | 6  0  2  5
+148  | 0  7  1  5
+149  | 1  6  1  5
+150  | 2  5  1  5
+151  | 3  4  1  5
+152  | 4  3  1  5
+153  | 5  2  1  5
+154  | 6  1  1  5
+155  | 7  0  1  5
+156  | 0  8  0  5
+157  | 1  7  0  5
+158  | 2  6  0  5
+159  | 3  5  0  5
+160  | 4  4  0  5
+161  | 5  3  0  5
+162  | 6  2  0  5
+163  | 7  1  0  5
+164  | 8  0  0  5
+165  | 0  0  9  4
+166  | 0  1  8  4
+167  | 1  0  8  4
+168  | 0  2  7  4
+169  | 1  1  7  4
+170  | 2  0  7  4
+171  | 0  3  6  4
+172  | 1  2  6  4
+173  | 2  1  6  4
+174  | 3  0  6  4
+175  | 0  4  5  4
+176  | 1  3  5  4
+177  | 2  2  5  4
+178  | 3  1  5  4
+179  | 4  0  5  4
+180  | 0  5  4  4
+181  | 1  4  4  4
+182  | 2  3  4  4
+183  | 3  2  4  4
+184  | 4  1  4  4
+185  | 5  0  4  4
+186  | 0  6  3  4
+187  | 1  5  3  4
+188  | 2  4  3  4
+189  | 3  3  3  4
+190  | 4  2  3  4
+191  | 5  1  3  4
+192  | 6  0  3  4
+193  | 0  7  2  4
+194  | 1  6  2  4
+195  | 2  5  2  4
+196  | 3  4  2  4
+197  | 4  3  2  4
+198  | 5  2  2  4
+199  | 6  1  2  4
+200  | 7  0  2  4
+201  | 0  8  1  4
+202  | 1  7  1  4
+203  | 2  6  1  4
+204  | 3  5  1  4
+205  | 4  4  1  4
+206  | 5  3  1  4
+207  | 6  2  1  4
+208  | 7  1  1  4
+209  | 8  0  1  4
+210  | 0  9  0  4
+211  | 1  8  0  4
+212  | 2  7  0  4
+213  | 3  6  0  4
+214  | 4  5  0  4
+215  | 5  4  0  4
+216  | 6  3  0  4
+217  | 7  2  0  4
+218  | 8  1  0  4
+219  | 9  0  0  4
+220  | 0  0 10  3
+221  | 0  1  9  3
+222  | 1  0  9  3
+223  | 0  2  8  3
+224  | 1  1  8  3
+225  | 2  0  8  3
+226  | 0  3  7  3
+227  | 1  2  7  3
+228  | 2  1  7  3
+229  | 3  0  7  3
+230  | 0  4  6  3
+231  | 1  3  6  3
+232  | 2  2  6  3
+233  | 3  1  6  3
+234  | 4  0  6  3
+235  | 0  5  5  3
+236  | 1  4  5  3
+237  | 2  3  5  3
+238  | 3  2  5  3
+239  | 4  1  5  3
+240  | 5  0  5  3
+241  | 0  6  4  3
+242  | 1  5  4  3
+243  | 2  4  4  3
+244  | 3  3  4  3
+245  | 4  2  4  3
+246  | 5  1  4  3
+247  | 6  0  4  3
+248  | 0  7  3  3
+249  | 1  6  3  3
+250  | 2  5  3  3
+251  | 3  4  3  3
+252  | 4  3  3  3
+253  | 5  2  3  3
+254  | 6  1  3  3
+255  | 7  0  3  3
+256  | 0  8  2  3
+257  | 1  7  2  3
+258  | 2  6  2  3
+259  | 3  5  2  3
+260  | 4  4  2  3
+261  | 5  3  2  3
+262  | 6  2  2  3
+263  | 7  1  2  3
+264  | 8  0  2  3
+265  | 0  9  1  3
+266  | 1  8  1  3
+267  | 2  7  1  3
+268  | 3  6  1  3
+269  | 4  5  1  3
+270  | 5  4  1  3
+271  | 6  3  1  3
+272  | 7  2  1  3
+273  | 8  1  1  3
+274  | 9  0  1  3
+275  | 0 10  0  3
+276  | 1  9  0  3
+277  | 2  8  0  3
+278  | 3  7  0  3
+279  | 4  6  0  3
+280  | 5  5  0  3
+281  | 6  4  0  3
+282  | 7  3  0  3
+283  | 8  2  0  3
+284  | 9  1  0  3
+285  |10  0  0  3
+286  | 0  0 11  2
+287  | 0  1 10  2
+288  | 1  0 10  2
+289  | 0  2  9  2
+290  | 1  1  9  2
+291  | 2  0  9  2
+292  | 0  3  8  2
+293  | 1  2  8  2
+294  | 2  1  8  2
+295  | 3  0  8  2
+296  | 0  4  7  2
+297  | 1  3  7  2
+298  | 2  2  7  2
+299  | 3  1  7  2
+300  | 4  0  7  2
+301  | 0  5  6  2
+302  | 1  4  6  2
+303  | 2  3  6  2
+304  | 3  2  6  2
+305  | 4  1  6  2
+306  | 5  0  6  2
+307  | 0  6  5  2
+308  | 1  5  5  2
+309  | 2  4  5  2
+310  | 3  3  5  2
+311  | 4  2  5  2
+312  | 5  1  5  2
+313  | 6  0  5  2
+314  | 0  7  4  2
+315  | 1  6  4  2
+316  | 2  5  4  2
+317  | 3  4  4  2
+318  | 4  3  4  2
+319  | 5  2  4  2
+320  | 6  1  4  2
+321  | 7  0  4  2
+322  | 0  8  3  2
+323  | 1  7  3  2
+324  | 2  6  3  2
+325  | 3  5  3  2
+326  | 4  4  3  2
+327  | 5  3  3  2
+328  | 6  2  3  2
+329  | 7  1  3  2
+330  | 8  0  3  2
+331  | 0  9  2  2
+332  | 1  8  2  2
+333  | 2  7  2  2
+334  | 3  6  2  2
+335  | 4  5  2  2
+336  | 5  4  2  2
+337  | 6  3  2  2
+338  | 7  2  2  2
+339  | 8  1  2  2
+340  | 9  0  2  2
+341  | 0 10  1  2
+342  | 1  9  1  2
+343  | 2  8  1  2
+344  | 3  7  1  2
+345  | 4  6  1  2
+346  | 5  5  1  2
+347  | 6  4  1  2
+348  | 7  3  1  2
+349  | 8  2  1  2
+350  | 9  1  1  2
+351  |10  0  1  2
+352  | 0 11  0  2
+353  | 1 10  0  2
+354  | 2  9  0  2
+355  | 3  8  0  2
+356  | 4  7  0  2
+357  | 5  6  0  2
+358  | 6  5  0  2
+359  | 7  4  0  2
+360  | 8  3  0  2
+361  | 9  2  0  2
+362  |10  1  0  2
+363  |11  0  0  2
+364  | 0  0 12  1
+365  | 0  1 11  1
+366  | 1  0 11  1
+367  | 0  2 10  1
+368  | 1  1 10  1
+369  | 2  0 10  1
+370  | 0  3  9  1
+371  | 1  2  9  1
+372  | 2  1  9  1
+373  | 3  0  9  1
+374  | 0  4  8  1
+375  | 1  3  8  1
+376  | 2  2  8  1
+377  | 3  1  8  1
+378  | 4  0  8  1
+379  | 0  5  7  1
+380  | 1  4  7  1
+381  | 2  3  7  1
+382  | 3  2  7  1
+383  | 4  1  7  1
+384  | 5  0  7  1
+385  | 0  6  6  1
+386  | 1  5  6  1
+387  | 2  4  6  1
+388  | 3  3  6  1
+389  | 4  2  6  1
+390  | 5  1  6  1
+391  | 6  0  6  1
+392  | 0  7  5  1
+393  | 1  6  5  1
+394  | 2  5  5  1
+395  | 3  4  5  1
+396  | 4  3  5  1
+397  | 5  2  5  1
+398  | 6  1  5  1
+399  | 7  0  5  1
+400  | 0  8  4  1
+401  | 1  7  4  1
+402  | 2  6  4  1
+403  | 3  5  4  1
+404  | 4  4  4  1
+405  | 5  3  4  1
+406  | 6  2  4  1
+407  | 7  1  4  1
+408  | 8  0  4  1
+409  | 0  9  3  1
+410  | 1  8  3  1
+411  | 2  7  3  1
+412  | 3  6  3  1
+413  | 4  5  3  1
+414  | 5  4  3  1
+415  | 6  3  3  1
+416  | 7  2  3  1
+417  | 8  1  3  1
+418  | 9  0  3  1
+419  | 0 10  2  1
+420  | 1  9  2  1
+421  | 2  8  2  1
+422  | 3  7  2  1
+423  | 4  6  2  1
+424  | 5  5  2  1
+425  | 6  4  2  1
+426  | 7  3  2  1
+427  | 8  2  2  1
+428  | 9  1  2  1
+429  |10  0  2  1
+430  | 0 11  1  1
+431  | 1 10  1  1
+432  | 2  9  1  1
+433  | 3  8  1  1
+434  | 4  7  1  1
+435  | 5  6  1  1
+436  | 6  5  1  1
+437  | 7  4  1  1
+438  | 8  3  1  1
+439  | 9  2  1  1
+440  |10  1  1  1
+441  |11  0  1  1
+442  | 0 12  0  1
+443  | 1 11  0  1
+444  | 2 10  0  1
+445  | 3  9  0  1
+446  | 4  8  0  1
+447  | 5  7  0  1
+448  | 6  6  0  1
+449  | 7  5  0  1
+450  | 8  4  0  1
+451  | 9  3  0  1
+452  |10  2  0  1
+453  |11  1  0  1
+454  |12  0  0  1
+455  | 0  0 13  0
+456  | 0  1 12  0
+457  | 1  0 12  0
+458  | 0  2 11  0
+459  | 1  1 11  0
+460  | 2  0 11  0
+461  | 0  3 10  0
+462  | 1  2 10  0
+463  | 2  1 10  0
+464  | 3  0 10  0
+465  | 0  4  9  0
+466  | 1  3  9  0
+467  | 2  2  9  0
+468  | 3  1  9  0
+469  | 4  0  9  0
+470  | 0  5  8  0
+471  | 1  4  8  0
+472  | 2  3  8  0
+473  | 3  2  8  0
+474  | 4  1  8  0
+475  | 5  0  8  0
+476  | 0  6  7  0
+477  | 1  5  7  0
+478  | 2  4  7  0
+479  | 3  3  7  0
+480  | 4  2  7  0
+481  | 5  1  7  0
+482  | 6  0  7  0
+483  | 0  7  6  0
+484  | 1  6  6  0
+485  | 2  5  6  0
+486  | 3  4  6  0
+487  | 4  3  6  0
+488  | 5  2  6  0
+489  | 6  1  6  0
+490  | 7  0  6  0
+491  | 0  8  5  0
+492  | 1  7  5  0
+493  | 2  6  5  0
+494  | 3  5  5  0
+495  | 4  4  5  0
+496  | 5  3  5  0
+497  | 6  2  5  0
+498  | 7  1  5  0
+499  | 8  0  5  0
+500  | 0  9  4  0
+501  | 1  8  4  0
+502  | 2  7  4  0
+503  | 3  6  4  0
+504  | 4  5  4  0
+505  | 5  4  4  0
+506  | 6  3  4  0
+507  | 7  2  4  0
+508  | 8  1  4  0
+509  | 9  0  4  0
+510  | 0 10  3  0
+511  | 1  9  3  0
+512  | 2  8  3  0
+513  | 3  7  3  0
+514  | 4  6  3  0
+515  | 5  5  3  0
+516  | 6  4  3  0
+517  | 7  3  3  0
+518  | 8  2  3  0
+519  | 9  1  3  0
+520  |10  0  3  0
+521  | 0 11  2  0
+522  | 1 10  2  0
+523  | 2  9  2  0
+524  | 3  8  2  0
+525  | 4  7  2  0
+526  | 5  6  2  0
+527  | 6  5  2  0
+528  | 7  4  2  0
+529  | 8  3  2  0
+530  | 9  2  2  0
+531  |10  1  2  0
+532  |11  0  2  0
+533  | 0 12  1  0
+534  | 1 11  1  0
+535  | 2 10  1  0
+536  | 3  9  1  0
+537  | 4  8  1  0
+538  | 5  7  1  0
+539  | 6  6  1  0
+540  | 7  5  1  0
+541  | 8  4  1  0
+542  | 9  3  1  0
+543  |10  2  1  0
+544  |11  1  1  0
+545  |12  0  1  0
+546  | 0 13  0  0
+547  | 1 12  0  0
+548  | 2 11  0  0
+549  | 3 10  0  0
+550  | 4  9  0  0
+551  | 5  8  0  0
+552  | 6  7  0  0
+553  | 7  6  0  0
+554  | 8  5  0  0
+555  | 9  4  0  0
+556  |10  3  0  0
+557  |11  2  0  0
+558  |12  1  0  0
+559  |13  0  0  0
+</xmp>
+<?php include("sig.htmlf"); ?>
+</div>
+</html>
+
