@@ -17,9 +17,9 @@
  */
 
 /*
-  struct topCardsType {
+struct topCardsType {
   holding_t topCards[14];
-  };
+};
 */
 
 /* In dds code, counttable is local, but since I've already got a counttable in
@@ -31,35 +31,35 @@ extern int highestRankLookup[8192];
 extern holding_t topCardsLookup[14][8192];
 
 inline unsigned short int CountOnes(holding_t holding) {
-    return counttable[holding];
+  return counttable[holding];
 }
 
 inline int getHighestRank(holding_t holding) {
-    return highestRankLookup[holding];
+  return highestRankLookup[holding];
 }
 
 inline holding_t getTopCards(holding_t holding, int count) {
-    return topCardsLookup[count][holding];
+  return topCardsLookup[count][holding];
 }
 
 inline void initializeDDSLookup() {
-    int n,rank;
-    holding_t holding;
-    highestRankLookup[0] = 0;
-    for (n=0; n<14; n++) { topCardsLookup[n][0] = 0; }
+  int n,rank;
+  holding_t holding;
+  highestRankLookup[0] = 0;
+  for (n=0; n<14; n++) { topCardsLookup[n][0] = 0; }
 
-    for (rank=2; rank<=14; rank++) {
-        holding_t highestBitRank = BitRank(rank);
-        for (holding=highestBitRank; holding<2*highestBitRank; holding++) {
-            highestRankLookup[holding] = rank;
-            holding_t rest = holding & (~highestBitRank);
-            topCardsLookup[0][holding] = 0;
-            for (n=1; n<14; n++) {
-                topCardsLookup[n][holding] = 
-                    highestBitRank | topCardsLookup[n-1][rest];
-            }
-        }
+  for (rank=2; rank<=14; rank++) {
+    holding_t highestBitRank = BitRank(rank);
+    for (holding=highestBitRank; holding<2*highestBitRank; holding++) {
+      highestRankLookup[holding] = rank;
+      holding_t rest = holding & (~highestBitRank);
+      topCardsLookup[0][holding] = 0;
+      for (n=1; n<14; n++) {
+        topCardsLookup[n][holding] = 
+	  highestBitRank | topCardsLookup[n-1][rest];
+      }
     }
+  }
 }
 
 #endif

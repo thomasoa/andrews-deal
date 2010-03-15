@@ -37,13 +37,11 @@ COMPILE.c= $(CC) $(CFLAGS) -c
 CFLAGS= $(DEBUG_FLAGS) -I$(TCL_INCL) $(EXTRA_CFLAGS)
 
 
-OBJS=random.o additive.o hand.o deal.o formats.o tcl_deal.o maindeal.o \
-	stat.o counttable.o vector.o dist.o stringbox.o dealtypes.o \
-	keywords.o holdings.o tcl_dds.o dds.o ddsLookup.o \
-	$(EXTRA_OBJS) 
+OBJS=random.o additive.o hand.o deal.o formats.o tcl_deal.o maindeal.o stat.o counttable.o \
+	vector.o dist.o stringbox.o dealtypes.o keywords.o holdings.o tcl_dds.o dds.o ddsLookup.o $(EXTRA_OBJS) 
 SRCS=additive.c hand.c deal.c formats.c tcl_deal.c dist.c vector.c stat.c counttable.c stringbox.c dealtypes.c holdings.c keywords.c maindeal.c random.c dds.cpp ddsLookup.cpp getopt.c
-SRCKIT=additive.c hand.c deal.c formats.c tcl_deal.c dist.c vector.c stat.c makecounttable.c stringbox.c dealtypes.c holdings.c keywords.c maindeal.c random.c tcl_dds.c dds.cpp ddsLookup.cpp getopt.c
-HFILES=deck.h deal.h tcl_incl.h vector.h stat.h tcl_dist.h dist.h formats.h additive.h stringbox.h dealtypes.h holdings.h keywords.h ansidecl.h dds.h ddsInline.h ddsInterface.h Holding.h getopt.h ddsLookup.h
+SRCKIT=additive.c hand.c deal.c formats.c tcl_deal.c dist.c vector.c stat.c makecounttable.c stringbox.c dealtypes.c holdings.c keywords.c maindeal.c random.c tcl_dds.c dds.cpp ddsLookup.cpp
+HFILES=deck.h deal.h tcl_incl.h vector.h stat.h tcl_dist.h dist.h formats.h additive.h stringbox.h dealtypes.h holdings.h keywords.h ansidecl.h dds.h ddsInline.h ddsInterface.h Holding.h getopt.h
 EXAMPLES= ex/*.tcl
 TESTS=tests
 HTML=html
@@ -61,7 +59,6 @@ deal: $(OBJS)
 universal:
 	$(MAKE) clean
 	$(MAKE) MAC_ARCH="$(MAC_ARCH_UNIVERSAL)"
-
 deal.cgi:
 	make clean
 	make CFLAGS="$(CFLAGS) -DCGI"
@@ -83,9 +80,12 @@ $(SRCS): deal.h
 counttable.c: makecounttable
 	./makecounttable > counttable.c
 
+makecounttable: makecounttable.c
+	$(CC) $(CFLAGS) makecounttable.c -o makecounttable $(LDFLAGS)
+
 KITNAME=deal
-DEAL_VERSION=31-10
-OLD_VERSION=319
+DEAL_VERSION=317
+OLD_VERSION=316
 RELEASE=$(KITNAME)$(DEAL_VERSION)
 SRCDIR=$(RELEASE)
 BINDIR=$(RELEASE)-bin
@@ -213,10 +213,7 @@ smalltest: ./deal
 	if cmp test.out correct.out ; then echo PASS; else echo FAIL  ; fi
 
 great88: ./deal
-	$(BINARY) -x bin/unit.tcl tests/1-great88.tcl | fgrep FAIL || echo "PASSED"
-
-alltests: ./deal
-	$(BINARY) -x bin/unit.tcl
+	$(BINARY) -x tests/great88 | fgrep FAIL || echo "PASSED"
 
 html: documentation
 ftp: $(SRCZIP)
@@ -226,6 +223,6 @@ depends:
 	$(CC) $(CFLAGS) -M *.c *.cpp >Make.dep
 
 clean:
-	rm -rf deal $(OBJS) $(SRCDIR) $(SRCZIP) $(SRCGZIP) $(DOCZIP) $(DMG) $(EXEZIP) $(BINDIR) counttable.c makecounttable makecounttable.o html site
+	rm -rf deal $(OBJS) $(SRCDIR) $(SRCZIP) $(SRCGZIP) $(DOCZIP) $(DMG) $(EXEZIP) $(BINDIR) html site
 
 include Make.dep

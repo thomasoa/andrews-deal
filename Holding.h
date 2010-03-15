@@ -14,10 +14,6 @@ struct Holding {
     return _h;
   }
 
-  inline const Holding &operator=(holding_t h)  {
-     _h = h;
-     return *this;
-  }
 };
 
 

@@ -19,7 +19,7 @@
 #
 # This writes hands to seperate files
 
-stringbox handbox 5 80
+stringbox handbox 5 78
 for {set i 0; set j 0} {$i<4} {incr i ; incr j 20} {
 	handbox subbox handbox.$i 0 $j 5 20
 }

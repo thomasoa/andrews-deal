@@ -84,14 +84,12 @@ namespace eval deal {
     }
 }
 
-if {[string equal [info commands dds_reset] "dds_reset"]} {
-  dds_reset_command
-}
-
 # These two routines used to be defined in C, but it's better for them
 # to fit the pattern of shape functions.
 
-
+if {[string equal [info commands dds_reset] "dds_reset"]} {
+  dds_reset_command
+}
 shapecond balanced {($h<5)&&($s<5)&&($s*$s+$h*$h+$d*$d+$c*$c)<=47}
 shapecond semibalanced {$h<=5&&$s<=5&&$d<=6&&$c<=6&&$c>=2&&$d>=2&&$h>=2&&$s>=2}
 shapecond AnyShape {1}
@@ -186,26 +184,4 @@ holdingProc newLTC {A K Q J T length} {
 
 holdingProc zero {length} {
   return 0
-}
-
-proc patternclass {name code} {
-   namespace eval ::pattern "proc $name {l1 l2 l3 l4} {$code}"
-   
-   set shapecode {
-     set sorted [lsort -integer -decreasing [list $s $h $d $c]]
-   }
-   shapeclass $name "$shapecode\n eval ::pattern::$name \$sorted"
-}
-
-proc patternfunc {name code} {
-   namespace eval ::pattern "proc $name {l1 l2 l3 l4} {$code}"
-   
-   set shapecode {
-     set sorted [lsort -integer -decreasing [list $s $h $d $c]]
-   }
-   shapefunc $name "$shapecode\n eval ::pattern::$name \$sorted"
-}
-
-proc patterncond {name expr} {
-    patternclass $name "if {$expr} { return 1} else {return 0}"
 }

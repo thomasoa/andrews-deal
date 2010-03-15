@@ -23,26 +23,26 @@
 #include "tcl_incl.h"
 
 Tcl_Obj *tcl_format_suit(holding,voidObj)
-int holding;
-Tcl_Obj *voidObj;
+     int holding;
+     Tcl_Obj *voidObj;
 {
-    if ((holding&8191)==0 && voidObj!=NULL) {
-        return voidObj;
-    } else {
-        return Tcl_NewHoldingObj(holding);
-    }
+  if ((holding&8191)==0 && voidObj!=NULL) {
+    return voidObj;
+  } else {
+    return Tcl_NewHoldingObj(holding);
+  }
 }
 
 Tcl_Obj *tcl_format_hand(hptrs,voidObj)
-int *hptrs;
-Tcl_Obj *voidObj;
+     int *hptrs;
+     Tcl_Obj *voidObj;
 {
-    int suit;
-    Tcl_Obj *holdingElts[4];
+  int suit;
+  Tcl_Obj *holdingElts[4];
 
-    for (suit=0; suit<4; suit++) {
-        holdingElts[suit]=tcl_format_suit(hptrs[suit],voidObj);
-    }
+  for (suit=0; suit<4; suit++) {
+    holdingElts[suit]=tcl_format_suit(hptrs[suit],voidObj);
+  }
 
-    return Tcl_NewListObj(4,holdingElts);
+  return Tcl_NewListObj(4,holdingElts);
 }

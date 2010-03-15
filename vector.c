@@ -67,9 +67,9 @@
 #include "additive.h"
 
 LazyVectorData newLazyVector() {
-    LazyVectorData vec=(LazyVectorData)Tcl_Alloc(sizeof(struct lazy_vector_data));
-    vec->num=0;
-    return vec;
+  LazyVectorData vec=(LazyVectorData)Tcl_Alloc(sizeof(struct lazy_vector_data));
+  vec->num=0;
+  return vec;
 }
 
 
@@ -78,67 +78,67 @@ int tcl_vector_define PROTO((TCL_PARAMS));
 
 int tcl_vector_define ( TCL_PARAMS ) TCL_DECL
 {
-    int i;
-    CONST84 char *name=argv[1];
-    LazyVectorData vec;
-    if (argc<=1) {
-        Tcl_AppendResult(interp,"usage: ",argv[0],
-                         " <name> <AceValue> <KingValue> ...",NULL);
-        return TCL_ERROR;
-    }
-    if (argc>15) {
-        Tcl_AppendResult(interp,"too many args: ",argv[0],NULL);
-        return TCL_ERROR;
-    }
-    argc--; argv++;
-    vec=newLazyVector();
-    for (i=1; i<argc;i++) {
-        vec->value[i-1]=atoi(argv[i]);
-    }
-    vec->num=argc-1;
-    Tcl_CreateObjCommand(interp,name,tcl_vector_lazy,(ClientData)vec,Tcl_AllocDelete);
-    return TCL_OK;
+  int i;
+  CONST84 char *name=argv[1];
+  LazyVectorData vec;
+  if (argc<=1) {
+    Tcl_AppendResult(interp,"usage: ",argv[0],
+		     " <name> <AceValue> <KingValue> ...",NULL);
+    return TCL_ERROR;
+  }
+  if (argc>15) {
+    Tcl_AppendResult(interp,"too many args: ",argv[0],NULL);
+    return TCL_ERROR;
+  }
+  argc--; argv++;
+  vec=newLazyVector();
+  for (i=1; i<argc;i++) {
+    vec->value[i-1]=atoi(argv[i]);
+  }
+  vec->num=argc-1;
+  Tcl_CreateObjCommand(interp,name,tcl_vector_lazy,(ClientData)vec,Tcl_AllocDelete);
+  return TCL_OK;
 }
 
 static int vector_eval(int holding,void *data)
 {
-    VectorTable vec=data;
-    return VectorTableLookup(vec,holding);
+  VectorTable vec=data;
+  return VectorTableLookup(vec,holding);
 }
 
 int tcl_vector_lazy( TCLOBJ_PARAMS ) TCLOBJ_DECL
 {
-    LazyVectorData lazyvec=(LazyVectorData)cd;
-    int num=lazyvec->num;
-    int *val=lazyvec->value;
-    VectorTable table;
-    void *func;
-    int i,j;
-    int *tb;
+  LazyVectorData lazyvec=(LazyVectorData)cd;
+  int num=lazyvec->num;
+  int *val=lazyvec->value;
+  VectorTable table;
+  void *func;
+  int i,j;
+  int *tb;
 
-    table=(int *)Tcl_Alloc(sizeof(int)*(1+(1 << num)));
-    table[0]=13-num;
-    tb=table+1;
+  table=(int *)Tcl_Alloc(sizeof(int)*(1+(1 << num)));
+  table[0]=13-num;
+  tb=table+1;
   
-    for (i=0; i< (1<<num); i++) {
-        tb[i]=0;
-    }
+  for (i=0; i< (1<<num); i++) {
+    tb[i]=0;
+  }
 
-    for (i=0; i< (1<<num); i++) {
-        for (j=0; j<num; j++) {
-            if (i & (1<<(num-1-j))) {
-                tb[i] += val[j];
-            }
-        }
+  for (i=0; i< (1<<num); i++) {
+    for (j=0; j<num; j++) {
+      if (i & (1<<(num-1-j))) {
+        tb[i] += val[j];
+      }
     }
+  }
 
-    func=tcl_create_additive(interp,Tcl_GetString(objv[0]),vector_eval,(ClientData)table,Tcl_AllocDelete);
-    return tcl_count_additive((ClientData)func,interp,objc,objv);
+  func=tcl_create_additive(interp,Tcl_GetString(objv[0]),vector_eval,(ClientData)table,Tcl_AllocDelete);
+  return tcl_count_additive((ClientData)func,interp,objc,objv);
 }
 
 int Vector_Init(interp)
      Tcl_Interp *interp;
 {
-    Tcl_CreateCommand(interp,"defvector",tcl_vector_define,NULL,NULL);
-    return TCL_OK;
+  Tcl_CreateCommand(interp,"defvector",tcl_vector_define,NULL,NULL);
+  return TCL_OK;
 }

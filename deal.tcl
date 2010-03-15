@@ -34,7 +34,7 @@ source lib/features.tcl
 
 # If set to non-zero, and your terminal supports UTF-8, deal's default output format will write 
 #the deal with unicode suit symbols.
-set deal::unicode 0
+set deal::unicode 1
 
 # Edit this line to make your default format any format
 source format/default

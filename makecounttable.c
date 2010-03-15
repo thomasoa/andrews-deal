@@ -44,28 +44,28 @@
 int counttable[8192]; /* Fast lookup for suit lengths */
 void make_counttable()
 {
-    int i,j;
-    for (i=0; i<8192; i++) {
-        counttable[i]=0;
-        for (j=0; j<13; j++) {
-            if (i & (1<<j)) {counttable[i]++;}
-        }
-    }   
+  int i,j;
+  for (i=0; i<8192; i++) {
+    counttable[i]=0;
+    for (j=0; j<13; j++) {
+      if (i & (1<<j)) {counttable[i]++;}
+    }
+  }   
 }
 
 int main() {
-    int i;
-    make_counttable();
-    printf("unsigned short int counttable[]={");
-    for (i=0; i<8192; i++) {
-        if (0==i%16) {
-            printf("\n");
-        }
-        printf("%3d",counttable[i]);
-        if (i!=8191) {
-            printf(",");
-        }
+  int i;
+  make_counttable();
+  printf("unsigned short int counttable[]={");
+  for (i=0; i<8192; i++) {
+    if (0==i%16) {
+      printf("\n");
     }
-    printf("\n};\n");
-    return 0;
+    printf("%3d",counttable[i]);
+    if (i!=8191) {
+      printf(",");
+    }
+  }
+  printf("\n};\n");
+  return 0;
 }

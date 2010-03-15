@@ -97,7 +97,6 @@ extern int count_deals;
 extern int verbose;
 
 int card_num PROTO((char *));
-int card_rank  PROTO((char *));
 void rotate_deal PROTO((int));
 void get_stacked_cards PROTO((int,int*));
 
@@ -128,10 +127,8 @@ extern struct deck complete_deal;
 #define IDEAL_VERSION "0.9.0"
 
 #endif
-
-void __srandom PROTO((unsigned));
-long __random();
+void __srandom PROTO((int));
+int __random();
 
 #define srandom __srandom
 #define random __random
-#define RANDOM_MAX LONG_MAX

@@ -29,14 +29,6 @@ namespace eval score {
     set words(1) 1
     set words(2) 2
     set words() 0
-    variable IMPTable {
-        10 40 80 120 160
-        210 260 310 360 420
-	490 590 740 890 1090
-        1290 1490 1740 1990 2240
-        2490 2990 3490 3990
-    }
-        
 
     #
     # - contract should be something like:
@@ -362,29 +354,9 @@ namespace eval score {
 	lappend contract $vul
 	return [lindex $scoredata($contract) $tricks]
     }
-
-    proc IMPs {difference} {
-       variable IMPTable
-
-       set absValue [expr {abs($difference)}]
-       if {$difference>0} { set sign 1 } { set sign -1 }
-       set impsValue 0
-
-       foreach tableValue $IMPTable {
-          if {$tableValue>=$absValue} { break } 
-          incr impsValue
-       }
-
-       return [expr {$sign*$impsValue}]
-    }
-
 }
 
 
 proc score {contract vul tricks} {
     score::fastscore $contract $vul $tricks
-}
-
-proc IMPs {theirScore ourScore} {
-    score::IMPs [expr {$ourScore-$theirScore}]
 }

@@ -17,7 +17,5 @@
  */
 
 #include "deck.h"
-
-#define SINGLETON(rank) (1<<(12-rank))
 extern int IDealHolding_Init _ANSI_ARGS_((Tcl_Interp *));
 
