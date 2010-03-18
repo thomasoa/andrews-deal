@@ -45,4 +45,5 @@ testDominatedHands {Txx xxx Txx xxxx} [list {Txx xxx xxx xxxx} {xxx xxx Txx xxxx
 testDominatedHands {xxx QJx Axx xxxx} [list {xxx QTx Axx xxxx} {xxx QJx Kxx xxxx}]
 testDominatedHands {xxx KJx Axx xxxx} [list {xxx QJx Axx xxxx} {xxx KTx Axx xxxx} {xxx KJx Kxx xxxx}]
 
+rename testDominatedHands {}
 rename testDominated {}
