@@ -63,6 +63,25 @@ void sdevAddData(sd,weight,data)
     sd->sumsquared += (weight*data*data);
 }
 
+void sdevMerge(sd,count,weight,sum,sumsquared,min,max)
+    SDev *sd;
+    int count;
+    double weight, sum, sumsquared, min, max;
+{
+    if (sd->count==0 || max>sd->max) {
+          sd->max = max;
+    }
+
+    if (sd->count==0 || min<sd->min) {
+          sd->min = min;
+    }
+
+    sd->count      += count;
+    sd->weight     += weight;
+    sd->sum        += sum;
+    sd->sumsquared += sumsquared;
+}
+
 void sdevFree(ClientData sdev) {
     Tcl_Free((char *)sdev);
 }
@@ -72,6 +91,8 @@ void sdevReset(SDev *sdev) {
     sdev->sumsquared=0.0;
     sdev->weight=0.0;
     sdev->count=0;
+    sdev->max = 0.0;
+    sdev->min = 0.0;
 }
 
 SDev *sdevNew() {
@@ -146,6 +167,8 @@ int tcl_sdev_command ( TCLOBJ_PARAMS ) TCLOBJ_DECL
         addCommandID=-1,
         addwCommandID=-1,
         averageCommandID=-1,
+        serializeCommandID=-1,
+        mergeCommandID=-1,
         deviationCommandID=-1,
         countCommandID=-1,
         weightCommandID=-1,
@@ -162,6 +185,8 @@ int tcl_sdev_command ( TCLOBJ_PARAMS ) TCLOBJ_DECL
         addwCommandID=Keyword_addKey("addw");
         weightCommandID=Keyword_addKey("weight");
         averageCommandID=Keyword_addKey("average");
+        serializeCommandID=Keyword_addKey("serialize");
+        mergeCommandID=Keyword_addKey("merge");
         deviationCommandID=Keyword_addKey("sdev");
         countCommandID=Keyword_addKey("count");
         rmsCommandID=Keyword_addKey("rms");
@@ -224,6 +249,81 @@ int tcl_sdev_command ( TCLOBJ_PARAMS ) TCLOBJ_DECL
         return TCL_OK;
     }
 
+    if (cmd==mergeCommandID && objc>=2) {
+        int i;
+        for (i=2; i<objc; i++) {
+            int count,listCount;
+            double weight,sum,sumsquared,min,max;
+            Tcl_Obj **list;
+            if (TCL_ERROR == Tcl_ListObjGetElements(interp,objv[i],&listCount,&list)) {
+               Tcl_AppendResult(interp,"Not a list");
+                return TCL_ERROR; 
+            }
+
+            if (listCount!=6) {
+               Tcl_AppendResult(interp,"Invalid serialized stat: wrong number of entries");
+               return TCL_ERROR;
+            }
+
+            if (TCL_ERROR==Tcl_GetIntFromObj(interp,list[0],&count)) {
+               Tcl_AppendResult(interp,"Invalid serialized stat: first element not an integer");
+                return TCL_ERROR; 
+            }
+
+            if (count<0) {
+               return TCL_ERROR;
+            }
+
+            if (count==0) {
+               return TCL_OK;
+            }
+
+            if (TCL_ERROR==Tcl_GetDoubleFromObj(interp,list[1],&weight)) {
+               Tcl_AppendResult(interp,"Invalid serialized stat: second element not a double");
+                return TCL_ERROR; 
+            }
+
+            if (TCL_ERROR==Tcl_GetDoubleFromObj(interp,list[2],&sum)) {
+               Tcl_AppendResult(interp,"Invalid serialized stat: third element not a double");
+                return TCL_ERROR; 
+            }
+
+            if (TCL_ERROR==Tcl_GetDoubleFromObj(interp,list[3],&sumsquared)) {
+               Tcl_AppendResult(interp,"Invalid serialized stat: fourth element not a double");
+                return TCL_ERROR; 
+            }
+
+            if (TCL_ERROR==Tcl_GetDoubleFromObj(interp,list[4],&min)) {
+               Tcl_AppendResult(interp,"Invalid serialized stat: fifth element not a double");
+                return TCL_ERROR; 
+            }
+
+            if (TCL_ERROR==Tcl_GetDoubleFromObj(interp,list[5],&max)) {
+               Tcl_AppendResult(interp,"Invalid serialized stat: sixth element not a double");
+                return TCL_ERROR; 
+            }
+
+            sdevMerge(sd,count,weight,sum,sumsquared,min,max);
+            return TCL_OK;
+
+        }
+    }
+
+    if (cmd==serializeCommandID && objc==2) {
+
+       Tcl_Obj *components[6], *result;
+       components[0] = Tcl_NewIntObj(sd->count);
+       components[1] = Tcl_NewDoubleObj(sd->weight);
+       components[2] = Tcl_NewDoubleObj(sd->sum);
+       components[3] = Tcl_NewDoubleObj(sd->sumsquared);
+       components[4] = Tcl_NewDoubleObj(sd->min);
+       components[5] = Tcl_NewDoubleObj(sd->max);
+       result=Tcl_NewListObj(6,components);
+
+        Tcl_SetObjResult(interp,result);
+        return TCL_OK;
+    }
+  
     if (sd->count==0 || sd->weight==0.0) {
         Tcl_AddErrorInfo(interp,"Can not do statistical computation without data");
         return TCL_ERROR;
@@ -241,7 +341,7 @@ int tcl_sdev_command ( TCLOBJ_PARAMS ) TCLOBJ_DECL
         Tcl_SetObjResult(interp,obj);
         return TCL_OK;
     }
-  
+
     if (sd->count==1) {
         Tcl_AddErrorInfo(interp,"Cannot compute deviation on one point of data");
         return TCL_ERROR;
