@@ -72,13 +72,30 @@ proc pass {id} {
 
 proc test {id cmd expected} {
     global unit_test
-    set result [uplevel "$cmd"]
+    set error [catch {uplevel "$cmd"} result]
    
-    if {$expected != $result} {
+    if {$error} {
+	fail $id "{$cmd} caused unexpected error {$result}"
+    } elseif {$expected != $result} {
 	fail $id "{$cmd} returned {$result}, expected {$expected}"
     } else {
 	pass $id
     }
+
+}
+
+proc test-error {id cmd expected} {
+    global unit_test
+    set error [catch {uplevel "$cmd"} result]
+   
+    if {!$error} {
+        fail $id "{$cmd} did not cause expected error {$expected}"
+    } elseif {$result != $expected} {
+	fail $id "{$cmd} caused unexpected error {$result}"
+    } else {
+	pass $id
+    }
+
 }
 
 proc test-moe-sample {id expectedAverage expectedDev sampleSize average} {
