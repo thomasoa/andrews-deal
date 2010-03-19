@@ -4,6 +4,8 @@ Changes in Deal 3.1.10
    * Fixed issue #18 - holdingProc was free memory too early
    * Added unit tests and unit test script tests/script/unit.tcl
    * Added "dominated" command
+   * Added stat subcommands "serialize" and "merge"
+   * Added library lib/auction.tcl
 
 Changes in Deal 3.1.9
 
