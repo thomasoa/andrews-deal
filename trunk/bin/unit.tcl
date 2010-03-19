@@ -81,7 +81,17 @@ proc test {id cmd expected} {
     } else {
 	pass $id
     }
+}
 
+proc test-float {id cmd expected {allowedError 0.00001}} {
+    set error [catch {uplevel "$cmd"} result]
+    if {$error} {
+	fail $id "{$cmd} caused unexpected error {$result}"
+    } elseif {abs($expected-$result)>$allowedError} {
+	fail $id "{$cmd} returned $result, expected $expected +/- $allowedError"
+    } else {
+	pass $id
+    }
 }
 
 proc test-error {id cmd expected} {
