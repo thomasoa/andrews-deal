@@ -18,18 +18,18 @@
 
 #include "tcl_incl.h"
 typedef struct {
-	int count;
-	double weight;
-	double sum,sumsquared;
-        double max, min;
+    int count;
+    double weight;
+    double sum,sumsquared;
+    double max, min;
 } SDev;
 
 typedef struct {
-	int count;
-	double weight;
-        double maxx, maxy;
-        double minx, miny;
-	double sumx,sumy,sumxx,sumyy,sumxy;
+    int count;
+    double weight;
+    double maxx, maxy;
+    double minx, miny;
+    double sumx,sumy,sumxx,sumyy,sumxy;
 } Correlation;
 
 double sdev PROTO((SDev *));
