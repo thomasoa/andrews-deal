@@ -87,6 +87,10 @@ proc test-float {id cmd expected {allowedError 0.00001}} {
     set error [catch {uplevel "$cmd"} result]
     if {$error} {
 	fail $id "{$cmd} caused unexpected error {$result}"
+    } elseif {[string compare $result NaN]==0 || [string compare $result -NaN]==0} {
+	fail $id "{$cmd} returned $result, expected real number"
+    } elseif {![string is double $result]} {
+	fail $id "{$cmd} returned $result, expected real number"
     } elseif {abs($expected-$result)>$allowedError} {
 	fail $id "{$cmd} returned $result, expected $expected +/- $allowedError"
     } else {
