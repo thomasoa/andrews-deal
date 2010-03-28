@@ -24,7 +24,12 @@
 #include "tcl.h"
 
 double sdev_data(double weight,double sum, double squares) {
-    return sqrt((squares-(sum*sum)/weight)/(weight-1));
+    double diff= squares-(sum*sum)/weight;
+    /* To handle float errors ... */
+    if (diff<0) {
+        return 0.00;
+    }
+    return sqrt(diff/(weight-1));
 }
 
 double rms_data(double weight,double sum,double squares) {
