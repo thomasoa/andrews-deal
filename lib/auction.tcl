@@ -49,9 +49,19 @@ namespace eval auction {
         return "data($id:$member)"
     }
 
+    proc parseBid {callNo} {
+        set denomNo [expr {$callNo%5}]
+        set level [expr {int($callNo/5)+1}]
+        return [list $level $denomNo [lindex {clubs diamonds hearts spades notrump} $denomNo]]
+    }
+
     proc call {id call} {
         variable data
         variable statics
+        if {[getMember $id completed]} {
+             error "Auction already complete"
+        }
+
         set call [string tolower $call]
 
         if {![info exists statics(call:$call)]} {
@@ -71,6 +81,22 @@ namespace eval auction {
             setMember $id lastBidder $caller
             setMember $id doubled 0
             setMember $id passes 0
+            set bid [parseBid $callNumber]
+            set level [lindex $bid 0]
+            set denom [lindex $bid 1]
+            set denomString [lindex $bid 2]
+            set pair $statics(pair:$caller)
+            set firstCallers [getMember $id firstCaller::$pair]
+            set firstCaller [lindex $firstCallers $denom]
+            if {$firstCaller == ""} {
+               setMember $id firstCaller::$pair [lreplace $firstCallers $denom $denom $caller]
+               setMember $id contractDeclarer $caller
+            } else {
+               setMember $id contractDeclarer $firstCaller
+            }
+            setMember $id contractLevel $level
+            setMember $id contractDenomination $denomString
+             
         } elseif {$callNumber==-1} {
             # Pass
             set passes [incr [memberRef $id passes]]
@@ -145,6 +171,8 @@ namespace eval auction {
         setMember $id nextCaller $dealer
         setMember $id dealer $dealer
         setMember $id completed 0
+        setMember $id firstCaller::EW [list {} {} {} {} {}]
+        setMember $id firstCaller::NS [list {} {} {} {} {}]
 
         foreach call $calls {
             call $id $call
@@ -169,5 +197,23 @@ namespace eval auction {
         unsetMember $id nextCaller
         unsetMember $id dealer
     }
+
+    proc contract {id} {
+        set level [getMember $id contractLevel]
+        if {$level<0} { 
+             return [list "Passed Out"] 
+        }
+        set denom [getMember $id contractDenomination]
+        set declarer [getMember $id contractDeclarer]
+        set doubled [getMember $id doubled]
+        set contract [list $level $denom $declarer]
+        if {$doubled==1} {
+            lappend contract doubled
+        } elseif {$doubled==2} {
+            lappend contract redoubled
+        }
+        return $contract
+    }
+
 }
 
