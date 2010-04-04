@@ -39,23 +39,26 @@ namespace eval formatter {
 	::formatter::writer subbox ::formatter::writer.$hand $loc(row:$hand) $loc(col:$hand) 4 16
     }
 
-    proc puthand {hand} {
+    proc puthand {seat hand} {
         variable suitsymbols
         variable voidsymbol
-	writer.$hand  clear
+	writer.$seat  clear
 	set row 0
 	foreach suit {spades hearts diamonds clubs} symbol $suitsymbols {
-	    
-writer.$hand write $row 0 "$symbol [$hand -void $voidsymbol $suit]"
+            writer.$seat write $row 0 "$symbol [hand $hand -void $voidsymbol $suit]"
 	    incr row
 	}
     }	
 
-    proc write_deal {} {
-	foreach hand {north east south west} {
-	    puthand $hand
-	}
-	puts stdout [writer compact]
+    proc write_hands {hands {output stdout}} {
+	foreach seat {north east south west} hand $hands {
+	    puthand $seat $hand
+        }
+	puts $output [writer compact]
+    }
+
+    proc write_deal {{output stdout}} {
+        write_hands [list [north] [east] [south] [west]] $output
     }
 }
 
