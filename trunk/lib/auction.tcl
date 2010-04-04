@@ -12,10 +12,16 @@ namespace eval auction {
     set statics(call:x) -2
     set statics(call:dbl) -2
     set statics(call:redouble) -3
+    set statics(call:rdbl) -3
     set statics(call:r) -3
     set statics(call:xx) -3
+    set statics(norm:-3) "Rdbl"
+    set statics(norm:-2) "Dbl"
+    set statics(norm:-1) "Pass"
     foreach level {1 2 3 4 5 6 7} {
-       foreach denomination {clubs diamonds hearts spades notrump} letter {c d h s n} code {0 1 2 3 4} {
+       foreach denomination {clubs diamonds hearts spades notrump} letter {c d h s n} code {0 1 2 3 4} norm {C D H S NT} {
+           set callNo  [expr {($level-1)*5+$code}]
+           set statics(norm:$callNo) "$level$norm"
            set statics(call:$level$letter) [expr {($level-1)*5+$code}]
        }
     }
@@ -146,8 +152,8 @@ namespace eval auction {
             error "Invalid call $call"
         }
 
-        lappend  [memberRef $id calls] $call
-        setMember $id nextCaller [rho $caller]
+        lappend  [memberRef $id calls] $statics(norm:$callNumber)
+        setMember $id nextCaller [lho $caller]
     }
 
     proc create {dealer {calls {}}} {
