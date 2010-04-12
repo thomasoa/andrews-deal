@@ -25,24 +25,26 @@ Page</em></a></div>
 of voids, it can take several minutes to analyze the board.
 <p>For example, in this symmetric deal:
 <pre>
-          S: ---
-          H: Q853
-          D: AJ962
-          C: KT74
- S: KT74           S: Q853
- H: ---            H: AJ962
- D: Q853           D: KT74
- C: AJ962          C: ---
-          S: AJ962
-          H: KT74
-          D: ---
-          C: Q853
+           S: ---
+           H: Q 8 5 3
+           D: A J 9 6 2
+           C: K 10 7 4 
+
+ S: K 10 7 4             S: Q 8 5 3 
+ H: ---                  H: A J 9 6 2
+ D: Q 8 5 3              D: K 10 7 4
+ C: A J 9 6 2            C: ---
+
+           S: A J 9 6 2
+           H: K 10 7 4 
+           D: ---
+           C: Q 8 5 3 
 </pre>
-<p>DDS takes more than 90 minutes to analyze South declaring Notrump on my iMac (2 gig memory, 2.33 GHz Intel Core 2 Duo.)
-<p>As a general rule, hands with voids in every suit are hard to analyze, because on every play, one of the players can discard,
-and can choose any card.  That essentially squares the complexity of analysis, because the leader can choose any of his cards, and theperson void in the suit led can pitch any of his cards.  
+<p>DDS takes more than 90 minutes to analyze with South declaring Notrump (Computer: iMac, 2 gig memory, 2.33 GHz Intel Core 2 Duo.)
+<p>As a general rule, hands with voids in every suit are worst case, because on every trick, one of the players can discard,
+and can choose any card from his hand.  That essentially squares the complexity of analysis, because the leader can choose any of his cards, and the person void in the suit led can pitch any of his cards.  
 <p>In this example, we also have nobody holding "touching cards," so all 13
-cards are different.  (If South holds, say K-Q-J-9-8, then the hand only really has two choices to play in the suit, since, double-dummy, playing the king and playing the queen or jack are the same thing.)
+cards in each suit are "different."  (If South holds, say, K-Q-J-9-8 in a suit, then the hand only really has two choices to play in the suit, since, double-dummy, playing the king, queen, or jack are the same thing, and same for the nine and eight.)
 <p>Finally, the 5-4-4-0 distribution in each suit here makes almost all the spot cards important, so DDS can not skip some analysis that it often can.
 <?php include("sig.htmlf"); ?>
 </div>
