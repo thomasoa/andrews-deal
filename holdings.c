@@ -191,6 +191,7 @@ Tcl_Obj **allocateLookupTable(HoldingProcedure proc)
 {
     int entries=proc->tableLength;
     int i;
+    /* fprintf(stderr,"allocation lookup table %s\n",Tcl_GetStringFromObj(proc->slowNameObj,&length)); */
     proc->lookupTable=(Tcl_Obj **)Tcl_Alloc(entries*sizeof(Tcl_Obj*));
     for (i=0; i<entries; i++) { proc->lookupTable[i]=NULL; }
     return proc->lookupTable;
@@ -553,16 +554,18 @@ evalHoldingProcedure(
          * Once done, evaluate this list in a global context
          */
         retval=Tcl_EvalObjv(interp,objc,objv,TCL_EVAL_GLOBAL);
+        lookupTable[lookupIndex]=Tcl_GetObjResult(interp);
+        Tcl_IncrRefCount(lookupTable[lookupIndex]);
+
         for (i=1; i<objc; i++) {
             Tcl_DecrRefCount(objv[i]);
         }
+
         Tcl_Free((char *)objv);
         if (retval!=TCL_OK) {
             return NULL;
         }
 
-        lookupTable[lookupIndex]=Tcl_GetObjResult(interp);
-        Tcl_IncrRefCount(lookupTable[lookupIndex]);
     }
     return lookupTable[lookupIndex];
 }
