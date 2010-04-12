@@ -13,6 +13,21 @@ namespace eval bid {
     set bid(west) 3
     set bid(output) "bid.txt"
 
+    proc dealers {args} {
+        variable bid
+        set bid(dealers) $args
+    }
+
+    proc vulnerabilities {args} {
+        variable bid
+        set bid(vulnerabilities) $args
+    }
+
+    proc output {file} {
+        variable bid
+        set bid(output) $file
+    }
+
     proc determineDealer {handNo} {
         variable bid
         set dealers $bid(dealers)
@@ -196,7 +211,7 @@ namespace eval bid {
             }
         }
 
-        set output [open "out.txt" "w"]
+        set output [open $bid(output) "w"]
         foreach dealNo $bid(list) {
             set deal $bid(deal:$dealNo)
             set vul $bid(vul:$dealNo)
