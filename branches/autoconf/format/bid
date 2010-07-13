@@ -1,0 +1,247 @@
+source lib/auction.tcl
+
+namespace eval bid {
+
+    variable bid
+    set bid(dealers) [list north east south west]
+    set bid(vulnerabilities) [list None NS EW All NS EW All None EW All None NS All None NS EW]
+    set bid(count) 0
+    set bid(list) [list]
+    set bid(north) 0
+    set bid(east) 1
+    set bid(south) 2
+    set bid(west) 3
+    set bid(output) "bid.txt"
+
+    proc dealers {args} {
+        variable bid
+        set bid(dealers) $args
+    }
+
+    proc vulnerabilities {args} {
+        variable bid
+        set bid(vulnerabilities) $args
+    }
+
+    proc output {file} {
+        variable bid
+        set bid(output) $file
+    }
+
+    proc determineDealer {handNo} {
+        variable bid
+        set dealers $bid(dealers)
+        set length [llength $dealers]
+        return [lindex $dealers [expr {($handNo-1)%$length}]]
+    }
+
+    proc determineVul {handNo} {
+        variable bid
+        set vulnerabilities $bid(vulnerabilities)
+        set length [llength $vulnerabilities]
+        return [lindex $vulnerabilities [expr {($handNo-1)%$length}]]
+    }
+
+    proc addDeal {} {
+        variable bid
+        set handNo [incr bid(count)]
+        set vul [determineVul $handNo]
+        set dealer [determineDealer $handNo]
+        set bid(auction:$handNo) [auction::create $dealer]
+        set bid(vul:$handNo) $vul
+        set bid(deal:$handNo) [list [north] [east] [south] [west]]
+        set bid(completed:$handNo) 0
+        lappend bid(list) $handNo
+    }
+
+    proc writeAuction {dealNo {output stdout}} {
+        variable bid
+        set auction $bid(auction:$dealNo)
+        set calls [$auction getMember calls]
+        set dealer [$auction getMember dealer]
+        if {$dealer == "south"} {
+            set leftHand south
+        } else {
+            set leftHand west
+        }
+
+        foreach hand [list $leftHand [lho $leftHand] [partner $leftHand] [rho $leftHand]] {
+            puts -nonewline $output [format "%8s " [string totitle $hand]]
+        }
+        puts $output ""
+
+        while {$leftHand != $dealer} {
+            set calls [linsert $calls 0 ""]
+            set leftHand [lho $leftHand]
+          
+        }
+
+        if {![$auction completed]} {
+            lappend calls "?"
+        }
+
+        set callCells [llength $calls]
+        while {$callCells%4!=0} {
+            incr callCells
+            lappend calls ""
+        }
+
+        for {set row 0} {$row<$callCells} {incr row 4} {
+            for {set col $row} {$col<$row+4} {incr col} {
+                puts -nonewline $output [format "%8s " [lindex $calls $col]]
+            }
+            puts $output ""
+        }
+
+    }
+
+    proc getBid {auction} {
+        puts "Bid: "
+        set bid [gets stdin]
+        if {[catch {$auction call $bid} result]} {
+            puts $result
+            return 1
+        }
+        return 0
+
+    }
+
+    proc getLead {dealNo hand} {
+        variable bid
+        puts "Lead: "
+        set lead [gets stdin]
+        if {[catch {hand $hand has $lead} result]} {
+            puts $result
+            return 1
+        }
+        if {$result} {
+            set bid(lead:$dealNo) $lead
+            return 0
+        } else {
+            puts "You do not hold that card"
+            return 1
+        }
+    }
+
+    proc leadHand {dealNo} {
+        variable bid
+        set deal $bid(deal:$dealNo)
+        set vul $bid(vul:$dealNo)
+        set auction $bid(auction:$dealNo)
+        set dealer [$auction getMember dealer]
+        set contract [$auction contract]
+        if {[llength $contract] <=1} {
+              return
+        }
+        set declarer [lindex $contract 2]
+        set leader [lho $declarer]
+        set hand [lindex $deal $bid($leader)]
+        puts ""
+        puts ""
+        puts ""
+        puts ""
+        puts ""
+        puts "You     : [string totitle $leader]"
+        puts "Vul     : $vul"
+        puts "Contract: [normalizeContract $contract]"
+        puts ""
+        puts ""
+        foreach suit $hand name {Spades Hearts Diamonds Clubs} {
+              puts [format "%9s: %s" $name $suit]
+        }
+        puts ""
+        writeAuction $dealNo
+        while {[getLead $dealNo $hand]} {}
+    }
+
+    proc bidHand {dealNo} {
+        variable bid
+        set deal $bid(deal:$dealNo)
+        set vul $bid(vul:$dealNo)
+        set auction $bid(auction:$dealNo)
+        set dealer [$auction getMember dealer]
+        set caller [$auction getMember nextCaller]
+        set hand [lindex $deal $bid($caller)]
+        puts ""
+        puts ""
+        puts ""
+        puts ""
+        puts ""
+        puts "You: [string totitle $caller]"
+        puts "Vul: $vul"
+        puts ""
+        puts ""
+        foreach suit $hand name {Spades Hearts Diamonds Clubs} {
+              puts [format "%9s: %s" $name $suit]
+        }
+        puts ""
+        writeAuction $dealNo
+        while {[getBid $auction]} {}
+        return [$auction completed]
+    }
+
+    proc normalizeContract {contract} {
+      if {[llength $contract]==1} {
+         return [lindex $contract 0]
+      }
+      set level [lindex $contract 0]
+      set denom [lindex $contract 1]
+      set declarer [lindex $contract 2]
+      if {[llength $contract]==4} {
+         set mod " [string totitle [lindex $contract 3]]"
+      } else {
+         set mod ""
+      }
+      return "$level [string totitle $denom]$mod, by [string totitle $declarer]"
+      
+    }
+
+    proc bid {} {
+        variable bid
+        set deals $bid(list)
+        while {[llength $deals]>0} {
+            set index [rand [llength $deals]]
+            set dealNo [lindex $deals $index] 
+            set auction $bid(auction:$dealNo)
+            if {[$auction completed]} {
+               leadHand $dealNo
+               set deals [lreplace $deals $index $index]
+            } else {
+               bidHand $dealNo
+            }
+        }
+
+        set output [open $bid(output) "w"]
+        foreach dealNo $bid(list) {
+            set deal $bid(deal:$dealNo)
+            set vul $bid(vul:$dealNo)
+            set auction $bid(auction:$dealNo)
+            set dealer [$auction getMember dealer]
+            set contract [$auction contract]
+            puts $output "Deal $dealNo"
+            puts $output "Dealer  : [string totitle $dealer]"
+            puts $output "Vul     : $vul"
+            puts $output "Contract: [normalizeContract $contract]"
+            if {[info exists bid(lead:$dealNo)]} {
+                set lead $bid(lead:$dealNo)
+                puts $output "Lead    : [string toupper $lead]"
+            }
+            puts $output ""
+            formatter::write_hands $bid(deal:$dealNo) $output
+            puts $output ""
+            writeAuction $dealNo $output
+            puts $output ""
+            puts $output "---------------------------"
+            puts $output ""
+        }
+        close $output
+    }
+}
+
+proc write_deal {} {
+    bid::addDeal
+}
+
+proc flush_deal {} {
+    bid::bid
+}

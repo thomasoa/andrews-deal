@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+     "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<!-- $Id$ -->
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<LINK REL="SHORTCUT ICON" HREF="/icon/bridge.ico">
+<link rev="made" href="mailto:thomaso@centerline.com (Thomas Andrews)">
+<link rel="stylesheet" type="text/css" href="look.css">
+
+<title>
+    Deal - A Brief History
+</title>
+
+<link rev="made" href="mailto:thomaso@centerline.com (Thomas Andrews)">
+
+<?php analytics(); ?>
+</head>
+
+<body>
+<div class="toplevel back"><A href="/bridge/deal/">Back to <em>Deal Top Page</em></A></div>
+
+
+<table class="toplevel">
+
+<TR>
+<td valign="middle"><img
+style="width:300px; height:73px"
+ SRC="graphics/deal30.gif" ALT="Plane Dealing image"></td>
+<td valign="middle"><div class="header"><h2>Deal 3.1</h2>
+<h3>A brief history</h3> </div></td>
+</tr>
+</table>
+<div class="toplevel">
+<hr>
+<div style="line-height:1em;border:1px solid; margin:0 3px 0 0; padding:0 3px 0 3px;font-size: 300%; font-weight: bold; float: left">D</div><span style="font-weight: bold">eal</span>
+was originally conceived in 1988 for
+bidding practice.  I was a math graduate student just learning
+bridge and another grad student, Robin Pemantle, suggested a way to practice bidding.
+His idea was to have the computer deal out twenty or so hands, and
+then offer each hand up to you, randomly, for bidding.  This way,
+you could bid all four hands in each of twenty deals, and, if you
+tried hard, you could avoid remembering which hand was which.
+<p>
+I mentioned that idea to my partner at the time, Nathan Glasser,
+and he wrote a program called <strong>bid</strong>, which is still
+<a href="http://rgb.anu.edu.au/Bridge/Programmes/Bid-BridgeBidder/">
+available from the bridge archives.</a>
+<p>
+The problem with <strong>bid</strong> was that it could not
+be used for practicing specific auctions.  John Oswalt solved
+this in a rather crude fashion. His modification  forced you to re-link
+your application each time you wrote a new query (in C). 
+<!-- [ John Oswalt
+has written a <a href="http://www.jao.com/java/bid/">Java version of Bid
+which is kind of fun.</a>] -->
+<p>
+After using this modified version for a while, I got frustrated and
+wrote a <em>very</em> crude interpreter. It was a "stack-based" language
+so I wouldn't have to write a parser.  It was very much like the Unix "dc"
+calculator, only without all the features.  (That's a joke, but I guess
+you wouldn't get it if you didn't know <code>dc</code>.)
+<p>
+I could have used a fully interpreted language, like Perl, but for
+the types of simulations I was doing, I need very fast execution
+of the computation routines, and so implementing the core in an
+interpreted language was going to slow down the program too much.
+<p>
+In about 1992 I first stumble across the Tcl language.  Immediately,
+I saw that I could use it in my dealer.  Tcl was an interpreted
+language which had excellent support for extensibility via fast
+C routines.  It turned out that Nathan's
+code did not easily fit into my new scheme, so I rewrote the dealer
+from scratch.  I had my first version done quickly, and released the
+first public version (v0.5 I called it, in retrospect) in 1993.  I announced it on rec.games.bridge in <a href="http://groups.google.com/group/rec.games.bridge/browse_thread/thread/da3af252d9a4dd5a/a0394c4aa92908fe">this post.</a>
+<p>
+The next version (v1.0) was released about two years later, and basically
+cleaned up the query interface.  In the haze of my memory, I can not
+recall what features were added, certainly "vectors" and "shape classes."
+<p>
+Version 2.0 uses new optimization methods, some of which
+were suggested to me by the very same Nathan Glasser.  There are some
+other new features, including <em>shape functions</em>, <em>customizable
+output formatting</em>, and more built-in formats.
+<p>
+Version 3.0 was the next major release. Major changes were:
+<ul>
+<li> GNU GPL license - making it free for all use
+<li> Much faster execution using Tcl 8.x features.
+<li> Addition of 'holding functions' - like 'vectors' but more suitable
+for complex evaluations like "losers" and "CCCC."
+<li> "Smart stacking" for finding rare hands.
+</ul>
+<p>Deal got mentioned in the <a href="http://www.nytimes.com/2005/12/22/crosswords/bridge/22card.html?pagewanted=print">New York Times bridge column.</a></p>
+<p>
+Version 3.1 was release in 2008, with Bo Haglund's double dummy solver built in, so you can call a 'deal::tricks' function to get double dummy data.
+<p>Starting with release 3.1.6, the source code is hosted at <a href="http://andrews-deal.googlecode.com/">Google Code.</a>
+<!--
+<p>
+The next version of Deal I've called "<em>iDeal.</em>"
+It's a much changed beast, and could almost be called a general bridge
+programming environment.  Currently, my progress here has stalled, but
+I'm planning on a GUI interface to the Deal.
+-->
+<p>
+While <strong>Deal</strong> is a labor of love for me, it makes it easier
+to love the project if I get feedback which shows people are using <strong>
+Deal</strong>.  Even if you tried <strong>Deal</strong> and did not like
+it, please let me know.
+<?php include("sig.htmlf"); ?>
+</div>
+</body>
+</html>

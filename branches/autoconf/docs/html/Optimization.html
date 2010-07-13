@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+     "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<!-- $Id$ -->
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<LINK REL="SHORTCUT ICON" HREF="/icon/bridge.ico">
+<link rev="made" href="mailto:deal&#64;thomasoandrews.com (Thomas Andrews)">
+<link rel="stylesheet" type="text/css" href="look.css">
+<title>
+    Optimizing Dealing - Some Ideas
+</title>
+
+<link rev="made" href="mailto:deal&#64;thomasoandrews.com (Thomas Andrews)">
+<?php analytics(); ?>
+
+</head>
+
+<body>
+<div class="toplevel">
+<h1>Optimizing Dealing - Some Ideas</h1>
+<hr>
+<p>
+After doing some profiling, I found 'deal' spends most of its time
+in the random number generator.  This is apparently a problem
+other people have encountered, and at least one of the publicly
+available dealers actually cheats around this somewhat by using
+a bad methodology.
+<p>
+To stay out of the random number generator as much as possible,
+I made improvements so that 'deal' only deals cards to a hand
+when information is requested about that hand.
+<p>
+For example, with the script:
+<pre class="codesample">
+main {
+    #west has 15-17 HCP and east has a 5-card heart suit
+    reject unless {[balanced west]}                     # line A
+    set whcp [hcp west]                          
+    reject if {$whcp&gt;17} {$whcp&lt;15}
+    accept if {[hearts east]>=5}                        # line B
+}
+</pre>
+Each time through the main loop, 'deal' starts with no cards dealt.
+When it reaches line (A), a question is asked about the west hand.
+No cards have been dealt yet, so 'deal' parcels out 13 random cards
+to west (requiring 13 calls to the random number generator.)
+'Deal' then checks whether the hand is in fact balanced, and if not,
+it rejects the hand.
+<p>
+If the hand is balanced, 'deal' computes the HCP, rejecting the deal
+if west isn't between 15 and 17 HCP.   Only at line (B) do we request
+that east have 5 or more hearts, at which point "deal" gives 13 cards
+to east and then checks the conditional.  If the hand is accepted,
+the rest of the deal is completed.
+<p>
+Under this implementation, you can often come close to tripling the speed of
+complex queries.
+<p>
+Other optimizations are possible.
+<p>
+Let's say you want to deal hands where south has a solid seven card
+or longer minor suit and no side aces or kings, and north holds: 
+<span class="code">"S: AK H: K52 D: 98765 C: 962"</span>.  To do this simulation
+now, we place north's card, and then deal the rest of south's cards,
+rejecting deals which don't satisfy our conditions. This might take a while.
+<p>
+Theoretically, we could do this much faster by picking a shape for south
+using relative probabilities, and deal him cards which fit that shape.
+So, for instance, the number of ways to assign random cards to north 
+to give north a 3-2-7-1 shape is 
+(11 choose 3) * (10 choose 2) * (8 choose 7) * (10 choose 1)=594000,
+while the number of ways for him to have 3-2-1-7 shape is (11 choose 3) *
+(10 choose 2) * (8 choose 1) * (10 choose 7)=7128000.
+<p>
+It should come as no surprise that it is more likely that south has seven clubs
+than that south has seven diamonds, given north's shape.
+<p>
+Since there are only 560 total possible shapes without <em>any</em>
+restrictions, we can certainly run through all possible shapes and determine
+their relative odds.  Then we can pick one of these possible shapes
+randomly, with the proper probability distributions, and assign cards at
+random, suit by suit, to bring the south hand to the proper shape.  At this
+point, we check to determine that the other properties are met.
+<p>
+This would certainly greatly improve the performance in certain "rare
+hand" situations.  It's not clear how much it could improve more
+general randomizations.  What if we simply need north to be balanced?
+Or for north to have a 5-card major?  Would this sort of optimization
+improve things?
+<p>
+Also, this methodology makes it much harder to *prove* that the hand
+generator is correct.  The code to handle the probability computations
+has to be impeccable.
+<p>
+Lastly, I can't see any way to automatically get the hand shape information
+needed for such optimizations; if I controlled the parser, I might be
+able to intelligently glean the information from the specification, but
+since I've chosen Tcl as my scripting language, I'm somewhat stuck in
+that regard.  The user will almost certainly have to provide the 
+optimization request directly.
+<p>
+<h2> Why optimize? </h2>
+There is a logical argument against such optimizations, on the other hand.
+What are we trying to learn if we are looking at a sample of one in a million
+hands?  Let's say you play gambling 3NT, and partner opens 3NT with you holding
+<span class="code">S: Axxx H: KQx D: Q C: xxxxx</span>.
+If we try to simulate this, assuming partner has
+7+ solid clubs and no side aces, we might not get a proper hand for a
+very long time.  On the
+other hand, the number of possible hands where partner has "fudged" his
+call with AKJTxxxx of diamonds or with only six clubs is considerably higher.
+In simulations where hands are not being found after tens of thousands of tries,
+it is often right to loosen the parameters.
+<p>
+On the other hand, if you are trying to settle an argument like, "Well, if
+you had your bid, that would have been a good slam," then the tighter
+parameters might be right, in which case optimizations might be necessary.
+<?php include("sig.htmlf"); ?>
+</div>
+</body>
+</html>

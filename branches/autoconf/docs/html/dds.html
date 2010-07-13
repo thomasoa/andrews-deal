@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+     "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<!-- $Id$ -->
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<LINK REL="SHORTCUT ICON" HREF="/icon/bridge.ico">
+<link rev="made" href="mailto:deal&#64;thomasoandrews.com (Thomas Andrews)">
+<link rel="stylesheet" type="text/css" href="look.css">
+
+<title>Double Dummy Solver</title>
+<?php analytics(); ?>
+
+</head>
+
+<body>
+<div class="back"><a href="index.html"><em>Back to Deal Top
+Page</em></a></div>
+<div class="toplevel">
+<h1>Double Dummy Solver</h1>
+<p>Deal now has a built-in double dummy solver, as provided by <a href="http://www.bahnhof.se/wb758135/">Bo Haglund.</a>
+<p>The commands for accessing the double dummy solver are <a href="commands.html#dds">documented here.</a>
+<p>Deal currently contains the code for DDS 1.1.9.
+<p>While DDS is fairly fast most of the time, on some deals, it can take a long time.  In particular, when there are lots
+of voids, it can take several minutes to analyze the board.
+<p>For example, in this symmetric deal:
+<pre>
+           S: ---
+           H: Q 8 5 3
+           D: A J 9 6 2
+           C: K 10 7 4 
+
+ S: K 10 7 4             S: Q 8 5 3 
+ H: ---                  H: A J 9 6 2
+ D: Q 8 5 3              D: K 10 7 4
+ C: A J 9 6 2            C: ---
+
+           S: A J 9 6 2
+           H: K 10 7 4 
+           D: ---
+           C: Q 8 5 3 
+</pre>
+<p>DDS takes more than 90 minutes to analyze with South declaring Notrump (Computer: iMac, 2 gig memory, 2.33 GHz Intel Core 2 Duo.)
+<p>As a general rule, hands with voids in every suit are worst case, because on every trick, one of the players can discard,
+and can choose any card from his hand.  That essentially squares the complexity of analysis, because the leader can choose any of his cards, and the person void in the suit led can pitch any of his cards.  
+<p>In this example, we also have nobody holding "touching cards," so all 13
+cards in each suit are "different."  (If South holds, say, K-Q-J-9-8 in a suit, then the hand only really has two choices to play in the suit, since, double-dummy, playing the king, queen, or jack are the same thing, and same for the nine and eight.)
+<p>Finally, the 5-4-4-0 distribution in each suit here makes almost all the spot cards important, so DDS cannot skip some analysis that it often can.
+<?php include("sig.htmlf"); ?>
+</div>
+</body>
+</html>

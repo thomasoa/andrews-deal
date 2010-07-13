@@ -1,0 +1,77 @@
+#
+# Copyright (C) 1996-2001, Thomas Andrews
+#
+# $Id$
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#
+namespace eval formatter {
+    variable loc
+    set loc(row:east) 4
+    set loc(col:east) 19
+    set loc(row:north) 0
+    set loc(col:north) 10
+    set loc(row:west) 4
+    set loc(col:west) 1
+    set loc(row:south) 8
+    set loc(col:south) 10
+    variable suitletters [list S: H: D: C:]
+    variable suitsunicode [list "\u2660" "\u2665" "\u2666" "\u2663"]
+    variable suitsymbols $suitletters
+    variable voidsymbol "---"
+
+    stringbox ::formatter::writer 12 60
+
+    foreach hand {north east west south} {
+	::formatter::writer subbox ::formatter::writer.$hand $loc(row:$hand) $loc(col:$hand) 4 16
+    }
+
+    proc puthand {seat hand} {
+        variable suitsymbols
+        variable voidsymbol
+	writer.$seat  clear
+	set row 0
+	foreach suit {spades hearts diamonds clubs} symbol $suitsymbols {
+            writer.$seat write $row 0 "$symbol [hand $hand -void $voidsymbol $suit]"
+	    incr row
+	}
+    }	
+
+    proc write_hands {hands {output stdout}} {
+	foreach seat {north east south west} hand $hands {
+	    puthand $seat $hand
+        }
+	puts $output [writer compact]
+    }
+
+    proc write_deal {{output stdout}} {
+        write_hands [list [north] [east] [south] [west]] $output
+    }
+}
+
+if {$deal::unicode && [info exists env(LANG)] && [string first "UTF-8" [string toupper $env(LANG)]]>=0} {
+   set ::formatter::suitsymbols $::formatter::suitsunicode
+}
+
+proc write_deal {} {
+    formatter::write_deal
+    puts stdout "--------------------------"
+
+}
+
+proc flush_deal {} {
+}
+

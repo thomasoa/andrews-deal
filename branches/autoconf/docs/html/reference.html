@@ -1,0 +1,609 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+     "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<!-- $Id$ -->
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<LINK REL="SHORTCUT ICON" HREF="/icon/bridge.ico">
+<link rev="made" href="mailto:deal&#64;thomasoandrews.com (Thomas Andrews)">
+<link rel="stylesheet" type="text/css" href="look.css">
+<title>
+    Deal - New Features in Version 2.0
+</title>
+
+<?php analytics(); ?>
+
+</head>
+<body>
+<div class="toplevel back">
+<A href="index.html">Back to <em>Deal Top Page</em></A>.
+</div>
+
+<table class="toplevel">
+<tr>
+<td valign="middle"><img
+style="width:225px; height:216px"
+src="graphics/falling_small.jpg" alt="Plane Dealing image"></td>
+<td valign="middle" width="50%"><span class="header"><h1>Deal 2.0</h1>
+<h2>Reference Guide</h2>
+</span>
+Covering: <UL>
+<LI> Command line arguments
+<LI> Additive Functions
+<LI> Shape Functions and Classes
+<LI> String Boxes and formatting
+<LI> Often used Tcl features
+<LI> Library routines
+</UL>
+</td>
+</tr></table>
+<div class="toplevel">
+<hr>
+
+<h2> Command Line Options </h2>
+
+<DL>
+<DT>	-e <var>expr</var>
+<DD>		Evaluate the Tcl expression <var>expr</var>.  Not very
+                useful, but occasionally good for setting variables
+		which affect the user's script, like:
+<pre class="codesample">
+deal -i userscript -e "set maxnorth 10"
+</pre>
+<DT>	-v
+<DD>            Verbose mode.  Lets you know how many hands have
+		been accepted and how many hands have been tried.
+<DT>	-[NSEW] <var>hand-spec</var>
+<DD>		Specifies the cards held by the specified hand.
+		The <var>hand-spec</var> should be of the form:
+<span classs="code">"AK8532 - KQ72 A65"</span>.
+		Voids must be represented with a '-' character.
+		<var>hand-spec</var> should be <em>one</em> argument,
+		so the string should be quoted on the command line.
+
+<DT>	-i <var>file</var>
+<DD>		Source the commands in the file named.  The language
+		used is "Tcl".  Read the man page for Tcl for help
+		in writing Tcl code. Additions to Tcl specific to deal are
+		listed in this manual.
+
+<DT> -x <var>file</var>
+<DD> Like -i, except execute this file and then exit.
+<DT>	-f
+<DD>		Instead of dealing new hands, reads hands from
+		standard input.  The hands must be in the format
+		put out by "deal -l".  You might deal, say, 10,000
+		hands which satisfy specific criteria, saving them
+	        to a file.  Then you can use that output for input
+		with deal -f to find out which hands satisfy other
+		constraints.
+
+<DT> -t
+<DD>		Print <A href="dist.html">distribution table</A> and exit.
+		The distribution table is an ordered list
+		of all possible hand patterns for a single
+		hand.
+
+<DT> -l
+<DD>		Write deals in a "single-line" format.  In previous
+		releases this was the default format. It is useful
+		for piping to formatters written in other languages.
+		Most formatting can be defined internally, using
+		Tcl now.  Still useful with the "-f" option.
+		
+</DL>
+
+<h2> Simple Usage </h2>
+
+The most basic usage of the program is to generate random deals
+with no conditions:
+
+<pre class="codesample">
+% deal 2
+	  S : QJ9
+	  H : AJ
+	  D : T52
+	  C : AKQ84
+ S : 752            S : AK83         
+ H : T85            H : Q632         
+ D : AK8763         D : J4           
+ C : 2              C : T96          
+	  S: T64
+	  H: K974
+	  D: Q9
+	  C: J753
+---------------------------
+	  S : QJ9
+	  H : 52
+	  D : AKJT9
+	  C : A86
+ S : 763            S : A52          
+ H : T763           H : J98          
+ D : Q54            D : 876          
+ C : T95            C : KQJ7         
+	  S: KT84
+	  H: AKQ4
+	  D: 32
+	  C: 432
+---------------------------
+</pre>
+
+    If you want a raw format, more readable by external programs,
+    use the -l flag, which prints deals in a single-line format:
+
+<pre class="codesample">
+% deal -l 5
+K75 T987 AQT5 95|AQ86 2 943 QJ643|JT32 J43 KJ KT82|94 AKQ65 8762 A7
+QJ96 KQ6 T95 K76|T5 J953 A72 AJT9|8432 A7 83 Q8432|AK7 T842 KQJ64 5
+K52 QJT9 AKQ K63|AJ AK7542 T732 8|94 3 J965 QJT972|QT8763 86 84 A54
+A76 A764 43 KJT2|J9 KJ53 K986 A87|K8543 T82 72 953|QT2 Q9 AQJT5 Q64
+Q6 QJ75 3 AJ7642|AT9874 KT963 AT |K32 4 QJ2 KQ9853|J5 A82 K987654 T
+</pre>
+
+
+
+This output form is crude; it is meant to be post-processed.  Each
+line is of the form:
+<blockquote>
+        &quot;<var>North</var>|<var>East</var>|<var>South</var>|<var>West</var>&quot;
+
+</blockquote>
+Each hand is specified by:
+<blockquote>
+
+	&quot;<var>Spades</var> <var>Hearts</var> <var>Diamonds</var> <var>Clubs</var>&quot;
+
+</blockquote>
+    where the space character separates each suit.
+
+In the examples above, the east hand in the last deal is:
+<pre class="codesample">
+"AT9874 KT963 AT "
+</pre>
+which might be written more verbosely as:
+
+<pre class="codesample">
+S: AT9874   H: KT963   D: AT   C: ---
+</pre>
+I've included three formatters with the package, one of which creates
+a TeX file for the hands generated, the other two simple text files.
+The formatters are <A href="http://www.cis.ufl.edu/perl/">Perl</a> scripts, 
+so if you don't have
+Perl on your system they won't work.  To format, you just run deal with
+the -l flag, and pipe to the formatter:
+
+<pre class="codesample">
+% deal -l 5 | perl ./compactdeal
+Deal # 1          - AKQT43 AKT65 A3
+JT65 82 QJ32 752                    AKQ82 6 94 KJ984
+                  9743 J975 87 QT6
+------------------------
+Deal # 2          3 QJT43 A8742 K4
+QT4 86 T93 AJ973                    AK52 2 QJ65 T862
+                  J9876 AK975 K Q5
+------------------------
+Deal # 3          A76 KT9 QJ84 K53
+T952 A832 A95 Q8                    J Q76 KT632 J762
+                  KQ843 J54 7 AT94
+------------------------
+Deal # 4          AQ752 J632 - 8652
+6 AK74 A863 AKT9                    KJ98 Q95 J752 QJ
+                  T43 T8 KQT94 743
+------------------------
+Deal # 5          A4 AJ72 852 AKQT
+63 T9654 QT9 865                    QJ852 Q J764 J94
+                  KT97 K83 AK3 732
+------------------------
+</pre>
+
+<pre class="codesample">
+% deal -l 2 | perl ./formatdeal
+Deal 1         S : 75                     |
+               H : Q4                     |
+               D : QJ962                  |
+               C : AT64                   |
+     S : KQ63           S : J98           |
+     H : K732           H : T985          |
+     D : K75            D : A843          |
+     C : 83             C : J2            |
+               S : AT42                   |
+               H : AJ6                    |
+               D : T                      |
+               C : KQ975                  |
+-------------------------------------------
+Deal 2         S : AKQJ                   |
+               H : J43                    |
+               D : KQ4                    |
+               C : 762                    |
+     S : 73             S : 9865          |
+     H : QT76           H : AK82          |
+     D : J972           D : T86           |
+     C : JT4            C : A9            |
+               S : T42                    |
+               H : 95                     |
+               D : A53                    |
+               C : KQ853                  |
+-------------------------------------------
+</pre>
+
+
+<h2>Putting Conditions on the Deal</h2>
+
+    There are two distinct types of conditions which can be placed on
+    a hand.
+<p>
+    One is the rigid placement of cards, as in, `South gets the ace of
+    clubs,' or `East is "AK52 AK32 9652 6"'.  Card placements are done
+    before any randomnizations.
+<p>
+
+    Card placements are ignored when using deal with the -f option.  This
+    is because `deal' is reading already built hands.
+
+<p>
+    The other conditionals are evaluated conditionals, like "South 
+    has at least 4 hearts" or "West has 11 to 15 HCP" or "North has
+    exactly one of the ace and king of clubs."
+<p>
+
+    The flow of control is:
+<OL>
+<LI> Place known cards
+<LI> Deal rest of the cards at random
+<LI> Determine whether to accept or reject deal.  If rejected,
+                go to 2.
+</OL>
+
+This is less than optimal in many ways.  The <a href="Optimization.html">optimizing problem</a> here
+is pretty painful, though, and, although I have some ideas for solutions,
+I'm trying to be careful to do it right; in the meantime, this
+method will have to do.
+
+<p>
+Scripts use the Tcl language, with bridge-related additions.
+To understand these scripts, you should read the Tcl man
+page.
+
+<p>
+
+An example script (ex/1.tcl from the kit):
+<blockquote>
+<pre>
+##############################################
+# Look for deals where north has 44 in the majors, a short minor,
+# and 11-15 HCP.
+# To execute:
+#       deal -i ex/1.tcl [num]
+##############################################
+main {
+                                          # Pitch deals
+                                          # where north does
+                                          # not have four spades
+        reject if {[spades north]!=4}
+
+                                          # Pitch deals
+                                          # where north does
+                                          # not have four hearts
+        reject if {[hearts north]!=4}
+
+                                          # Pitch deals
+                                          # where north has
+                                          # 2 or 3 diamonds
+        set d [diamonds north]
+        reject if {$d==2} {$d==3}
+
+                                          # Accept deals
+                                          # where north has
+                                          # 11-15 HCP.
+        set hcp_n [north]
+        accept if {$hcp_n>=11 && $hcp_n<=15}
+}
+##############################################
+</pre>
+</blockquote>
+The "main" command defines the expression which is to be evaluated
+to ascertain whether a deal is accepted or rejected.  This occurs after
+all cards have been dealt.  If the hand is never explicitly accepted,
+the hand is rejected.
+
+<p>
+We can run this example as:
+<blockquote>
+<pre>
+        % deal -i ex/1.tcl 10
+</pre>
+</blockquote>
+
+This will produce ten deals where north has a mini-Roman hand with
+a short minor.
+<p>
+
+"deal" takes a "-v" flag which lets the user know about progress
+in the hand generation; how many hands have been searched, and
+how many have been checked.
+
+<blockquote>
+<pre>
+% deal -l -v -i ex/1.tcl 5
+KJ92 AQ42 7 K842|8 KT9763 A862 95|Q73 J JT94 QJ763|AT654 85 KQ53 AT
+Deal 1 found after 61 tries
+AJ62 AQ84 9 J764|K84 J2 875 KT932|QT T73 AJ643 Q85|9753 K965 KQT2 A
+Deal 2 found after 269 tries
+JT86 AQJ8  KQ543|9 T9432 542 A976|K7532 K6 KQJ7 T2|AQ4 75 AT9863 J8
+Deal 3 found after 303 tries
+A652 AT94 A985 2|3 QJ532 T63 J543|QT74 8 K7 KT9876|KJ98 K76 QJ42 AQ
+Deal 4 found after 394 tries
+AJ65 9743 K AJT8|T742 T6 T764 972|KQ83 AQ5 Q32 643|9 KJ82 AJ985 KQ5
+Deal 5 found after 523 tries
+</pre>
+</blockquote>
+The progress output is sent to "stderr", so you can still pipe the
+hands to a formatter or file without trouble.
+<p>
+You can specify on the command line that you want South to hold a specific
+hand:
+<blockquote><pre>
+        % deal -v -i ex/1.tcl -S 'AK52 42 K52 7642' 10
+</pre></blockquote>
+
+Here are some of the procedures built in to the program which
+have been added to Tcl for <b>Deal</b>.
+
+<DL>
+<DT> accept                
+<DD>        Accept the current deal.  Use only from "main".
+<DT>    accept if <var>expr</var> [<var>expr</var>...]
+<DD>                                Accept the current deal if one of
+                                the expressions is true.  Use only
+                                from "main".  Stops evaluating
+                                <var>expr</var>s when it finds a true one.
+<DT>        accept unless <var>expr</var> [<var>expr</var>...]
+                        <DD>        Accept the current deal unless one of
+                                the expressions is true.  Use only
+                                from "main".  Stops evaluating <var>expr</var>s
+                                when it finds a true one.
+<p>
+<DT>             reject        <DD>        Reject the current deal.  Use only
+                                from "main".
+<DT>        reject if <var>expr</var> [<var>expr</var>...]
+                        <DD>        Reject the current deal if one of
+                                the expressions is true.  Use only
+                                from "main".  Stops evaluating
+                                <var>expr</var>s when it finds a true one.
+<DT>        reject unless <var>expr</var> [<var>expr</var>...]
+                        <DD>        Reject the current deal unless one of
+                                the expressions is true.  Use only
+                                from "main".  Stops evaluating
+                                <var>expr</var>s when it finds a true one.
+<p>
+<DT>        spades <var>hand</var>,        hearts <var>hand</var>,
+        diamonds <var>hand</var>, clubs <var>hand</var>        
+<DD>        Returns the number of cards held in the suit by hand <var>hand</var>
+<p>
+<DT>        controls <var>hand</var> [<var>suit</var>]
+                        <DD>        Return the number of controls (A=2,
+                                K=1) held in the suit given.  If no
+                                suit given, the total number of
+                                controls.
+<p>
+<DT>        <var>hand</var> is <var>hand-spec</var>
+<DD> This places all the cards of one hand.
+The hand spec looks like:
+<blockquote> <code>
+"AKQ - T642 QT9876"
+</code></blockquote>
+The format is pretty inflexible.
+Example:
+
+<blockquote> <code>
+east is "AKQ AKQ AKQ AKQT"
+</code></blockquote>
+
+This is the same as saying:
+<blockquote> <code>
+-E 'AKQ AKQ AKQ AKQT'
+</code></blockquote>
+on the command line.
+<p>
+<DT> <var>hand</var> gets <var>card</var> [<var>card</var>...]
+<DD> Places individual cards in to the hand.
+Example:
+<blockquote> <code>
+north gets AC
+</code></blockquote>
+places the ace of clubs in the north hand.
+<p>
+<DT>        <var>hand</var> has <var>card</var> [<var>card</var>...]
+<DD>                                Checks to see if the hand holds
+                                the specified cards, e.g.
+<blockquote> <code>
+                                if {[north has AC]} {...}
+</code></blockquote>
+<p>
+
+<DT>        <var>hand</var> shape    
+<DD>       Returns a string of the 4 suit lengths, in the order S,H,D,C, e.g.
+<blockquote> <code>
+puts stderr [south shape]<br>
+4 3 2 4
+</code></blockquote>
+<p>
+
+<DT>        <var>hand</var> pattern  
+<DD>       Return a string of the 4 suit lengths, sorted in descending
+order:
+<blockquote> <code>
+puts stderr [south pattern]<br>
+4 4 3 2
+</code></blockquote>
+  <p>                              
+<DT>        <var>hand</var>        
+<DD> Return the HCP total for the hand,  e.g.
+<blockquote> <code>
+reject if {[north]>=16}
+</code></blockquote>
+<blockquote>
+[Design note: this treatment might go away.   I have serious problems
+with making high card points so prominent, and <code>[south]</code> might
+be better used as a method of extracting a tcl list like: <code>
+{AK} {QJ65} {T9872} {53}
+</code>. If I were to do this, I would add a function, <code>hcp</code>.
+Of course, you can implement the hcp function
+yourself with <code>defvector</code>. ]
+</blockquote>
+<DT>        defvector <var>name</var> <var>val</var> [<var>val</var> ...]
+
+<DD> A vector is a fast counting procedure.  The "vector" for counting
+HCP is (4,3,2,1,0,0,0,0,0,0,0,0,0).  We can define
+<blockquote><code>
+defvector Hcp 4 3 2 1
+</code></blockquote>
+
+and then use "Hcp" as a procedure later:
+
+<blockquote><code>
+reject if {[Hcp north]>=16}
+</code></blockquote>
+
+Or
+<blockquote><code>
+defvector Top3 1 1 1
+</code></blockquote>
+
+creates a procedure for counting how many aces, kings, and queens are held.
+<p>
+One nice thing about these routines is that they are fast.
+Clever use of vectors speeds up all sorts of evaluation routines.
+<p>
+<DT>        <var>vector</var> <var>suit</var> [<var>suit</var> ...]
+<DD>        Counts the hand using the vector.
+If a list of suits is given, only those
+suits are counted.  Otherwise, all suits
+are counted.  E.g., 
+<blockquote><code>
+defvector AKQ 3 2 1<br>
+AKQ south hearts spades
+</code></blockquote>
+counts the Ace-King-Queen points held by the south hand in hearts and spades.
+<p>
+<DT>        shapeclass <var>name</var> { <var>code</var> } 
+<DD>                                This, like defvector, is an optimization
+                                issue.  E.g.,
+
+<blockquote><code>
+shapeclass michaels {return [expr $h>=5 && $s>=5]}<br>
+main { accept if {[michaels north]}}
+</code></blockquote>
+A shapeclass generates a lookup table 
+the first time it is called, and fast
+shape matching occurs each time after.
+  <p>                              
+<DT> shapecond <var>name</var> { <var>expression</var> }
+<DD>  This is just a shorthand for:
+<blockquote>
+<code>
+shapeclass <var>name</var> {return [expr <var>expression</var>] }
+</code>
+</blockquote>
+
+<DT>        <var>definedclass</var> <var>hand</var>
+<DD>                                Returns true if the hand is in the shape
+                                class and false otherwise.
+<p>
+<DT>        <var>definedclass</var> compile
+<DT>
+<DD>        Returns a string of 0's, 1's and whitespaces
+        for faster shapeclass reuse.  Really for my personal use,
+        but included here for completeness.
+<p>
+
+<DT>        shapeclass.binary <var>name</var> { <var>bits</var> }
+<DD>        This is how to define the "compiled" form of the shapeclass
+        definitions, only really useful for shape
+        classes which are reused often.
+<p>
+<DT>        balanced <var>hand</var>
+<DD>        Returns true if the hand is "balanced"
+        in the classical Goren-style:  4333s,
+        4432s, and 5332s with 5-card minor.
+        This could be implemented as a shapeclass,
+        but there still remains an internal definition
+        which is pretty fast.
+<p>
+<DT>        losers <var>hand</var> [<var>suit</var> ...]
+<DD>                                Returns the number of losing tricks for
+                                the hand, or, if suits are given, the
+                                number of losing tricks in those suits.
+<p>
+<UD>
+
+    You can, of course, create new routines with Tcl, and then call
+    them from the "main" procedure.
+
+</DL>
+
+There are many examples in the kit; look them over.  There is also
+a file called "library" which defines some useful procedures.
+
+<h1>Hints</h1>
+
+    Clever use of count vectors can solve many problems efficiently.
+    For example, if you and your partner play that a weak two promises
+    2 of the top 3 <em>or</em> 3 of the top 5, you could define:
+
+<code><blockquote>
+        defvector Weak2Quality 2 2 2 1 1
+</blockquote></code>
+
+    This vector evaluates to 4 or greater whenever the suit has the
+    right quality, so we could check for a weak-two spade suit with:
+
+<code><blockquote>
+        reject if {[spades north]!=6} {[Weak2Quality north spades]<4}
+</blockquote></code>
+
+    The program doesn't do much optimization, but you can do some
+    yourself.  Try not to use logical conjunctions in "require" and "accept"
+    parameters. It is better to say:
+
+<code><blockquote>
+        accept unless {[north]<13} {[hearts north]<7}
+</blockquote></code>
+
+   than to say:
+
+<code><blockquote>
+        accept if {[north]>=13 && [hearts north]>=7}
+</blockquote></code>
+
+   That's because the {[hearts north]<7} expressions doesn't get
+   evaluated if {[north]<13} evaluated as true.
+<p>
+   It is even better to do:
+
+<code><blockquote>
+        accept unless {[hearts north]<7} {[north]<13} 
+</blockquote></code>
+
+   Why?  Because you are eliminating more hands initially.  (Also,
+   the suit-length functions are faster than most since the numbers
+   are incidentally calculated at deal-time.)
+<p>
+   Automated optimization is another area which I'm considering for
+   later versions of this program.
+
+<h1>Who to Blame</h1>
+Questions, comments and great thoughts are welcome.  Just send me email
+at the address at the bottom of this page.
+
+<hr>
+<table><tr><td><a href="<?php echo $bridgeFantasia;?>" class="image">
+<img style="border:0;width:40px;height:56px" alt="Silhouette" src="graphics/StampSm.gif"></a><td>
+<a NAME="mysig"> Thomas Andrews</a>
+(<a href="mailto:deal&#64;thomasoandrews.com">deal&#64;thomasoandrews.com</a>)
+<a name="caveat"> Copyright 1996-2005.</a>  Deal is covered by the 
+<a href="http://www.gnu.org/copyleft/gpl.html">GNU General Public License.</a>
+</tr></table>
+</div>
+</body>
+</html>
