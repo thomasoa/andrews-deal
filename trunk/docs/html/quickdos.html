@@ -25,7 +25,7 @@ style="border:0;width:225px;height:216px"
 <td valign="middle"><div class="header"><h1>Deal 3.1</h1>
 <h2>An Introductory Tutorial for Windows</h2></div>
 Covering: <UL>
-<LI> Dealing hands
+<LI> Dealing deals
 <LI> Stacking hands
 <LI> Output formats
 <LI> Basic scripting with Tcl
@@ -46,7 +46,7 @@ listings below are curly parentheses.
 <p>Deal only runs in Deal's installed directory.  That's because for now it looks in the current directory for <code>deal.tcl</code> and other library files.
 <h2> <a href="#basic">Basic Dealing - The Command Line </a></h2>
 <UL>
-<LI> <a href="#basicbasic">Dealing hands</a>
+<LI> <a href="#basicbasic">Dealing deals</a>
 <LI> <a href="#basicstacking">Stacking a hand</a>
 <LI> <a href="#basicformat">Formatting output</a>
 </UL>
@@ -60,30 +60,30 @@ listings below are curly parentheses.
 
 <h2><a name="basic">Basic Dealing</a></h2>
 
-<h3><a name="basicbasic">Dealing hands</a></h3>
+<h3><a name="basicbasic">Dealing deals</a></h3>
 <p>
 Start Command Prompt window and change your directory
 to the location where Deal was installed.
 <pre class="codesample">
-C:\> <b>cd "C:\deal30"</b>
+C:\> <b>cd "C:\deal31"</b>
 
-C:\deal30> 
+C:\deal31> 
 </pre>
 
 The most basic version of deal runs with no conditions set on the deal,
 and generates 10 deals:
 <pre class="codesample">
-C:\deal30> <b>deal</b>
+C:\deal31> <b>deal</b>
 </pre>
 
 The output probably scrolled off the screen, so you might want to do 
 <pre class="codesample">
-C:\deal30> <b>deal | more</b>
+C:\deal31> <b>deal | more</b>
 </pre>
 
 to allow scrolling, or:
 <pre class="codesample">
-C:\deal30> <b>deal > out.txt</b>
+C:\deal31> <b>deal > out.txt</b>
 </pre>
 
 which saves the output from deal to the file, <span class="code">out.txt</span>.
@@ -92,7 +92,7 @@ which saves the output from deal to the file, <span class="code">out.txt</span>.
 If you give "deal" a number on the command line, it generates that many
 deals:
 <pre class="codesample">
-C:\deal30> <b>deal 2</b>
+C:\deal31> <b>deal 2</b>
           S : T6542
           H : A4
           D : A93
@@ -119,7 +119,7 @@ C:\deal30> <b>deal 2</b>
           D: Q5
           C: KQ
 ---------------------------
-C:\deal30> 
+C:\deal31> 
 </pre>
 In this example, <strong>Deal</strong> dealt two hands, as requested.
 <p>
@@ -140,7 +140,7 @@ this?
 <strong>Deal</strong> can help.  Just run it as:
 
 <pre class="codesample">
-C:\deal30> <b>deal -S "- KQJT62 T9876 84" 25</b>
+C:\deal31> <b>deal -S "- KQJT62 T9876 84" 25</b>
           S : KJ2
           H : 954
           D : A5
@@ -170,22 +170,22 @@ C:\deal30> <b>deal -S "- KQJT62 T9876 84" 25</b>
 	.... (rest of 25 hands ellided) ...
 </pre>
 
-You inspect the 25 hands dealt, guessing how the auction would
+You inspect the 25 deals dealt, guessing how the auction would
 proceed.  Sometimes, your answers will be inconclusive, but more
 often one or both partners learns something from the simulation.
 <p>
 There are, of course, also <span class="code">-N</span>, <span class="code">-E</span>, and <span class="code">-W</span> options
 for the other three seats.
 <h3><a name="basicformat">Formatting output</a></h3>
-Perhaps you'd like the hands to be written in some other format.
+Perhaps you'd like the deals to be written in some other format.
 This can be arranged fairly easily.
 <p>
-For example, suppose you wish to deal 8 hands for practice bidding
+For example, suppose you wish to deal 8 deals for practice bidding
 with partner.  In that case, you would use the "practice" format:
 
 <pre class="codesample">
-C:\deal30> <b>deal -i format/practice 8 > out.all</b>
-C:\deal30> <b>more out.east</b>
+C:\deal31> <b>deal -i format/practice 8 > out.all</b>
+C:\deal31> <b>more out.east</b>
                               east hands
 ============================================================================
      *1*                 *2*                 *3*                 *4*
@@ -221,7 +221,7 @@ with those, but that would be an artificial
 test, because you obviously can't assume an uncontested auction for
 arbitrary deals.
 <p>
-When we learn about writing scripts for <strong>Deal</strong>, we will solve with this problem by filtering out hands we think would lead to competitive
+When we learn about writing scripts for <strong>Deal</strong>, we will solve with this problem by filtering out deals we think would lead to competitive
 bidding.
 <p>
 What are the formats that come with the kit?  Well, you can simply list
@@ -253,11 +253,11 @@ There is one last output format, which, for historical reasons,
 has its own command line switch, <span class="code">-l</span>.
 
 <pre class="codesample">
-C:\deal30> <b>deal -l 3</b>
+C:\deal31> <b>deal -l 3</b>
 AJ9 976532 K92 A|86 A AT87 987653|Q732 JT8 543 T42|KT54 KQ4 QJ6 KQJ
 K94 J93 QJ3 7653|A8 A8765 97 KQ98|JT2 Q AKT8654 T4|Q7653 KT42 2 AJ2
 KJ753 T A4 KQ932|AQ94 AJ92 QT87 J|86 Q764 K9653 74|T2 K853 J2 AT865
-C:\deal30>
+C:\deal31>
 </pre>
 
 In the past, this was the only way to get alternate formats.  The
@@ -288,7 +288,7 @@ main {
 We run this code by saying:
 
 <pre class="codesample">
-C:\deal30> <b>deal -i onespade 2</b>
+C:\deal31> <b>deal -i onespade 2</b>
           S : AKQT5
           H : A7
           D : 8542
@@ -318,7 +318,7 @@ C:\deal30> <b>deal -i onespade 2</b>
 </pre>
 
 <h4>How the script works</h4>
-By default, <strong>Deal</strong> accepts all hands.  With the <span class="code">main</span> code in
+By default, <strong>Deal</strong> accepts all deals.  With the <span class="code">main</span> code in
 <span class="code">onespade</span>, we tell <strong>Deal</strong> to override that behavior.
 <p>
 This is similar to the way we used scripts to override <strong>Deal</strong>'s
@@ -326,7 +326,7 @@ default formatting.  Note, we even use the same flag, <span class="code">-i</spa
 to load our formatters and <span class="code">onespade</span>.
 <p>
 What does this <span class="code">main</span> code do?  It is run after every deal
-is complete, and used to evaluate the hand.  In this case, we have only
+is complete, and used to evaluate the deal.  In this case, we have only
 two lines of code:
 
 <pre class="codesample">
@@ -345,11 +345,11 @@ If the entire expression:
 [spades north]>=5 && [hcp north]>=12
 </pre>
 evaluates as true, the "accept" function is called.  This causes
-<strong>Deal</strong> to exit the "main" code and format the hand.
+<strong>Deal</strong> to exit the "main" code and format the deal.
 <p>
 If the expression evalutes as false, <strong>Deal</strong> goes to the next line
 of code, which calls the "reject" function. This tells <strong>Deal</strong> to
-discard the hand, and exit the "main" code.
+discard the deal, and exit the "main" code.
 <p>
 <strong>Deal</strong> keeps trying until the requested number of deals is accepted.
 <p>
@@ -367,7 +367,7 @@ main {
 <h4> Monitoring Deal</h4>
 You might want to try running this script with the <span class="code">-v</span> switch:
 <pre class="codesample">
-C:\deal30> <b>deal -v -i onespade</b>
+C:\deal31> <b>deal -v -i onespade</b>
 </pre>
 The <span class="code">-v</span> flag tells <strong>Deal</strong> to give a progress report, which looks
 like:
@@ -393,7 +393,7 @@ redirected to a file without obscuring these messages.  <p>
 If we wanted to use another output format with this script, we could do so 
 on the command line, as follows:
 <pre class="codesample">
-C:\deal30> <b>deal -i format/practice -i onespade</b>
+C:\deal31> <b>deal -i format/practice -i onespade</b>
 </pre>
 Or, alternately, we could add an explicit "source" command to our
 script:
@@ -413,7 +413,7 @@ write your own formatter, you would not have to put the file in
 the "format" directory.
 If you put it in the current directory, you could then say:
 <pre class="codesample">
-C:\deal30> <b>deal -i myformatter 100</b>
+C:\deal31> <b>deal -i myformatter 100</b>
 </pre>
 and it would work fine.  The "format" subdirectory is just a convenience.
 You will often want to re-use a format, and placing them in one place
@@ -441,7 +441,7 @@ very bad at assessing levels of risk.
 <strong>Deal</strong> can help.  Using our script, <span class="code">onespade</span>,
 we can run the following simulation:
 <pre class="codesample">
-C:\deal30> <b>deal -S "- 96532 A864 T962" -i onespade</b>
+C:\deal31> <b>deal -S "- 96532 A864 T962" -i onespade</b>
 </pre>
 The <span class="code">-S</span> flag stacks the south hand with the hand you held,
 and the script runs exactly the same thereafter.  You can now peruse
@@ -460,7 +460,7 @@ main {
 
 Notice, we do our deck-stacking outside of the evaluation loop.
 Remember, the <span class="code">main</span> expression is responsible for evaluating the deals 
-<em>after</em> <strong>Deal</strong> finishes dealing the hands.
+<em>after</em> <strong>Deal</strong> finishes dealing the other hands..
 We obviously want the stacking instruction to occur before
 dealing occurs, so the stacking command must be outside the main
 evaluation.
@@ -542,7 +542,7 @@ if {[hcp north]>17 || [hcp north]&lt;15} {reject}
 </pre>
 That is going to be slower, with one more function call.  Not appreciable
 today, with a simple query, but when you might be processing a million or
-more hands at a time, you learn to be frugal.
+more deals at a time, you learn to be frugal.
 <p>
 Suddenly, you realize you want to test this situation with a 12-14 notrump,
 instead.  Or you realize you often want to reuse this concept.  You
@@ -550,20 +550,20 @@ can do so by defining Tcl procedures.
 <p>
 
 <pre class="codesample">
-proc notrump {hand min max} {
-  if {![balanced $hand]} {return 0}
+proc notrump {seat min max} {
+  if {![balanced $seat]} {return 0}
 
-  set hc [hcp $hand]
+  set hc [hcp $seat]
   if {$hc &lt; $min || $hc>$max} { return 0}
 
   return 1
 }
 
-proc jacobyinvite {hand ntmin ntmax} {
+proc jacobyinvite {seat ntmin ntmax} {
 
-  if {[spades $hand]!=5 && [hearts $hand]!=5} {return 0}
+  if {[spades $seat]!=5 && [hearts $seat]!=5} {return 0}
 
-  set hc [hcp $hand]
+  set hc [hcp $seat]
   if {$hc+$ntmin &lt;= 25 && $hc+$ntmax>=24} { return 1 }
 
   return 0
@@ -616,7 +616,7 @@ Multiple arguments are allowed. The following command:
 reject unless {<em>expr1</em>} {<em>expr2</em>} ... {<em>exprn</em>}
 </pre>
 runs through all of the expressions until it finds one which evaluates
-as "true".  If it does not find a true value, it rejects the hand.
+as "true".  If it does not find a true value, it rejects the deal.
 Otherwise, deal goes on to the next line in evaluating <span class="code">main</span>.
 <p>
 For <span class="code">reject if</span> the deal is rejected if any one of the expressions
