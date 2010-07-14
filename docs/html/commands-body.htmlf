@@ -115,7 +115,7 @@ Inside the <code>main</code> code, the deal is already dealt.
 <h2>Subcommand: <code>gets</code></h2>
 <h3>Usage</h3>
 <pre class='example'>
-<em>handname</em> gets <em>card</em> [<em>card</em> ...]
+<em>seat</em> gets <em>card</em> [<em>card</em> ...]
 </pre>
 <h3>Summary</h3>
 Puts a specific list of cards in the hand named.  As with the
@@ -131,7 +131,7 @@ This routine dispatches its data to <a href="#stack_cards">the <code>stack_cards
 <h2>Subcommand: <code>has</code></h2>
 <h3>Usage</h3>
 <pre class='example'>
-<em>handname</em> has <em>card</em> [<em>card</em> ...]
+<em>seat</em> has <em>card</em> [<em>card</em> ...]
 hand {<em>string</em>} has <em>card</em> [...]
 </pre>
 <h3>Summary</h3>
@@ -212,7 +212,7 @@ to keep it, and removing it might confuse old users.</p>
 <b>For Tcl Experts</b>
 <p>There actually is one subtle and occasionally useful distinction
 between <code>accept/reject</code> and the stated 
-<pre class='example'>if {...} { return ... }</code></pre>
+<pre class='example'>if {...} { return ... }</pre>
 <p>version.  In reality:</p>
 <pre class='example'>
 accept if {$h>4} {$s>4}
@@ -324,11 +324,11 @@ Any procedure defined entirely based on the values in one hand is considered
 a <em>hand procedure</em>.  These procedures can be called in one of two
 ways:
 <pre class='example'>
-Weak2Bid <em>handname</em>
+Weak2Bid <em>seat</em>
 
 Weak2Bid hand {AKQxxx xxx xxx x}
 </pre>
-The <em>handname</em> parameter can be one of
+The <em>seat</em> parameter can be one of
 <code>north</code>, <code>south</code>, <code>east</code>, <code>west</code>.
 <a href="#shapes">Shape procedures</a> and <a href="#holdingp">holding
 procedures</a> fit the hand procedure calling method, along with other
@@ -339,7 +339,7 @@ options.
 Any procedure defined on the shape of a hand can be called with one of
 the following methods:
 <pre class='example'>
-balanced <em>handname</em>
+balanced <em>seat</em>
 
 balanced hand {AJxx xxx AKxx Kx}
 
@@ -347,7 +347,7 @@ balanced eval 4 3 4 2
 
 balanced shape {4 3 4 2}
 
-semibalanced <em>handname</em>
+semibalanced <em>seat</em>
 
 semibalanced hand {AJ432 AKx Kx xxx}
 
@@ -379,7 +379,7 @@ you evaluate the entire hand, or only selected suits in a hand, or
 a specific list of holdings.
 
 <pre class='example'>
-hcp <em>handname</em> [ <em>suitname</em> ...  ]
+hcp <em>seat</em> [ <em>suitname</em> ...  ]
 
 hcp hand {AKJxxx K xxx xxx} [ <em>suitname</em> ...  ]
 
@@ -408,7 +408,7 @@ accumulation is to simply make a list.
 <tr valign=top><td style="width: 65%">
 <h3>Usage</h3>
 <pre class='example'>
-balanced <em>handname</em>
+balanced <em>seat</em>
 
 balanced hand {<em>text hand</em>}
 
@@ -446,7 +446,7 @@ as he likes.</p>
 <tr valign=top><td style="width: 65%">
 <h3>Usage</h3>
 <pre class='example'>
-     <code>spades</code> <em>handname</em>
+     <code>spades</code> <em>seat</em>
      <code>spades</code> <code>hand</code> <code>{AKxx Axx AJxx Kx}</code>
 </pre>
 These implement the <a href="#hand">hand procedure</a> interface, and
@@ -472,8 +472,8 @@ left them this way.</p>
 <tr valign=top><td style="width: 65%">
 <h3>Usage</h3>
 <pre class='example'>
-hcp <em>handname</em>
-hcp <em>handname</em> <em>suitname</em> [<em>suitname</em> ...]
+hcp <em>seat</em>
+hcp <em>seat</em> <em>suitname</em> [<em>suitname</em> ...]
 hcp hand {<em>s h d c</em>}
 hcp hand {<em>s h d c</em>} <em>suitname</em> [<em>suitname</em> ...]
 </pre>
@@ -499,8 +499,8 @@ is 3, queen is 2, jack is 1. The procedure implements the
 <tr valign=top><td style="width: 65%">
 <h3>Usage</h3>
 <pre class='example'>
-newLTC <em>handname</em>
-newLTC <em>handname</em> <em>suitname</em> [<em>suitname</em> ...]
+newLTC <em>seat</em>
+newLTC <em>seat</em> <em>suitname</em> [<em>suitname</em> ...]
 newLTC hand {<em>s h d c</em>}
 newLTC hand {<em>s h d c</em>} <em>suitname</em> [<em>suitname</em> ...]
 </pre>
@@ -524,8 +524,8 @@ newLTC hand {<em>s h d c</em>} <em>suitname</em> [<em>suitname</em> ...]
 <tr valign=top><td style="width: 65%">
 <h3>Usage</h3>
 <pre class='example'>
-losers <em>handname</em>
-losers <em>handname</em> <em>suitname</em> [<em>suitname</em> ...]
+losers <em>seat</em>
+losers <em>seat</em> <em>suitname</em> [<em>suitname</em> ...]
 losers hand {<em>s h d c</em>}
 losers hand {<em>s h d c</em>} <em>suitname</em> [<em>suitname</em> ...]
 </pre>
@@ -560,9 +560,9 @@ It is probably better to reimplement in <code>Tcl</code> using
 <h3>Usage</h3>
 <pre class='example'>
 source lib/binky.tcl
-binky::nt <em>handname</em>
+binky::nt <em>seat</em>
 binky::nt hand {<em>s h d c</em>}
-binky::suit <em>handname</em>
+binky::suit <em>seat</em>
 binky::suit hand {<em>s h d c</em>}
 </pre>
 These two functions are <a href="#handInterface">hand procedures</a> which
@@ -587,9 +587,9 @@ computes the Binky Point values for a hand.
 <tr valign="top"><td style="width: 65%">
 <h3>Usage</h3>
 <pre class='example'>
-lho <em>handname</em>
-rho <em>handname</em>
-partner <em>handname</em>
+lho <em>seat</em>
+rho <em>seat</em>
+partner <em>seat</em>
 </pre>
 <h3>Summary</h3>
 These routines accept one hand name and return another. For example,
@@ -701,7 +701,7 @@ score {2 spades doubled} vul 7      =>  -200
 <hr>
 <a name="dds"></a>
 <h1>Double Dummy Solver</h1>
-<p>Starting with Deal 3.1, I've included simple access to <a href='http://web.telia.com/~u07502278/'>Bo Haglund's double-dummy solver library.</a></p>
+<p>Starting with Deal 3.1, I've included simple access to <a href='http://www.bahnhof.se/wb758135/'>Bo Haglund's double-dummy solver library.</a></p>
 <a name="deal::tricks"></a>
 <h2>Command: <code>deal::tricks</code></h2>
 <table cellpadding=5 style="width: 100%">
@@ -947,13 +947,13 @@ relatively easily</p>
 <pre class='example'>
 defvector <em>vec</em> <em>aceVal</em> [ <em>kingVal</em> ... ]
 
-<em>vec</em> <em>handname</em>
+<em>vec</em> <em>seat</em>
 
 <em>vec</em> <code>hand</code> {<em>text hand</em>}
 
-<em>vec</em> <em>handname</em> <em>suitname</em> [ <em>suitname</em> ... ]
+<em>vec</em> <em>seat</em> <em>suitname</em> [ <em>suitname</em> ... ]
 
-<em>vec</em> <em>handname</em> <em>suitname</em> [ <em>suitname</em> ... ]
+<em>vec</em> <em>seat</em> <em>suitname</em> [ <em>suitname</em> ... ]
 
 <em>vec</em> <code>hand</code> {<em>text hand</em>} <em>suitname</em> ...
 </pre>
@@ -1065,7 +1065,7 @@ the call:
 shapecond Balanced {[SemiBalanced eval $s $h $d $c] && $s<5 && $h<5}
 </pre>
 
-On the other hand, if you have a shape - output by the, say, a
+On the other hand, if you have a shape - output by, say, a
 call to [north shape] you can evaluate it as:
 <pre class='example'>
     SemiBalanced shape [north shape]
@@ -1152,7 +1152,7 @@ the call:
 shapecond Balanced {[SemiBalanced eval $s $h $d $c] && $s<5 && $h<5}
 </pre>
 
-On the other hand, if you have a shape - output by the, say, a
+On the other hand, if you have a shape - output by, say, a
 call to [north shape] you can evaluate it as:
 <pre class='example'>
     SemiBalanced shape [north shape]
@@ -1273,12 +1273,11 @@ usage.</p>
 <tr valign=top><td style="width: 65%">
 <h3>Usage</h3>
 <pre class='example'>
-   deal -x <em>filename</em> <arg> <arg> ...
+   deal -x <em>filename</em> <em>arg</em> <em>arg</em> ...
 </pre>
 <p>The '-x' flag tells deal to source the file and then exit.</p>
 <p>Before doing so, Deal puts remaining arguments into the variables <code>argc</code> and <code>argv</code>, and sets <code>argv0</code> to the filename of the script.
-<p>This is useful if you want to skip the entire deal loop, and process stuff on your own.  For example, the code in <code>tests/great88</code> does not generate any deals, it just solves 88 5-card double-dummy problems.  Before the -x flag, you had to
-explicitly call 'exit' from such scripts.</p>
+<p>This is useful if you want to skip the entire deal loop, and process stuff on your own.</p>
 </td>
 <td></td>
 </table>
@@ -1291,7 +1290,7 @@ explicitly call 'exit' from such scripts.</p>
 <pre class='example'>
    set deal [full_deal]
 </pre>
-<p>This simple utility command returns the deal as a list of hands in the order of north, east, south, and west.  Suitable for psassing into <a href="#ddscmd"><code>dds</code></a> with the <code>-diagram</code> flag, or remembering a deal after the end of the loop.
+<p>This simple utility command returns the deal as a list of hands in the order of north, east, south, and west.  Suitable for passing into <a href="#ddscmd"><code>dds</code></a> with the <code>-diagram</code> flag, or remembering a deal after the end of the loop.
 </td>
 <td></td>
 </table>
@@ -1408,8 +1407,8 @@ which are not stacked can go anywhere at the next call to
 <tr valign=top><td style="width: 65%">
 <h3>Usage</h3>
 <pre class='example'>
-stack_hand <em>handname</em> <em>hand</em>
-stack_cards <em>handname</em> <em>suitname</em> <em>holding</em> [...]
+stack_hand <em>seat</em> <em>hand</em>
+stack_cards <em>seat</em> <em>suitname</em> <em>holding</em> [...]
 </pre>
 <h3>Summary</h3>
 By default, these two routines just call <a href="#deck_stack_hand">
@@ -1448,8 +1447,8 @@ generation depending on what cards are stacked where.
 <tr valign=top><td style="width: 65%">
 <h3>Usage</h3>
 <pre class='example'>
-deck_stack_hand <em>handname</em> <em>hand</em>
-deck_stack_cards <em>handname</em> <em>suitname</em> <em>holding</em> [...]
+deck_stack_hand <em>seat</em> <em>hand</em>
+deck_stack_cards <em>seat</em> <em>suitname</em> <em>holding</em> [...]
 </pre>
 <h3>Summary</h3>
 These routines are the "underlying" deck-stacking routines.  Any cards
@@ -1473,7 +1472,7 @@ stacked with these routines remain stacked until the next call to
 <tr valign=top><td style="width: 65%">
 <h3>Usage</h3>
 <pre class='example'>
-stacked <em>handname</em>
+stacked <em>seat</em>
 </pre>
 <h3>Summary</h3>
 Determines what cards are stacked to this hand, returning them as
@@ -1767,7 +1766,7 @@ written by Deal's <a href="#format:ddline"><code>ddline</code> format.</a>
 <tr valign=top><td style="width: 65%">
 <h3>Usage</h3>
 <pre class='example'>
-deal::input smartstack <em>hand</em> <em>shapeclass</em> [<em>holdproc</em> <em>min</em> <em>max</em>]
+deal::input smartstack <em>seat</em> <em>shapeclass</em> [<em>holdproc</em> <em>min</em> <em>max</em>]
 </pre>
 or on the command line:
 <pre class='example'>
@@ -1776,7 +1775,7 @@ or on the command line:
 <h3>Summary</h3>
 This is the most complicated Deal input method in the current release.
 It does not read deals from a file - it is, instead, a different path to
-generation of deals.  The purpose of this format is to allow fast generations
+generation of random deals.  The purpose of this format is to allow fast generations
 of deals where one hand fits a very specific description.  For example,
 if you want to find hands where south has a balanced 27-count, you
 could write:
@@ -1802,7 +1801,7 @@ find ten deals with 10-card spade suits.  Similarly, it is faster at
 finding hands with exactly 9 controls than it is at finding hands
 with 9-12 controls.
 <p>
-The <code>smartstack</code> routine only works on one hand - after it
+The <code>smartstack</code> routine only works on one seat - after it
 places cards in that hand, it generates the rest using the usual
 algorithm.
 <td style="width: 35%">

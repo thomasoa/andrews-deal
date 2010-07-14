@@ -49,7 +49,7 @@ namespace eval bid {
         set dealer [determineDealer $handNo]
         set bid(auction:$handNo) [auction::create $dealer]
         set bid(vul:$handNo) $vul
-        set bid(deal:$handNo) [list [north] [east] [south] [west]]
+        set bid(deal:$handNo) [full_deal]
         set bid(completed:$handNo) 0
         lappend bid(list) $handNo
     }

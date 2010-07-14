@@ -1,5 +1,7 @@
 Changes in Deal 3.1.10
 
+   * Updated links to Bo Haglund's DDS site
+   * Updated some documentation to use "seat" rather than "hand name"
    * Fixed issue #17 - "holding" command didn't implement "matches" subcommand
    * Fixed issue #18 - holdingProc was free memory too early
    * Added unit tests and unit test script tests/script/unit.tcl

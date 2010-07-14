@@ -14,8 +14,8 @@ defvector AKQ 4 3 2
 defvector Top4 1 1 1 1
 defvector Aces 1
 defvector None 0
-proc top4spades {hand} {
-	return [Top4 $hand spades]
+proc top4spades {seat} {
+	return [Top4 $seat spades]
 }
 
 # Usage:

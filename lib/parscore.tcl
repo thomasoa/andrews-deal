@@ -66,7 +66,7 @@ namespace eval parscore {
 	    set vul(NS) nonvul
         }	
     
-        global parscore
+        global ::parscore::parscore
 
         # Quick call to precompute tricks
         foreach denom {notrump spades hearts diamonds clubs} {
