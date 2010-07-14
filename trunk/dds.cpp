@@ -67,9 +67,6 @@ int clearTTflag=FALSE, windex=-1;
 int ttCollect=FALSE;
 int suppressTTlog=FALSE;
 
-/*int highestRank[8192];
-  struct adaptWinRanksType adaptWins[8192];*/
-
 unsigned char cardRank[15], cardSuit[5], cardSeat[4];
 LONGLONG suitLengths=0;
 struct posSearchType *rootnp[14][4];
