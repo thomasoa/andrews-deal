@@ -19,22 +19,12 @@
 ##############################################
 
 shapeclass roman_short_minor {expr $h==4 && $s==4 && ($c<=1 || $d<=1)}
+defvector HCP 4 3 2 1
 
 deal::input smartstack north roman_short_minor HCP 11 15
 
-
-set start [clock seconds]
-set count 0
-defvector HCP 4 3 2 1
-
-proc flush_deal {} {
-    global start
-    global count
-    set time [expr {[clock seconds]-$start}]
-}
-
 #
-# Copyright (C) 1996-2001, Thomas Andrews
+# Copyright (C) 1996-2010, Thomas Andrews
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
