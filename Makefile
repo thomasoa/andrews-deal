@@ -47,7 +47,7 @@ HFILES=deck.h deal.h tcl_incl.h vector.h stat.h tcl_dist.h dist.h formats.h addi
 EXAMPLES= ex/*.tcl
 TESTS=tests
 HTML=html
-BUILDFILES=Makefile Make.dep Make.mac-osx Make.ubuntu
+BUILDFILES=Makefile Make.dep Make.mac-osx Make.ubuntu Make.debian
 OTHERFILES=CHANGES LICENSE GPL input format lib deal.tcl
 
 SOURCEKIT=$(SRCKIT) $(HFILES) $(EXAMPLES) $(BUILDFILES) $(OTHERFILES) $(EXTRAS) $(TESTS) $(HTML)
