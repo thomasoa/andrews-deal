@@ -27,6 +27,7 @@ pre.example {
 
 #indexbox {
   position: fixed;
+  z-index: 1;
   top: 0;
   left: 0;
   width: 230px;
@@ -48,6 +49,7 @@ pre.example {
 
 #commandsbox {
    position: absolute;
+   z-index:0;
    top: 0;
    left: 250px;
 }
