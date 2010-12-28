@@ -141,7 +141,7 @@ public:
 #pragma managed(pop)
 #endif
 
-int SolveBoard(struct deal dl, int target,
+extern "C" int SolveBoard(struct deal dl, int target,
                int solutions, int mode, struct futureTricks *futp) {
 
     int k, n, cardCount, found, totalTricks, tricks, last, checkRes;
