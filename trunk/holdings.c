@@ -695,9 +695,15 @@ evalHoldingNums(
 {
     int i;
     int retval;
-    Tcl_Obj **values=
+    Tcl_Obj *values[4];
+        /*
         (Tcl_Obj **)Tcl_Alloc(count*sizeof(Tcl_Obj *));
     if (values==NULL) { return TCL_ERROR; }
+        */
+
+    if (count>4) {
+        return TCL_ERROR;
+    }
 
 
     /*
@@ -731,7 +737,7 @@ evalHoldingNums(
         retval=(procedure->aggregator->fn)(interp,count,values,suits);
     }
  finish:
-    Tcl_Free((char *)values);
+    /* Tcl_Free((char *)values); */
     return retval;
 
 }
