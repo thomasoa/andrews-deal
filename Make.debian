@@ -1,9 +1,8 @@
-#For building on Debian Linux
 CC=gcc
 #DEBUG_FLAGS=-ansi -Wall -g
 #CPPFLAGS = -fno-rtti -g
 DEBUG_FLAGS=-ansi -Wall -O3
-CPPFLAGS = -fno-rtti -O3
+CPPFLAGS = -O3
 
 # Ubuntu settings
 TCL_VERSION=8.4
