@@ -253,7 +253,7 @@ static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
     }
 
     if (CountCalls == 0) {
-        mode = 0;
+        mode = 1;
     } else if ( mode == -1 ) {
         if (d.trump != LastTrump || diagram != NULL) {
             mode = 1;
