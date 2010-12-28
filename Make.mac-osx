@@ -1,7 +1,7 @@
 MAC_ARCH = 
 MAC_ARCH_UNIVERSAL = -arch x86_64 -arch i386 -arch ppc
-#DEBUG_FLAGS=-O0 -g -ansi -Wall $(MAC_ARCH)
-DEBUG_FLAGS=-fast -ansi -Wall $(MAC_ARCH)
+DEBUG_FLAGS=-O0 -g -ansi -Wall $(MAC_ARCH) -DDEBUG_MEMORY_OSX 
+@DEBUG_FLAGS=-fast -ansi -Wall $(MAC_ARCH) 
 #CPPFLAGS = -fno-rtti -g -Winline -Wall $(MAC_ARCH)
 CPPFLAGS = -fno-rtti -fast -Winline -Wall $(MAC_ARCH)
 TCL_INCL=/usr/local/include

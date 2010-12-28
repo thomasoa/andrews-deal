@@ -572,9 +572,9 @@ int old_main(argc,argv)
                 tcl_error(interp);
             }
 #ifdef DEBUG_MEMORY_OSX
-            Tcl_DeleteInterp(interp);
             while(1) sleep(60);
 #endif
+            Tcl_DeleteInterp(interp);
             exit(0);
         case 'i':
             sprintf(tcl_command_string,"source %s",optarg);
