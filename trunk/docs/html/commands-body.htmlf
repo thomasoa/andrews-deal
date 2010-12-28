@@ -803,7 +803,7 @@ set diagram {
 set tricks [dds -leader south -diagram $diagram south notrump]
 ...
 </pre>
-<p>If you wanted to see how many tricks are made if south plays a particular card, say the two of clubs, you would use the -trick flag:
+<p>If you wanted to see how many tricks are made if south plays a particular card, say the four of spades, you would use the -trick flag:
 <pre class='example'>
 set tricks [dds -leader south -diagram $diagram -trick 4S south notrump]
 </pre>
@@ -812,7 +812,7 @@ You can also pass full tricks, as in:
 set tricks [dds -leader west -diagram $diagram -trick {4S KS 7S 5S} south notrump]
 </pre>
 <p>Note that the -leader option always refers to the leader to the current trick, not the leader of earlier completed tricks passed with -trick. Also, the number of tricks returned is the number of tricks after all completed tricks.
-<p>There are example tests of all the Great 88 in the file <code>tests/great88</code> that is included in this release.
+<p>There are example tests of all the Great 88 in the file <code>tests/2-great88.tcl</code> that is included in this release.
 </td>
 <td style="width: 35%"><div class='programmer'><b>For Programmers</b>
 <dl><dt>Implementation:</dt>
@@ -1111,14 +1111,14 @@ patternfunc <em>name</em> {... <em>code</em> ...}
 <em>name</em> shape {<em>s</em> <em>h</em> <em>d</em> <em>c</em>}
 
 </pre>
-A pattern class (or equivalently, a shape condition) also has the list
+A pattern class (or equivalently, a pattern condition) also has the list
 subcommand:
 <pre class='example'>
 <em>name</em> list
 </pre>
 <h3>Summary</h3>
-These commands create new procedures which fit the <a href="#shapes">shape
-function</a> interface.
+<p>These commands create new procedures which fit the <a href="#shapes">shape
+function</a> interface.</p>
 <p>
 <code>patternclass</code> and <code>patterncond</code> define procedures which returns boolean
 values. <code>patternfunc</code> can return any type of data.
