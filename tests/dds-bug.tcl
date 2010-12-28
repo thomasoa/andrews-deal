@@ -9,4 +9,5 @@ set diagram {
 # First time I get the result of zero
 #
 test equal {dds -leader west -diagram $diagram -trick JS south hearts} 11
+test equal {dds -leader west -diagram $diagram -trick JS south hearts} 11
 
