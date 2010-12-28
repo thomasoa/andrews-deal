@@ -210,6 +210,3 @@ proc patterncond {name expr} {
     patternclass $name "if {$expr} { return 1} else {return 0}"
 }
 
-# Gross workaround for issue #24
-# http://code.google.com/p/andrews-deal/issues/detail?id=24
-dds -diagram {{A - - -} {K - - -} {Q - - -} {J - - -}}
