@@ -18,6 +18,7 @@
 
 extern int old_main(int, char**);
 
+/* Not sure why this is here ... */
 int main(argc,argv)
      int argc;
      char *argv[];
