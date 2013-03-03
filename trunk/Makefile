@@ -9,9 +9,9 @@
 
 TCL_DIR=/usr
 
-#include Make.mac-osx
+include Make.mac-osx
 #include Make.ubuntu
-include Make.debian
+#include Make.debian
 
 CC=gcc
 
@@ -214,7 +214,7 @@ smalltest: ./deal
 	if cmp test.out correct.out ; then echo PASS; else echo FAIL  ; fi
 
 great88: ./deal
-	$(BINARY) -x bin/unit.tcl tests/1-great88.tcl | fgrep FAIL || echo "PASSED"
+	$(BINARY) -x bin/unit.tcl tests/2-great88.tcl | fgrep FAIL || echo "PASSED"
 
 alltests: ./deal
 	$(BINARY) -x bin/unit.tcl
