@@ -148,7 +148,7 @@ static int tcl_dds(TCLOBJ_PARAMS) TCLOBJ_DECL
                 }
                 diagram = arg;
             } else if (id == GoalFlagID ) {
-                if (TCL_ERROR == Tcl_GetIntFromObj(interp,arg,&goal) || (goal!=-1 && (goal<1 && goal>13))) {
+                if (TCL_ERROR == Tcl_GetIntFromObj(interp,arg,&goal) || (goal!=-1 && (goal<1 || goal>13))) {
                     Tcl_AppendResult(interp,"Invalid tricks goal: ",Tcl_GetString(arg),NULL);
                     return TCL_ERROR;
                 }
@@ -335,7 +335,7 @@ static int tcl_double_dummy_solve(TCLOBJ_PARAMS) TCLOBJ_DECL
     }
 
     if (objc > 3) {
-        if (TCL_ERROR == Tcl_GetIntFromObj(interp,objv[3],&goal) || (goal!=-1 && (goal<1 && goal>13))) {
+        if (TCL_ERROR == Tcl_GetIntFromObj(interp,objv[3],&goal) || (goal!=-1 && (goal<1 || goal>13))) {
             Tcl_AppendResult(interp,"Invalid tricks goal: ",Tcl_GetString(objv[3]),NULL);
             return TCL_ERROR;
         }
